@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_spectacular',
     'dj_rest_auth',
     'allauth',
     'allauth.account',
@@ -48,6 +49,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# drf-spectacular settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': '3DPMP API',
+    'DESCRIPTION': '3D Printing and Model-sharing Platform API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 # dj-rest-auth settings
@@ -58,9 +68,8 @@ REST_AUTH = {
 
 # allauth settings
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # For development simplicity
 
 
@@ -100,23 +109,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', '3dpmp'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }
-# Note: Docker compose overrides this with DATABASE_URL via env vars if using dj-database-url or similar,
-# but for a basic hello world without extra deps, sqlite is safer to start unless we add dj-database-url.
-# However, requirements.txt has psycopg2-binary, so let's try to use the env var if possible, 
-# but standard django settings don't read DATABASE_URL by default without a library like dj-database-url.
-# To keep it simple and working "out of the box" for the hello world, we stick to sqlite default 
-# or we can add a simple check.
-import os
-if os.environ.get('DATABASE_URL'):
-    # We need to parse it or use dj-database-url. 
-    # Since we didn't add dj-database-url to requirements.txt explicitly (I should check),
-    # let's stick to sqlite for the very first "hello world" run to avoid connection errors 
-    # if the db isn't ready, OR we can add dj-database-url to requirements.
-    pass
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

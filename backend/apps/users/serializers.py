@@ -4,6 +4,15 @@ from django.db import transaction
 from .models import Customer, Employee, User
 
 class CustomRegisterSerializer(RegisterSerializer):
+    # Remove username field requirement
+    username = None
+    
+    def get_cleaned_data(self):
+        return {
+            'email': self.validated_data.get('email', ''),
+            'password1': self.validated_data.get('password1', ''),
+        }
+    
     def save(self, request):
         user = super().save(request)
         user.auth_provider = 'local'

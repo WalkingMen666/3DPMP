@@ -159,3 +159,4 @@ nosetests.xml
 coverage.xml
 *.cover
 **/__pycache__/
+.vscode

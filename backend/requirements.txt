@@ -9,4 +9,5 @@ gunicorn
 dj-rest-auth
 django-allauth
 requests
+drf-spectacular
 
