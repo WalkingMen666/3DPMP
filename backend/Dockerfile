@@ -32,6 +32,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Copy requirements file
 # (We will create a placeholder requirements.txt next)
+RUN rm -f requirements.txt
 COPY requirements.txt .
 
 # Install Python dependencies
