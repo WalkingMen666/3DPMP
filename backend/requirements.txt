@@ -6,3 +6,7 @@ psycopg2-binary
 django-storages
 boto3
 gunicorn
+dj-rest-auth
+django-allauth
+requests
+
