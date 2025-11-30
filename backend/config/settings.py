@@ -38,6 +38,11 @@ INSTALLED_APPS = [
 
     # Local apps
     'apps.users',
+    'apps.models.apps.ModelsConfig',  # Use explicit config to avoid 'models' name conflict
+    'apps.materials',
+    'apps.shipping',
+    'apps.orders',
+    'apps.discounts',
 ]
 
 SITE_ID = 1

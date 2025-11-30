@@ -28,7 +28,7 @@
 
 ### **Database & Storage**
 
-* **RDBMS:** PostgreSQL 18 (Primary Data)  
+* **RDBMS:** PostgreSQL 16 (Primary Data)  
 * **File Storage:** **Alist** (Existing S3 Service on Host) via django-storages \+ boto3.  
   * *Configuration:* Django connects to Host IP (e.g., port 5244). Backed by **Local Storage** mount in Alist (avoid using Cloud Drives to prevent latency).
 
@@ -220,49 +220,70 @@ Table COUPON\_REDEMPTION {
   timestamp timestamp \[not null\]  
 }
 
-## **5\. Functional Requirements & Business Logic**
+## **5\. Functional Requirements & Detailed Business Logic**
 
-### **5.1 Authentication (AMMS)**
+### **5.1 Authentication & Roles (AMMS)**
 
-* **Google OAuth:** Primary login method. Checks email uniqueness. Creates USER \+ CUSTOMER records automatically.  
-* **Roles:**  
-  * Customer: Can manage SAVED\_ADDRESS, Cart, Orders.  
-  * Employee: Can access Dashboard, assign tasks to self.  
-  * Admin: Manage Global Discounts, Shipping Options, Materials.
+* **Sign Up / Login:**  
+  * **Google OAuth:** Primary method. On first login, automatically creates a USER record and a CUSTOMER profile record. auth\_provider set to 'google'.  
+  * **Local Auth:** Standard email/password registration.  
+* **Role-Based Access Control (RBAC):**  
+  * **Guest:** Can browse PUBLIC models only.  
+  * **Customer:** Can upload models, manage SAVED\_ADDRESS, use Cart, place Orders, view own Order history.  
+  * **Employee:** Can access the Employee Dashboard to view PENDING\_REVIEW models and PENDING orders.  
+  * **Admin:** Has all Employee permissions \+ management of SHIPPING\_OPTION, GLOBAL\_DISCOUNT, MATERIAL, and Employee accounts.
 
 ### **5.2 Model Management (MFMS & ASIS)**
 
-* **Async Slicing:**  
-  1. User uploads STL \-\> API streams to Alist \-\> Creates MODEL (status=PENDING) \-\> Enqueues Task.  
-  2. **Worker** downloads from Alist \-\> Runs prusa-slicer-console \-\> Parses output \-\> Updates DB.  
-* **Review Flow:** User requests review \-\> PENDING\_REVIEW \-\> Employee Approves/Rejects \-\> Log in MODEL\_REVIEW\_LOG.
+* **Upload & Slicing Flow:**  
+  1. User uploads .stl file.  
+  2. Backend saves file to Alist (S3), creates MODEL record with visibility\_status='PRIVATE' and slicing\_info=NULL.  
+  3. Backend triggers async Celery task.  
+  4. **Worker** downloads file, runs PrusaSlicer CLI, calculates filament usage/time.  
+  5. **Worker** updates MODEL.slicing\_info (JSONB) with results.  
+  6. Frontend polls for status change to display price estimate.  
+* **Public Review Workflow:**  
+  * **Submission:** User changes status from PRIVATE to PENDING\_REVIEW.  
+  * **Review:** Employee views list of PENDING\_REVIEW models.  
+  * **Approval:** Employee sets status to PUBLIC.  
+  * **Rejection:** Employee sets status to REJECTED. **Mandatory:** Employee must enter a reason.  
+  * **Logging:** Every status change by an Employee MUST create a MODEL\_REVIEW\_LOG entry containing reviewer\_id, old\_status, new\_status, and reason.
 
-### **5.3 Checkout & Snapshots (OPMS)**
+### **5.3 Order & Shipping System (OPMS)**
 
-* **Immutable History:**  
-  * When an Order is placed, CART\_ITEM data is copied to ORDER\_ITEM.  
-  * price\_snapshot \= MATERIAL.price \* slicing\_info.weight.  
-  * **Shipping Snapshot:** System combines selected SHIPPING\_OPTION (fee, name) and SAVED\_ADDRESS (details) into a single JSON object and saves it to ORDER.ship\_snapshot.  
-* **Discounts:**  
-  * **Global:** Applied automatically (can stack).  
-  * **Coupon:** Applied manually (max 1). Enforced by COUPON\_REDEMPTION unique constraint on order\_id.
+* **Cart (Mutable):** CART\_ITEM is a temporary holding area. Prices here are "estimates" based on current material prices.  
+* **Order Creation (Immutable Snapshot):**  
+  * When an Order is created, CART\_ITEMs are converted to ORDER\_ITEMs.  
+  * **Price Snapshot:** ORDER\_ITEM.price\_snapshot is calculated and saved permanently (current MATERIAL.price \* slicing\_info.weight).  
+  * **Shipping Snapshot:** The system takes the selected SHIPPING\_OPTION (e.g., "Black Cat", $100) and the user's SAVED\_ADDRESS details. These are combined into a JSON object (e.g., { "service": "Black Cat", "fee": 100, "address": "Taipei City..." }) and saved to ORDER.ship\_snapshot.  
+  * *Constraint:* ORDER table MUST NOT have foreign keys to mutable shipping/address tables.
+
+### **5.4 Discount System Logic**
+
+* **Global Discounts (M:N):**  
+  * Admin configures auto-apply rules (e.g., "Summer Sale: 10% off").  
+  * On checkout, system finds ALL applicable GLOBAL\_DISCOUNTs.  
+  * Records are created in IS\_AFFECTED table linking Order to Discounts, storing the discount snapshot (value at time of purchase).  
+* **Coupons (1:1):**  
+  * User manually enters a code (e.g., "WELCOME2025").  
+  * System validates: Code exists, is active, usage limit not reached.  
+  * **Constraint:** Max **1** Coupon per Order.  
+  * Record is created in COUPON\_REDEMPTION table. The unique constraint on order\_id in this table enforces the "one coupon per order" rule at the database level.
 
 ## **6\. Development Guidelines**
 
 ### **6.1 Backend (Django)**
 
-* **App Structure:** Split into apps/users, apps/models, apps/orders, apps/shipping.  
-* **Settings:** Use django-storages. Configure AWS\_S3\_ENDPOINT\_URL to the **Host IP** (e.g., http://192.168.1.100:5244), NOT localhost.  
-* **Serializers:** Heavy use of ModelSerializer. For Order, the write-serializer should handle the snapshot logic (create method).
+* **App Structure:** Split into apps/users, apps/models, apps/orders, apps/shipping, apps/discounts.  
+* **Snapshot Implementation:** Override the perform\_create or create method in OrderSerializer to handle the logic of fetching current shipping/material data and saving them as JSON snapshots.  
+* **Admin Panel:** Register all models to Django Admin for easy management during development.
 
 ### **6.2 Frontend (Vue)**
 
-* **Routing:** Use Vue Router.  
-* **API:** Point Axios to /api.  
-* **UI:** Create components for "Address Selector" and "Shipping Option Selector".
+* **Polling:** Implement a polling mechanism (e.g., every 3s) on the Model Detail page to check if slicing\_info has been populated by the worker.  
+* **State:** Use Pinia to manage the Cart state locally before syncing with the backend.
 
 ### **6.3 Deployment**
 
-* **Internal Nginx:** Serves Vue dist/ on port 80, proxies /api to Django:8000.  
-* **Expose:** Only expose the Internal Nginx port (e.g., 8080\) to the host machine.  
-* **Caddy:** Configure host Caddy to reverse proxy the domain to localhost:8080.
+* **Environment Variables:** All secrets (DB credentials, Alist keys, Google OAuth Client ID) must be loaded from .env file.  
+* **Volumes:** Ensure Alist container (if running separately) or the Alist service on host has persistent storage mounted.
