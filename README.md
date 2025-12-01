@@ -152,6 +152,10 @@ npm run dev
 │           └── RegisterView.vue
 │
 ├── docker-compose.yml          # 服務編排定義
+├── database/                   # SQL 檔案
+│   ├── schema.sql              # 資料庫結構定義
+│   ├── seed_data.sql           # 範例資料
+│   └── README.md               # SQL 使用說明
 ├── requirements.md             # 詳細需求規格 (含 DBML Schema)
 ├── version.md                  # 軟體版本矩陣
 └── README.md                   # 本說明文件

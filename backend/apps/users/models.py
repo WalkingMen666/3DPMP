@@ -26,15 +26,40 @@ class User(AbstractUser):
         return self.email
 
 class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer_profile')
+    """
+    Customer profile (IS-A User via EER Specialization).
+    Uses user_id as both PK and FK for proper inheritance semantics.
+    """
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE, 
+        primary_key=True,  # user_id is both PK and FK
+        related_name='customer_profile'
+    )
+    
+    class Meta:
+        db_table = 'users_customer'
     
     def __str__(self):
         return f"Customer: {self.user.email}"
 
+
 class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_profile')
+    """
+    Employee profile (IS-A User via EER Specialization).
+    Uses user_id as both PK and FK for proper inheritance semantics.
+    """
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE, 
+        primary_key=True,  # user_id is both PK and FK
+        related_name='employee_profile'
+    )
     employee_name = models.CharField(max_length=255)
     is_admin = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'users_employee'
 
     def __str__(self):
         return f"Employee: {self.employee_name}"
