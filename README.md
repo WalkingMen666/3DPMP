@@ -13,6 +13,39 @@
 - **Cache/Broker**: Redis 7.4
 - **Infrastructure**: Podman (podman-compose)
 
+### 功能現況
+
+| 模組 | 功能 | 狀態 |
+|------|------|------|
+| **認證系統** | 本地註冊/登入 | ✅ 完成 |
+| | Google OAuth 登入 | ✅ 完成 |
+| | Token 認證 | ✅ 完成 |
+| **模型管理** | STL 檔案上傳 | ✅ 完成 |
+| | 縮圖/圖片上傳 | ✅ 完成 |
+| | 模型分類/標籤 | ✅ 完成 |
+| | 公開審核流程 | ✅ 完成 |
+| | 被拒模型重新提交 | ✅ 完成 |
+| **Marketplace** | 瀏覽公開模型 | ✅ 完成 |
+| | 分類/特色篩選 | ✅ 完成 |
+| | 模型詳情頁 | ✅ 完成 |
+| **使用者** | 個人 Dashboard | ✅ 完成 |
+| | 頭像上傳 | ✅ 完成 |
+| | Display Name 設定 | ✅ 完成 |
+| **管理後台** | Admin Dashboard | ✅ 完成 |
+| | 模型審核 (Approve/Reject) | ✅ 完成 |
+| | 審核記錄查詢 | ✅ 完成 |
+| **切片系統** | PrusaSlicer 整合 | ⏳ 部分完成 |
+| | 自動估價 | ⏳ 待完成 |
+| **購物車** | 加入購物車 | ⏳ 待完成 |
+| | 材料選擇 | ⏳ 待完成 |
+| **訂單系統** | 訂單建立 | ⏳ 待完成 |
+| | 訂單快照 | ⏳ 待完成 |
+| | 訂單狀態追蹤 | ⏳ 待完成 |
+| **配送系統** | 配送選項管理 | ⏳ 待完成 |
+| | 地址簿 | ⏳ 待完成 |
+| **折扣系統** | 全站折扣 | ⏳ 待完成 |
+| | 優惠券 | ⏳ 待完成 |
+
 ## 2. 環境需求
 
 在開始之前，請確保您的系統已安裝以下工具：
@@ -233,7 +266,47 @@ podman-compose exec backend python manage.py migrate
 - **快取問題**: 修改程式碼後若容器未更新，執行 `podman-compose build --no-cache`
 - **權限問題**: 若遇到 volume 權限錯誤，可嘗試 `podman unshare chown -R 999:999 ./data`
 
-## 10. 貢獻指南
+## 10. Google OAuth 設定
+
+若要啟用 Google 登入功能，請依照以下步驟設定：
+
+### 10.1 Google Cloud Console 設定
+
+1. 前往 [Google Cloud Console](https://console.cloud.google.com/)
+2. 建立新專案或選擇現有專案
+3. 啟用 **Google+ API** 或 **Google Identity Services**
+4. 前往 **APIs & Services > Credentials**
+5. 點擊 **Create Credentials > OAuth 2.0 Client ID**
+6. 選擇 **Web application**
+7. 設定 **Authorized JavaScript origins**：
+   - 本地開發：`http://localhost:5173`
+   - Docker 環境：`http://localhost:8080`
+   - 生產環境：`https://your-domain.com`
+8. 設定 **Authorized redirect URIs**：
+   - `http://localhost:8000/api/auth/google/callback/`
+   - `http://localhost:8080/api/auth/google/callback/`
+
+### 10.2 後端環境變數設定
+
+在 `backend/` 目錄下建立 `.env` 檔案：
+
+```bash
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+```
+
+### 10.3 常見問題
+
+**403 error: disallowed_useragent 或 origin_mismatch**
+- 確認 JavaScript origins 包含您正在使用的網址
+- 確認沒有多餘的斜線或端口號
+- Google Cloud Console 設定變更可能需要 5-10 分鐘生效
+
+**COOP (Cross-Origin-Opener-Policy) 問題**
+- 本專案已設定 `same-origin-allow-popups` header
+- 若仍有問題，請檢查瀏覽器 Console 錯誤訊息
+
+## 11. 貢獻指南
 
 1. Fork 此專案
 2. 建立功能分支 (`git checkout -b feature/amazing-feature`)

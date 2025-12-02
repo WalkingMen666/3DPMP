@@ -23,10 +23,35 @@ class CustomRegisterSerializer(RegisterSerializer):
         return user
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ('id', 'email', 'auth_provider', 'date_joined')
-        read_only_fields = ('id', 'date_joined', 'auth_provider')
+        fields = ('id', 'email', 'display_name', 'auth_provider', 'date_joined', 'avatar_type', 'avatar_image', 'avatar_url')
+        read_only_fields = ('id', 'date_joined', 'auth_provider', 'avatar_url')
+    
+    def get_avatar_url(self, obj):
+        return obj.avatar_url
+
+
+class UserAvatarSerializer(serializers.ModelSerializer):
+    """Serializer for updating user avatar"""
+    class Meta:
+        model = User
+        fields = ('avatar_type', 'avatar_image')
+    
+    def validate(self, data):
+        avatar_type = data.get('avatar_type')
+        avatar_image = data.get('avatar_image')
+        
+        if avatar_type == 'custom' and not avatar_image and not self.instance.avatar_image:
+            raise serializers.ValidationError("Custom avatar requires an uploaded image")
+        
+        # Clear image if not using custom type
+        if avatar_type != 'custom':
+            data['avatar_image'] = None
+            
+        return data
 
 class CustomerSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)

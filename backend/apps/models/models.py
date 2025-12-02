@@ -11,6 +11,18 @@ class VisibilityStatus(models.TextChoices):
     REJECTED = 'REJECTED', 'Rejected'
 
 
+class ModelCategory(models.TextChoices):
+    """Category choices for 3D models."""
+    TOYS = 'Toys', 'Toys & Games'
+    HOME = 'Home', 'Home & Garden'
+    GADGETS = 'Gadgets', 'Gadgets & Tech'
+    ART = 'Art', 'Art & Sculptures'
+    FASHION = 'Fashion', 'Fashion & Accessories'
+    TOOLS = 'Tools', 'Tools & Functional'
+    EDUCATION = 'Education', 'Education & Learning'
+    OTHER = 'Other', 'Other'
+
+
 class Model(models.Model):
     """
     3D Model entity.
@@ -25,14 +37,36 @@ class Model(models.Model):
         related_name='models'
     )
     model_name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True, help_text="Detailed description of the model")
+    category = models.CharField(
+        max_length=50,
+        choices=ModelCategory.choices,
+        default=ModelCategory.OTHER
+    )
+    tags = models.JSONField(blank=True, null=True, help_text="List of tags for searching")
+    
     visibility_status = models.CharField(
         max_length=20,
         choices=VisibilityStatus.choices,
         default=VisibilityStatus.PRIVATE
     )
-    stl_file_path = models.CharField(max_length=500)  # Relative path in Alist
+    is_featured = models.BooleanField(default=False, help_text="Featured on homepage")
+    
+    # File paths
+    stl_file_path = models.CharField(max_length=500)  # Relative path in storage
+    stl_file = models.FileField(upload_to='models/stl/', blank=True, null=True)
     gcode_file_path = models.CharField(max_length=500, blank=True, null=True)
+    thumbnail = models.ImageField(upload_to='models/thumbnails/', blank=True, null=True)
+    
+    # Slicing info
     slicing_info = models.JSONField(blank=True, null=True)  # Stores material usage, print time
+    
+    # Statistics
+    download_count = models.PositiveIntegerField(default=0)
+    view_count = models.PositiveIntegerField(default=0)
+    
+    # Pricing (optional, for marketplace)
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Price in TWD (null = free)")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -45,6 +79,20 @@ class Model(models.Model):
 
     def __str__(self):
         return f"{self.model_name} ({self.owner.email})"
+    
+    @property
+    def thumbnail_url(self):
+        if self.thumbnail:
+            return self.thumbnail.url
+        return None
+    
+    @property
+    def primary_image(self):
+        """Get the first image as primary."""
+        first_image = self.images.first()
+        if first_image:
+            return first_image.image.url if first_image.image else first_image.image_path
+        return self.thumbnail_url
 
 
 class ModelImage(models.Model):
@@ -59,17 +107,27 @@ class ModelImage(models.Model):
         on_delete=models.CASCADE,
         related_name='images'
     )
-    image_path = models.CharField(max_length=500)
+    image = models.ImageField(upload_to='models/images/', blank=True, null=True)
+    image_path = models.CharField(max_length=500, blank=True, null=True)
+    is_primary = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
     
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'model_image'
+        ordering = ['order', '-created_at']
         verbose_name = 'Model Image'
         verbose_name_plural = 'Model Images'
 
     def __str__(self):
         return f"Image for {self.model.model_name}"
+    
+    @property
+    def url(self):
+        if self.image:
+            return self.image.url
+        return self.image_path
 
 
 class ModelReviewLog(models.Model):

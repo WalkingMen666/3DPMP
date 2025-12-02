@@ -2,13 +2,13 @@ services:
   db:
     image: postgres:18
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     environment:
       - POSTGRES_DB=3dpmp
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"  # 改用 5433 避免與本地 PostgreSQL 衝突
 
   redis:
     image: redis:7.4
@@ -17,7 +17,7 @@ services:
 
   backend:
     build: ./backend
-    command: sh -c "pip install requests dj-rest-auth django-allauth drf-spectacular && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "pip install requests dj-rest-auth django-allauth drf-spectacular django-cors-headers whitenoise Pillow && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
     ports:
@@ -30,12 +30,15 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/3dpmp
       - CELERY_BROKER_URL=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
+      # Google OAuth (set in .env file or here)
+      - GOOGLE_CLIENT_ID=93739216036-7pb087eku51sl6f90g5okkp77ld773g3.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
       # Alist configuration (Host IP needs to be set correctly in .env or here)
       # AWS_S3_ENDPOINT_URL=http://host.docker.internal:5244
 
   worker:
     build: ./backend
-    command: sh -c "pip install requests dj-rest-auth django-allauth drf-spectacular && celery -A config worker -l info"
+    command: sh -c "pip install requests dj-rest-auth django-allauth drf-spectacular django-cors-headers whitenoise Pillow && celery -A config worker -l info"
     volumes:
       - ./backend:/app
     depends_on:
