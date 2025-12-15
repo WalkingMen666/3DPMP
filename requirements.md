@@ -28,7 +28,7 @@
 
 ### **Database & Storage**
 
-* **RDBMS:** PostgreSQL 16 (Primary Data)  
+* **RDBMS:** PostgreSQL 18 (Primary Data)  
 * **File Storage:** **Alist** (Existing S3 Service on Host) via django-storages \+ boto3.  
   * *Configuration:* Django connects to Host IP (e.g., port 5244). Backed by **Local Storage** mount in Alist (avoid using Cloud Drives to prevent latency).
 

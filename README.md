@@ -64,19 +64,25 @@
 ```bash
 # 建置並啟動所有服務
 podman-compose up --build -d
+# Docker 版本: docker compose up --build -d
 
 # 執行資料庫遷移
 podman-compose exec backend python manage.py makemigrations
+# Docker 版本: docker compose exec backend python manage.py makemigrations
+
 podman-compose exec backend python manage.py migrate
+# Docker 版本: docker compose exec backend python manage.py migrate
 
 # 建立管理員帳號
 podman-compose exec backend python manage.py createsuperuser
+# Docker 版本: docker compose exec backend python manage.py createsuperuser
 ```
 
 ### 日常啟動
 
 ```bash
 podman-compose up -d
+# Docker 版本: docker compose up -d
 ```
 
 啟動後，您可以訪問：
@@ -93,9 +99,11 @@ podman-compose up -d
 
 ```bash
 podman-compose down
+# Docker 版本: docker compose down
 
 # 完全重置 (包含資料庫)
 podman-compose down -v
+# Docker 版本: docker compose down -v
 ```
 
 ---
@@ -151,9 +159,10 @@ npm run dev
 ## 5. 專案結構說明
 
 ```text
-3dprint/
+3dpmp/
 ├── backend/                    # Django 後端
-│   ├── Dockerfile              # 後端容器定義 (含 PrusaSlicer)
+│   ├── Dockerfile.api          # Backend API 容器 (Alpine, 輕量化)
+│   ├── Dockerfile.worker       # Celery Worker 容器 (含 PrusaSlicer)
 │   ├── manage.py
 │   ├── requirements.txt
 │   ├── config/                 # Django 專案設定
@@ -222,15 +231,24 @@ npm run dev
 ```bash
 # 重建容器 (修改 Dockerfile 後)
 podman-compose build --no-cache
+# Docker 版本: docker compose build --no-cache
+
 podman-compose up -d --force-recreate
+# Docker 版本: docker compose up -d --force-recreate
 
 # 查看 Log
 podman-compose logs -f backend
+# Docker 版本: docker compose logs -f backend
+
 podman-compose logs -f worker
+# Docker 版本: docker compose logs -f worker
 
 # 進入容器
-podman-compose exec backend bash
+podman-compose exec backend sh
+# Docker 版本: docker compose exec backend sh
+
 podman-compose exec db psql -U postgres -d 3dpmp
+# Docker 版本: docker compose exec db psql -U postgres -d 3dpmp
 ```
 
 ### Django 管理
@@ -238,15 +256,19 @@ podman-compose exec db psql -U postgres -d 3dpmp
 ```bash
 # 建立新的 migrations
 podman-compose exec backend python manage.py makemigrations
+# Docker 版本: docker compose exec backend python manage.py makemigrations
 
 # 執行 migrations
 podman-compose exec backend python manage.py migrate
+# Docker 版本: docker compose exec backend python manage.py migrate
 
 # 建立超級使用者
 podman-compose exec backend python manage.py createsuperuser
+# Docker 版本: docker compose exec backend python manage.py createsuperuser
 
 # Django shell
 podman-compose exec backend python manage.py shell
+# Docker 版本: docker compose exec backend python manage.py shell
 ```
 
 ### 資料庫操作
@@ -254,17 +276,35 @@ podman-compose exec backend python manage.py shell
 ```bash
 # 重置資料庫 (開發用)
 podman-compose down -v
+# Docker 版本: docker compose down -v
+
 podman-compose up -d
+# Docker 版本: docker compose up -d
+
 podman-compose exec backend python manage.py migrate
+# Docker 版本: docker compose exec backend python manage.py migrate
 ```
 
-## 9. 注意事項 (Podman 使用者)
+## 9. 注意事項
 
-本專案使用 **Ubuntu 25.04** 作為 Base Image，並使用 **PostgreSQL 18**。
+本專案使用 **PostgreSQL 18** 作為資料庫。
+
+### 容器映像說明
+
+- **Backend API**: `python:3.13-alpine` (輕量化，約 50-80MB)
+- **Celery Worker**: `python:3.13-slim-bookworm` (含 PrusaSlicer，約 200-250MB)
+- **Frontend**: `node:22` (Build) + `nginx:1.26` (Production)
+
+### Podman 特殊事項
 
 - **SIGTERM 問題**: 已在 docker-compose.yml 設定 `stop_grace_period: 3s` 解決 Podman 關閉延遲問題
 - **快取問題**: 修改程式碼後若容器未更新，執行 `podman-compose build --no-cache`
 - **權限問題**: 若遇到 volume 權限錯誤，可嘗試 `podman unshare chown -R 999:999 ./data`
+- **映像名稱**: Podman 需要完整映像路徑（如 `docker.io/library/nginx:1.26`）
+
+### Docker 使用者
+
+Docker 使用者可將所有 `podman-compose` 命令替換為 `docker compose`（注意無連字符號）
 
 ## 10. Google OAuth 設定
 
