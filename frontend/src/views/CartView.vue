@@ -1,10 +1,16 @@
 <script setup>
 import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useCartStore } from "../stores/cart";
 import { useAuthStore } from "../stores/auth";
 
+const router = useRouter();
 const cart = useCartStore();
 const auth = useAuthStore();
+
+const goToCheckout = () => {
+  router.push('/checkout');
+};
 
 // Fetch cart from backend on mount if authenticated
 onMounted(async () => {
@@ -148,6 +154,7 @@ const shipping = computed(() => (cart.items.length > 0 ? 10.0 : 0));
           </div>
 
           <button
+            @click="goToCheckout"
             :disabled="cart.items.length === 0"
             class="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >

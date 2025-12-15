@@ -4,18 +4,39 @@ from .models import ShippingOption, SavedAddress
 from .serializers import (
     ShippingOptionSerializer, SavedAddressSerializer, SavedAddressCreateSerializer
 )
+from apps.users.models import Employee
 
 
-class ShippingOptionViewSet(viewsets.ReadOnlyModelViewSet):
+class IsAdminEmployeeOrReadOnly(permissions.BasePermission):
+    """Permission class for admin employees."""
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.is_authenticated
+        if not request.user.is_authenticated:
+            return False
+        try:
+            return request.user.employee_profile.is_admin
+        except Employee.DoesNotExist:
+            return False
+
+
+class ShippingOptionViewSet(viewsets.ModelViewSet):
     """
-    Read-only ViewSet for shipping options.
-    
-    Available to all authenticated users.
+    ViewSet for shipping options.
+    - Authenticated users can view active options
+    - Admin employees can manage all options
     """
     serializer_class = ShippingOptionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
+    permission_classes = [IsAdminEmployeeOrReadOnly]
+
     def get_queryset(self):
+        # Admins see all options, others only see active ones
+        if self.request.user.is_authenticated:
+            try:
+                if self.request.user.employee_profile.is_admin:
+                    return ShippingOption.objects.all()
+            except Employee.DoesNotExist:
+                pass
         return ShippingOption.objects.filter(is_active=True)
 
 

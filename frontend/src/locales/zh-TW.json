@@ -6,6 +6,7 @@
     "delete": "刪除",
     "edit": "編輯",
     "view": "檢視",
+    "close": "關閉",
     "submit": "提交",
     "confirm": "確認",
     "yes": "是",
@@ -126,7 +127,16 @@
     "viewRejectionReason": "查看拒絕原因",
     "submitForPublicReview": "提交公開審核",
     "viewModel": "查看模型",
-    "deleteModel": "刪除模型"
+    "deleteModel": "刪除模型",
+    "orderDetails": "訂單詳情",
+    "shippingInfo": "配送資訊",
+    "shippingMethod": "配送方式",
+    "addressType": "地址類型",
+    "shippingAddress": "配送地址",
+    "shippingFee": "運費",
+    "trackingNumber": "追蹤號碼",
+    "orderItems": "訂單項目",
+    "notes": "備註"
   },
   "settings": {
     "title": "設定",
@@ -304,12 +314,61 @@
     "empty": "您的購物車是空的",
     "browseModels": "瀏覽模型",
     "material": "材質",
+    "quantity": "數量",
+    "each": "每個",
     "summary": {
       "title": "訂單摘要",
       "subtotal": "小計",
       "shipping": "運費",
       "total": "總計",
       "checkout": "前往結帳"
+    }
+  },
+  "checkout": {
+    "title": "結帳",
+    "success": {
+      "title": "訂單已成功建立！",
+      "message": "正在重新導向至您的儀表板..."
+    },
+    "shipping": {
+      "title": "配送方式",
+      "noOptions": "無可用的配送選項"
+    },
+    "address": {
+      "title": "收貨地址",
+      "addNew": "+ 新增地址",
+      "cancel": "取消",
+      "noAddresses": "無已儲存的地址。請新增一個。",
+      "form": {
+        "name": "地址名稱",
+        "namePlaceholder": "例如：我的家",
+        "type": "地址類型",
+        "details": "完整地址",
+        "detailsPlaceholder": "完整地址、收件人姓名、電話號碼...",
+        "save": "儲存地址"
+      }
+    },
+    "addressTypes": {
+      "HOME_DELIVERY": "宅配",
+      "CONVENIENCE_STORE": "超商取貨",
+      "SELF_PICKUP": "自取"
+    },
+    "notes": {
+      "title": "訂單備註 (選填)",
+      "placeholder": "任何特殊說明..."
+    },
+    "summary": {
+      "title": "訂單摘要",
+      "subtotal": "小計",
+      "shipping": "運費",
+      "total": "總計"
+    },
+    "placeOrder": "送出訂單",
+    "processing": "處理中...",
+    "errors": {
+      "selectShipping": "請選擇配送方式",
+      "selectAddress": "請選擇或新增收貨地址",
+      "addressFieldsRequired": "請填寫所有地址欄位"
     }
   },
   "modelDetail": {
@@ -403,6 +462,7 @@
     "sidebar": {
       "pendingModels": "待審核模型",
       "orders": "訂單",
+      "models": "模型管理",
       "materials": "材質管理",
       "shipping": "運送選項",
       "discounts": "折扣",
@@ -431,7 +491,26 @@
         "actions": "操作"
       },
       "process": "處理",
-      "ship": "出貨"
+      "ship": "出貨",
+      "deliver": "標記為已送達"
+    },
+    "models": {
+      "title": "模型管理",
+      "noModels": "找不到模型",
+      "columns": {
+        "model": "模型",
+        "owner": "擁有者",
+        "category": "分類",
+        "status": "狀態",
+        "price": "價格",
+        "actions": "操作"
+      },
+      "editStatus": "編輯狀態",
+      "delete": "刪除",
+      "changeStatus": "更改模型狀態",
+      "changeStatusFor": "更改 \"{name}\" 的狀態：",
+      "newStatus": "新狀態",
+      "updateStatus": "更新狀態"
     },
     "materials": {
       "title": "材質管理",

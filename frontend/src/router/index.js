@@ -7,6 +7,7 @@ import ModelListView from '../views/ModelListView.vue'
 import ModelDetailView from '../views/ModelDetailView.vue'
 import UploadModelView from '../views/UploadModelView.vue'
 import CartView from '../views/CartView.vue'
+import CheckoutView from '../views/CheckoutView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import AdminDashboardView from '../views/AdminDashboardView.vue'
 import AboutView from '../views/AboutView.vue'
@@ -59,6 +60,12 @@ const router = createRouter({
       path: '/cart',
       name: 'cart',
       component: CartView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: CheckoutView,
       meta: { requiresAuth: true }
     },
     {

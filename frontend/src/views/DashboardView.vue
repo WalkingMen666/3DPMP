@@ -18,6 +18,11 @@ const loading = ref(true);
 const deletingModel = ref(null);
 const submittingForReview = ref(null);
 
+// Order detail modal state
+const showOrderDetailModal = ref(false);
+const selectedOrder = ref(null);
+const loadingOrderDetails = ref(false);
+
 // Avatar state
 const avatarChoices = ref([]);
 const selectedAvatar = ref(auth.user?.avatar_type || 'default');
@@ -215,6 +220,29 @@ const cancelOrder = async (orderId) => {
       alert(error.message);
     }
   }
+};
+
+const viewOrderDetails = async (order) => {
+  selectedOrder.value = order;
+  showOrderDetailModal.value = true;
+
+  // Fetch full order details if not already loaded
+  if (!order.items || order.items.length === 0) {
+    loadingOrderDetails.value = true;
+    try {
+      const fullOrder = await ordersStore.fetchOrderById(order.id);
+      selectedOrder.value = fullOrder;
+    } catch (error) {
+      console.error('Failed to load order details:', error);
+    } finally {
+      loadingOrderDetails.value = false;
+    }
+  }
+};
+
+const closeOrderDetailModal = () => {
+  showOrderDetailModal.value = false;
+  selectedOrder.value = null;
 };
 
 // Avatar functions
@@ -489,11 +517,12 @@ const getAvatarDisplayUrl = (avatarId) => {
                     >
                       {{ $t('dashboard.cancelOrder') }}
                     </button>
-                    <a
-                      href="#"
+                    <button
+                      @click="viewOrderDetails(order)"
                       class="text-primary-600 hover:text-primary-900 dark:hover:text-primary-400"
-                      >{{ $t('common.view') }}</a
                     >
+                      {{ $t('common.view') }}
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -874,6 +903,148 @@ const getAvatarDisplayUrl = (avatarId) => {
                 class="text-green-600 dark:text-green-400 text-sm"
                 >✓ {{ $t('settings.saved') }}</span
               >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div
+      v-if="showOrderDetailModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeOrderDetailModal"
+    >
+      <div class="bg-white dark:bg-dark-surface rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="sticky top-0 bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-gray-700 p-6 flex justify-between items-center">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+            {{ $t('dashboard.orderDetails') }}
+          </h2>
+          <button
+            @click="closeOrderDetailModal"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          >
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div v-if="selectedOrder" class="p-6 space-y-6">
+          <!-- Loading State -->
+          <div v-if="loadingOrderDetails" class="flex justify-center py-8">
+            <svg class="animate-spin h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+
+          <!-- Order Info -->
+          <div v-else class="space-y-6">
+            <!-- Order Header -->
+            <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('dashboard.orderId') }}</div>
+                <div class="font-mono text-gray-900 dark:text-white">#{{ selectedOrder.id?.slice(0, 8) }}</div>
+              </div>
+              <div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('dashboard.date') }}</div>
+                <div class="text-gray-900 dark:text-white">{{ new Date(selectedOrder.creation_date).toLocaleDateString() }}</div>
+              </div>
+              <div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('dashboard.status') }}</div>
+                <span
+                  :class="[
+                    'inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full',
+                    selectedOrder.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                    selectedOrder.status === 'PROCESSING' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                    selectedOrder.status === 'DELIVERED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                    selectedOrder.status === 'CANCELLED' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
+                    'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                  ]"
+                >
+                  {{ selectedOrder.status }}
+                </span>
+              </div>
+              <div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('dashboard.total') }}</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white">NT$ {{ parseFloat(selectedOrder.total_price).toFixed(2) }}</div>
+              </div>
+            </div>
+
+            <!-- Shipping Info -->
+            <div v-if="selectedOrder.ship_snapshot" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ $t('dashboard.shippingInfo') }}</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-500 dark:text-gray-400">{{ $t('dashboard.shippingMethod') }}:</span>
+                  <span class="text-gray-900 dark:text-white">{{ selectedOrder.ship_snapshot.service_name }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-500 dark:text-gray-400">{{ $t('dashboard.addressType') }}:</span>
+                  <span class="text-gray-900 dark:text-white">{{ $t(`checkout.addressTypes.${selectedOrder.ship_snapshot.address_type}`) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-500 dark:text-gray-400">{{ $t('dashboard.shippingAddress') }}:</span>
+                  <span class="text-gray-900 dark:text-white text-right">{{ selectedOrder.ship_snapshot.address_details }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-500 dark:text-gray-400">{{ $t('dashboard.shippingFee') }}:</span>
+                  <span class="text-gray-900 dark:text-white">NT$ {{ parseFloat(selectedOrder.ship_snapshot.fee).toFixed(2) }}</span>
+                </div>
+                <div v-if="selectedOrder.tracking_number" class="flex justify-between">
+                  <span class="text-gray-500 dark:text-gray-400">{{ $t('dashboard.trackingNumber') }}:</span>
+                  <span class="text-gray-900 dark:text-white font-mono">{{ selectedOrder.tracking_number }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ $t('dashboard.orderItems') }}</h3>
+              <div class="space-y-3">
+                <div
+                  v-for="item in selectedOrder.items"
+                  :key="item.id"
+                  class="flex justify-between items-start p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                >
+                  <div class="flex-1">
+                    <div class="font-medium text-gray-900 dark:text-white">{{ item.model_name }}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ $t('cart.material') }}: {{ item.material_name }} • {{ $t('cart.quantity') }}: {{ item.quantity }}
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="font-semibold text-gray-900 dark:text-white">NT$ {{ parseFloat(item.subtotal).toFixed(2) }}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">NT$ {{ parseFloat(item.price_snapshot).toFixed(2) }} {{ $t('cart.each') }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Order Notes -->
+            <div v-if="selectedOrder.notes" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $t('dashboard.notes') }}</h3>
+              <p class="text-gray-600 dark:text-gray-300 text-sm">{{ selectedOrder.notes }}</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-end space-x-3">
+              <button
+                v-if="selectedOrder.status === 'PENDING'"
+                @click="cancelOrder(selectedOrder.id); closeOrderDetailModal()"
+                class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+              >
+                {{ $t('dashboard.cancelOrder') }}
+              </button>
+              <button
+                @click="closeOrderDetailModal"
+                class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors"
+              >
+                {{ $t('common.cancel') }}
+              </button>
             </div>
           </div>
         </div>

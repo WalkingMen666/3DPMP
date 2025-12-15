@@ -13,13 +13,23 @@ from apps.users.models import Employee
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
-    Custom permission to only allow owners of a model to edit it.
+    Custom permission to only allow owners of a model to edit/delete it.
+    Admin employees can also edit/delete any model.
     """
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed for any request
         if request.method in permissions.SAFE_METHODS:
             return True
-        # Write permissions only for the owner
+
+        # Check if user is admin employee
+        try:
+            employee = Employee.objects.get(user=request.user)
+            if employee.is_admin:
+                return True
+        except Employee.DoesNotExist:
+            pass
+
+        # Write/delete permissions only for the owner
         return obj.owner == request.user
 
 
@@ -31,6 +41,20 @@ class IsEmployee(permissions.BasePermission):
         if not request.user.is_authenticated:
             return False
         return Employee.objects.filter(user=request.user).exists()
+
+
+class IsAdminEmployee(permissions.BasePermission):
+    """
+    Permission check for admin employees only.
+    """
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        try:
+            employee = Employee.objects.get(user=request.user)
+            return employee.is_admin
+        except Employee.DoesNotExist:
+            return False
 
 
 class ModelViewSet(viewsets.ModelViewSet):
@@ -75,20 +99,23 @@ class ModelViewSet(viewsets.ModelViewSet):
         - Guests: Only PUBLIC models
         - Authenticated: PUBLIC models + own models (any status)
         - Employees: Can also see PENDING models for review
+        - Admin Employees: Can see ALL models
         """
         user = self.request.user
-        
+
         if user.is_authenticated:
-            # Check if user is employee (for review actions)
-            from apps.users.models import Employee
-            is_employee = Employee.objects.filter(user=user).exists()
-            
-            if is_employee:
-                # Employees can see public + pending + their own models
-                return Model.objects.filter(
-                    visibility_status__in=[VisibilityStatus.PUBLIC, VisibilityStatus.PENDING]
-                ) | Model.objects.filter(owner=user)
-            else:
+            # Check if user is admin employee
+            try:
+                employee = Employee.objects.get(user=user)
+                if employee.is_admin:
+                    # Admin employees can see ALL models
+                    return Model.objects.all()
+                else:
+                    # Regular employees can see public + pending + their own models
+                    return Model.objects.filter(
+                        visibility_status__in=[VisibilityStatus.PUBLIC, VisibilityStatus.PENDING]
+                    ) | Model.objects.filter(owner=user)
+            except Employee.DoesNotExist:
                 # Regular users can see public models and their own models
                 return Model.objects.filter(
                     visibility_status=VisibilityStatus.PUBLIC

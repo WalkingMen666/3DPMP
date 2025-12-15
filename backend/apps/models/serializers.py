@@ -115,10 +115,10 @@ class ModelCreateSerializer(serializers.ModelSerializer):
 
 class ModelUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating a 3D Model."""
-    
+
     class Meta:
         model = Model
-        fields = ['model_name', 'description', 'category', 'tags', 'thumbnail', 'price']
+        fields = ['model_name', 'description', 'category', 'tags', 'thumbnail', 'price', 'visibility_status']
 
 
 class ModelListSerializer(serializers.ModelSerializer):
@@ -126,22 +126,32 @@ class ModelListSerializer(serializers.ModelSerializer):
     owner_email = serializers.EmailField(source='owner.email', read_only=True)
     owner_name = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
     category_display = serializers.CharField(source='get_category_display', read_only=True)
     visibility = serializers.CharField(source='visibility_status', read_only=True)
     images = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Model
         fields = [
             'id', 'model_name', 'description', 'owner_email', 'owner_name',
             'category', 'category_display', 'visibility_status', 'visibility', 'is_featured',
-            'slicing_info', 'thumbnail_url', 'download_count', 'view_count', 
+            'slicing_info', 'thumbnail_url', 'file_url', 'download_count', 'view_count',
             'price', 'images', 'created_at'
         ]
-    
+
     def get_owner_name(self, obj):
         return obj.owner.first_name or obj.owner.email.split('@')[0]
-    
+
+    def get_file_url(self, obj):
+        """Return the STL file URL for download."""
+        if obj.stl_file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.stl_file.url)
+            return obj.stl_file.url
+        return obj.stl_file_path or None
+
     def get_images(self, obj):
         """Return images with proper absolute URLs."""
         request = self.context.get('request')

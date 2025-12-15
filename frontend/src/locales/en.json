@@ -6,6 +6,7 @@
     "delete": "Delete",
     "edit": "Edit",
     "view": "View",
+    "close": "Close",
     "submit": "Submit",
     "confirm": "Confirm",
     "yes": "Yes",
@@ -126,7 +127,16 @@
     "viewRejectionReason": "View rejection reason",
     "submitForPublicReview": "Submit for public review",
     "viewModel": "View model",
-    "deleteModel": "Delete model"
+    "deleteModel": "Delete model",
+    "orderDetails": "Order Details",
+    "shippingInfo": "Shipping Information",
+    "shippingMethod": "Shipping Method",
+    "addressType": "Address Type",
+    "shippingAddress": "Shipping Address",
+    "shippingFee": "Shipping Fee",
+    "trackingNumber": "Tracking Number",
+    "orderItems": "Order Items",
+    "notes": "Notes"
   },
   "settings": {
     "title": "Settings",
@@ -304,12 +314,61 @@
     "empty": "Your cart is empty",
     "browseModels": "Browse Models",
     "material": "Material",
+    "quantity": "Quantity",
+    "each": "each",
     "summary": {
       "title": "Order Summary",
       "subtotal": "Subtotal",
       "shipping": "Shipping",
       "total": "Total",
       "checkout": "Proceed to Checkout"
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "success": {
+      "title": "Order Placed Successfully!",
+      "message": "Redirecting to your dashboard..."
+    },
+    "shipping": {
+      "title": "Shipping Method",
+      "noOptions": "No shipping options available"
+    },
+    "address": {
+      "title": "Delivery Address",
+      "addNew": "+ Add New Address",
+      "cancel": "Cancel",
+      "noAddresses": "No saved addresses. Please add one.",
+      "form": {
+        "name": "Address Name",
+        "namePlaceholder": "e.g. My Home",
+        "type": "Address Type",
+        "details": "Full Address",
+        "detailsPlaceholder": "Full address, recipient name, phone number...",
+        "save": "Save Address"
+      }
+    },
+    "addressTypes": {
+      "HOME_DELIVERY": "Home Delivery",
+      "CONVENIENCE_STORE": "Convenience Store",
+      "SELF_PICKUP": "Self Pickup"
+    },
+    "notes": {
+      "title": "Order Notes (Optional)",
+      "placeholder": "Any special instructions..."
+    },
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "total": "Total"
+    },
+    "placeOrder": "Place Order",
+    "processing": "Processing...",
+    "errors": {
+      "selectShipping": "Please select a shipping option",
+      "selectAddress": "Please select or add a delivery address",
+      "addressFieldsRequired": "Please fill in all address fields"
     }
   },
   "modelDetail": {
@@ -403,6 +462,7 @@
     "sidebar": {
       "pendingModels": "Pending Models",
       "orders": "Orders",
+      "models": "Models Management",
       "materials": "Materials",
       "shipping": "Shipping Options",
       "discounts": "Discounts",
@@ -431,7 +491,26 @@
         "actions": "Actions"
       },
       "process": "Process",
-      "ship": "Ship"
+      "ship": "Ship",
+      "deliver": "Mark Delivered"
+    },
+    "models": {
+      "title": "Models Management",
+      "noModels": "No models found",
+      "columns": {
+        "model": "Model",
+        "owner": "Owner",
+        "category": "Category",
+        "status": "Status",
+        "price": "Price",
+        "actions": "Actions"
+      },
+      "editStatus": "Edit Status",
+      "delete": "Delete",
+      "changeStatus": "Change Model Status",
+      "changeStatusFor": "Change status for \"{name}\":",
+      "newStatus": "New Status",
+      "updateStatus": "Update Status"
     },
     "materials": {
       "title": "Materials Management",

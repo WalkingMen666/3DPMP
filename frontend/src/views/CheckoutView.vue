@@ -1,0 +1,347 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCartStore } from '../stores/cart'
+import { useAuthStore } from '../stores/auth'
+import axios from 'axios'
+
+const router = useRouter()
+const cart = useCartStore()
+const auth = useAuthStore()
+
+const loading = ref(false)
+const error = ref('')
+const success = ref(false)
+
+// Shipping options and addresses
+const shippingOptions = ref([])
+const savedAddresses = ref([])
+const selectedShipping = ref(null)
+const selectedAddress = ref(null)
+const orderNotes = ref('')
+
+// New address form
+const showAddressForm = ref(false)
+const newAddress = ref({
+  name: '',
+  address_type: 'HOME_DELIVERY',
+  address_details: ''
+})
+
+const addressTypes = [
+  { value: 'HOME_DELIVERY', label: 'checkout.addressTypes.HOME_DELIVERY' },
+  { value: 'CONVENIENCE_STORE', label: 'checkout.addressTypes.CONVENIENCE_STORE' },
+  { value: 'SELF_PICKUP', label: 'checkout.addressTypes.SELF_PICKUP' }
+]
+
+// API client
+const apiClient = axios.create({ baseURL: '/api' })
+apiClient.interceptors.request.use(config => {
+  if (auth.token) {
+    config.headers.Authorization = `Token ${auth.token}`
+  }
+  return config
+})
+
+// Fetch data on mount
+onMounted(async () => {
+  if (!auth.isAuthenticated) {
+    router.push('/login')
+    return
+  }
+
+  await Promise.all([
+    fetchShippingOptions(),
+    fetchSavedAddresses(),
+    cart.fetchCart()
+  ])
+
+  // Redirect if cart is empty
+  if (cart.items.length === 0) {
+    router.push('/cart')
+  }
+})
+
+const fetchShippingOptions = async () => {
+  try {
+    const response = await apiClient.get('/shipping/options/')
+    shippingOptions.value = response.data || []
+    if (shippingOptions.value.length > 0) {
+      selectedShipping.value = shippingOptions.value[0].id
+    }
+  } catch (err) {
+    console.error('Failed to fetch shipping options:', err)
+  }
+}
+
+const fetchSavedAddresses = async () => {
+  try {
+    const response = await apiClient.get('/shipping/addresses/')
+    savedAddresses.value = response.data || []
+    if (savedAddresses.value.length > 0) {
+      selectedAddress.value = savedAddresses.value[0].id
+    }
+  } catch (err) {
+    console.error('Failed to fetch addresses:', err)
+  }
+}
+
+const saveNewAddress = async () => {
+  if (!newAddress.value.name || !newAddress.value.address_details) {
+    error.value = 'checkout.errors.addressFieldsRequired'
+    return
+  }
+
+  try {
+    const response = await apiClient.post('/shipping/addresses/', newAddress.value)
+    savedAddresses.value.push(response.data)
+    selectedAddress.value = response.data.id
+    showAddressForm.value = false
+    newAddress.value = { name: '', address_type: 'HOME_DELIVERY', address_details: '' }
+    error.value = ''
+  } catch (err) {
+    error.value = 'Failed to save address'
+  }
+}
+
+const selectedShippingOption = computed(() => {
+  return shippingOptions.value.find(o => o.id === selectedShipping.value)
+})
+
+const shippingFee = computed(() => {
+  return selectedShippingOption.value ? parseFloat(selectedShippingOption.value.base_fee) : 0
+})
+
+const orderTotal = computed(() => {
+  return cart.subtotal + shippingFee.value
+})
+
+// Filter addresses by selected shipping type
+const compatibleAddresses = computed(() => {
+  if (!selectedShippingOption.value) return savedAddresses.value
+
+  return savedAddresses.value.filter(addr =>
+    addr.address_type === selectedShippingOption.value.type
+  )
+})
+
+// Auto-select compatible address when shipping changes
+const updateSelectedShipping = (value) => {
+  selectedShipping.value = value
+
+  // Check if current address is compatible
+  const currentAddr = savedAddresses.value.find(a => a.id === selectedAddress.value)
+  if (currentAddr && currentAddr.address_type !== selectedShippingOption.value?.type) {
+    // Auto-select first compatible address
+    if (compatibleAddresses.value.length > 0) {
+      selectedAddress.value = compatibleAddresses.value[0].id
+    } else {
+      selectedAddress.value = null
+    }
+  }
+}
+
+const placeOrder = async () => {
+  if (!selectedShipping.value) {
+    error.value = 'checkout.errors.selectShipping'
+    return
+  }
+  if (!selectedAddress.value) {
+    error.value = 'checkout.errors.selectAddress'
+    return
+  }
+
+  loading.value = true
+  error.value = ''
+
+  try {
+    await apiClient.post('/orders/', {
+      shipping_option_id: selectedShipping.value,
+      saved_address_id: selectedAddress.value,
+      notes: orderNotes.value
+    })
+
+    success.value = true
+    cart.clearCart()
+
+    // Redirect to dashboard after 2 seconds
+    setTimeout(() => {
+      router.push('/dashboard')
+    }, 2000)
+  } catch (err) {
+    error.value = err.response?.data?.detail || err.response?.data?.[0] || 'Failed to place order'
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">{{ $t('checkout.title') }}</h1>
+
+    <!-- Success Message -->
+    <div v-if="success" class="text-center py-12 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
+      <svg class="mx-auto h-16 w-16 text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h2 class="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">{{ $t('checkout.success.title') }}</h2>
+      <p class="text-green-600 dark:text-green-300">{{ $t('checkout.success.message') }}</p>
+    </div>
+
+    <div v-else class="space-y-8">
+      <!-- Error Message -->
+      <div v-if="error" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg">
+        {{ error.startsWith('checkout.') ? $t(error) : error }}
+      </div>
+
+      <!-- Shipping Options -->
+      <div class="bg-white dark:bg-dark-surface rounded-xl p-6 border border-gray-100 dark:border-gray-700/50">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ $t('checkout.shipping.title') }}</h2>
+
+        <div v-if="shippingOptions.length === 0" class="text-gray-500 dark:text-gray-400">
+          {{ $t('checkout.shipping.noOptions') }}
+        </div>
+
+        <div v-else class="space-y-3">
+          <label
+            v-for="option in shippingOptions"
+            :key="option.id"
+            class="flex items-center p-4 border rounded-lg cursor-pointer transition-colors"
+            :class="selectedShipping === option.id
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'"
+          >
+            <input
+              type="radio"
+              :value="option.id"
+              :checked="selectedShipping === option.id"
+              @change="updateSelectedShipping(option.id)"
+              class="mr-3"
+            />
+            <div class="flex-1">
+              <div class="font-medium text-gray-900 dark:text-white">{{ option.name }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t(`checkout.addressTypes.${option.type}`) }}</div>
+            </div>
+            <div class="font-bold text-gray-900 dark:text-white">NT$ {{ option.base_fee }}</div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Delivery Address -->
+      <div class="bg-white dark:bg-dark-surface rounded-xl p-6 border border-gray-100 dark:border-gray-700/50">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $t('checkout.address.title') }}</h2>
+          <button
+            @click="showAddressForm = !showAddressForm"
+            class="text-primary-600 hover:text-primary-700 text-sm font-medium"
+          >
+            {{ showAddressForm ? $t('checkout.address.cancel') : $t('checkout.address.addNew') }}
+          </button>
+        </div>
+
+        <!-- New Address Form -->
+        <div v-if="showAddressForm" class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('checkout.address.form.name') }}</label>
+            <input v-model="newAddress.name" type="text" class="input-field w-full" :placeholder="$t('checkout.address.form.namePlaceholder')" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('checkout.address.form.type') }}</label>
+            <select v-model="newAddress.address_type" class="input-field w-full">
+              <option v-for="t in addressTypes" :key="t.value" :value="t.value">{{ $t(t.label) }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('checkout.address.form.details') }}</label>
+            <textarea v-model="newAddress.address_details" class="input-field w-full" rows="3" :placeholder="$t('checkout.address.form.detailsPlaceholder')"></textarea>
+          </div>
+          <button @click="saveNewAddress" class="btn-primary py-2">{{ $t('checkout.address.form.save') }}</button>
+        </div>
+
+        <!-- Compatible Addresses Warning -->
+        <div v-if="selectedShippingOption && compatibleAddresses.length === 0 && savedAddresses.length > 0" class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+          <p class="text-sm text-yellow-800 dark:text-yellow-200">
+            選擇的配送方式 ({{ $t(`checkout.addressTypes.${selectedShippingOption.type}`) }}) 沒有相符的地址。請新增一個。
+          </p>
+        </div>
+
+        <!-- Saved Addresses -->
+        <div v-if="savedAddresses.length === 0 && !showAddressForm" class="text-gray-500 dark:text-gray-400">
+          {{ $t('checkout.address.noAddresses') }}
+        </div>
+
+        <div v-else-if="compatibleAddresses.length > 0" class="space-y-3">
+          <label
+            v-for="address in compatibleAddresses"
+            :key="address.id"
+            class="flex items-start p-4 border rounded-lg cursor-pointer transition-colors"
+            :class="selectedAddress === address.id
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'"
+          >
+            <input
+              type="radio"
+              :value="address.id"
+              v-model="selectedAddress"
+              class="mr-3 mt-1"
+            />
+            <div>
+              <div class="font-medium text-gray-900 dark:text-white">{{ address.name }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t(`checkout.addressTypes.${address.address_type}`) }}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ address.address_details }}</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Order Notes -->
+      <div class="bg-white dark:bg-dark-surface rounded-xl p-6 border border-gray-100 dark:border-gray-700/50">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ $t('checkout.notes.title') }}</h2>
+        <textarea
+          v-model="orderNotes"
+          class="input-field w-full"
+          rows="3"
+          :placeholder="$t('checkout.notes.placeholder')"
+        ></textarea>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="bg-white dark:bg-dark-surface rounded-xl p-6 border border-gray-100 dark:border-gray-700/50">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ $t('checkout.summary.title') }}</h2>
+
+        <div class="space-y-3 mb-6">
+          <div v-for="item in cart.items" :key="item.id" class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>{{ item.name }} x {{ item.quantity }}</span>
+            <span>NT$ {{ (item.price * item.quantity).toFixed(2) }}</span>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>{{ $t('checkout.summary.subtotal') }}</span>
+            <span>NT$ {{ cart.subtotal.toFixed(2) }}</span>
+          </div>
+          <div class="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>{{ $t('checkout.summary.shipping') }}</span>
+            <span>NT$ {{ shippingFee.toFixed(2) }}</span>
+          </div>
+          <div class="flex justify-between font-bold text-lg text-gray-900 dark:text-white pt-2">
+            <span>{{ $t('checkout.summary.total') }}</span>
+            <span>NT$ {{ orderTotal.toFixed(2) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Place Order Button -->
+      <button
+        @click="placeOrder"
+        :disabled="loading || cart.items.length === 0 || !selectedShipping || !selectedAddress"
+        class="w-full btn-primary py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <span v-if="loading">{{ $t('checkout.processing') }}</span>
+        <span v-else>{{ $t('checkout.placeOrder') }}</span>
+      </button>
+    </div>
+  </div>
+</template>
