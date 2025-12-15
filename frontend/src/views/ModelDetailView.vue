@@ -193,7 +193,7 @@ const addToCart = async () => {
             {{ model.name }}
           </h1>
           <p class="text-lg text-gray-500 dark:text-gray-400">
-            by
+            {{ $t('modelDetail.by') }}
             <span class="text-primary-600 dark:text-primary-400 font-medium">{{
               model.author
             }}</span>
@@ -215,7 +215,7 @@ const addToCart = async () => {
           class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-100 dark:border-gray-700"
         >
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Slicing Estimates
+            {{ $t('modelDetail.slicing.title') }}
           </h3>
           <div
             v-if="loadingSlicing"
@@ -241,11 +241,11 @@ const addToCart = async () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <span>Calculating print parameters...</span>
+            <span>{{ $t('modelDetail.slicing.calculating') }}</span>
           </div>
           <div v-else-if="model.slicingInfo" class="grid grid-cols-3 gap-4">
             <div class="text-center">
-              <div class="text-sm text-gray-500 dark:text-gray-400">Weight</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('modelDetail.slicing.weight') }}</div>
               <div class="font-semibold text-gray-900 dark:text-white">
                 {{ model.slicingInfo.weight }}
               </div>
@@ -253,7 +253,7 @@ const addToCart = async () => {
             <div
               class="text-center border-l border-gray-200 dark:border-gray-700"
             >
-              <div class="text-sm text-gray-500 dark:text-gray-400">Time</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('modelDetail.slicing.time') }}</div>
               <div class="font-semibold text-gray-900 dark:text-white">
                 {{ model.slicingInfo.printTime }}
               </div>
@@ -262,7 +262,7 @@ const addToCart = async () => {
               class="text-center border-l border-gray-200 dark:border-gray-700"
             >
               <div class="text-sm text-gray-500 dark:text-gray-400">
-                Filament
+                {{ $t('modelDetail.slicing.filament') }}
               </div>
               <div class="font-semibold text-gray-900 dark:text-white">
                 {{ model.slicingInfo.filamentLength }}
@@ -274,7 +274,7 @@ const addToCart = async () => {
               <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Slicing pending - estimates will be available once processing is complete</span>
+              <span>{{ $t('modelDetail.slicing.pending') }}</span>
             </div>
           </div>
         </div>
@@ -322,16 +322,16 @@ const addToCart = async () => {
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              Added to Cart!
+              {{ $t('modelDetail.addedToCart') }}
             </span>
-            <span v-else>Add to Cart</span>
+            <span v-else>{{ $t('modelDetail.addToCart') }}</span>
           </button>
 
           <router-link
             to="/models"
             class="block text-center text-primary-600 hover:text-primary-500 text-sm"
           >
-            ← Back to Marketplace
+            {{ $t('modelDetail.backToMarketplace') }}
           </router-link>
         </div>
       </div>
@@ -342,12 +342,12 @@ const addToCart = async () => {
       <svg class="w-24 h-24 text-gray-300 dark:text-gray-600 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Model Not Found</h2>
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ $t('modelDetail.notFound.title') }}</h2>
       <p class="text-gray-500 dark:text-gray-400 mb-6">
-        The model you're looking for doesn't exist or has been removed.
+        {{ $t('modelDetail.notFound.description') }}
       </p>
       <router-link to="/models" class="btn-primary">
-        ← Back to Marketplace
+        {{ $t('modelDetail.backToMarketplace') }}
       </router-link>
     </div>
   </div>

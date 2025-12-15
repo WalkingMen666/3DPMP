@@ -43,20 +43,20 @@ const handleLogout = () => {
               to="/"
               class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors"
             >
-              Home
+              {{ $t('nav.home') }}
             </RouterLink>
             <RouterLink
               to="/models"
               class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors"
             >
-              Marketplace
+              {{ $t('nav.models') }}
             </RouterLink>
             <RouterLink
               v-if="auth.isAuthenticated"
               to="/dashboard"
               class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors"
             >
-              Dashboard
+              {{ $t('nav.dashboard') }}
             </RouterLink>
           </div>
         </div>
@@ -111,7 +111,7 @@ const handleLogout = () => {
                 <RouterLink
                   to="/dashboard"
                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >My Profile</RouterLink
+                  >{{ $t('nav.profile') }}</RouterLink
                 >
                 <RouterLink
                   v-if="auth.user?.is_employee"
@@ -122,7 +122,7 @@ const handleLogout = () => {
                     <svg class="w-4 h-4 mr-2 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    Admin Dashboard
+                    {{ $t('nav.admin') }}
                   </span>
                 </RouterLink>
                 <div
@@ -132,7 +132,7 @@ const handleLogout = () => {
                   @click="handleLogout"
                   class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
-                  Sign out
+                  {{ $t('nav.logout') }}
                 </button>
               </div>
             </div>
@@ -143,10 +143,10 @@ const handleLogout = () => {
               to="/login"
               class="text-gray-600 dark:text-gray-300 hover:text-primary-600 font-medium transition-colors"
             >
-              Log in
+              {{ $t('nav.login') }}
             </RouterLink>
             <RouterLink to="/register" class="btn-primary text-sm">
-              Sign up
+              {{ $t('nav.register') }}
             </RouterLink>
           </template>
         </div>
@@ -193,30 +193,30 @@ const handleLogout = () => {
         <RouterLink
           to="/"
           class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >Home</RouterLink
+          >{{ $t('nav.home') }}</RouterLink
         >
         <RouterLink
           to="/models"
           class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >Marketplace</RouterLink
+          >{{ $t('nav.models') }}</RouterLink
         >
         <RouterLink
           v-if="auth.isAuthenticated"
           to="/dashboard"
           class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >Dashboard</RouterLink
+          >{{ $t('nav.dashboard') }}</RouterLink
         >
 
         <template v-if="!auth.isAuthenticated">
           <RouterLink
             to="/login"
             class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >Log in</RouterLink
+            >{{ $t('nav.login') }}</RouterLink
           >
           <RouterLink
             to="/register"
             class="block px-3 py-2 rounded-md text-base font-medium text-primary-600 bg-primary-50 dark:bg-primary-900/20"
-            >Sign up</RouterLink
+            >{{ $t('nav.register') }}</RouterLink
           >
         </template>
         <template v-else>
@@ -224,7 +224,7 @@ const handleLogout = () => {
             @click="handleLogout"
             class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
           >
-            Sign out
+            {{ $t('nav.logout') }}
           </button>
         </template>
       </div>

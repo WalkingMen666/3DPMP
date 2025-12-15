@@ -1,22 +1,21 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-8">
-      Pricing
+      {{ $t('pricing.title') }}
     </h1>
 
     <p class="text-lg text-gray-600 dark:text-gray-300 mb-12">
-      Choose the plan that's right for you. All plans include access to our
-      model marketplace.
+      {{ $t('pricing.subtitle') }}
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- Free Plan -->
       <div class="card p-8 text-center">
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          Free
+          {{ $t('pricing.free.title') }}
         </h3>
         <div class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          $0<span class="text-lg font-normal text-gray-500">/mo</span>
+          $0<span class="text-lg font-normal text-gray-500">{{ $t('pricing.month') }}</span>
         </div>
         <ul class="space-y-3 text-gray-600 dark:text-gray-300 mb-8 text-left">
           <li class="flex items-center">
@@ -33,7 +32,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Browse marketplace
+            {{ $t('pricing.free.feat1') }}
           </li>
           <li class="flex items-center">
             <svg
@@ -49,7 +48,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Download free models
+            {{ $t('pricing.free.feat2') }}
           </li>
           <li class="flex items-center">
             <svg
@@ -65,10 +64,10 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Basic slicing info
+            {{ $t('pricing.free.feat3') }}
           </li>
         </ul>
-        <button class="w-full btn-secondary">Get Started</button>
+        <button class="w-full btn-secondary">{{ $t('pricing.free.cta') }}</button>
       </div>
 
       <!-- Pro Plan -->
@@ -76,13 +75,13 @@
         <div
           class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary-500 text-white px-4 py-1 rounded-full text-sm font-semibold"
         >
-          Popular
+          {{ $t('pricing.pro.popular') }}
         </div>
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          Pro
+          {{ $t('pricing.pro.title') }}
         </h3>
         <div class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          $19<span class="text-lg font-normal text-gray-500">/mo</span>
+          $19<span class="text-lg font-normal text-gray-500">{{ $t('pricing.month') }}</span>
         </div>
         <ul class="space-y-3 text-gray-600 dark:text-gray-300 mb-8 text-left">
           <li class="flex items-center">
@@ -99,7 +98,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Everything in Free
+            {{ $t('pricing.pro.feat1') }}
           </li>
           <li class="flex items-center">
             <svg
@@ -115,7 +114,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Upload unlimited models
+            {{ $t('pricing.pro.feat2') }}
           </li>
           <li class="flex items-center">
             <svg
@@ -131,7 +130,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Advanced slicing options
+            {{ $t('pricing.pro.feat3') }}
           </li>
           <li class="flex items-center">
             <svg
@@ -147,19 +146,19 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Priority support
+            {{ $t('pricing.pro.feat4') }}
           </li>
         </ul>
-        <button class="w-full btn-primary">Subscribe</button>
+        <button class="w-full btn-primary">{{ $t('pricing.pro.cta') }}</button>
       </div>
 
       <!-- Enterprise Plan -->
       <div class="card p-8 text-center">
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          Enterprise
+          {{ $t('pricing.enterprise.title') }}
         </h3>
         <div class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Custom
+          {{ $t('pricing.enterprise.price') }}
         </div>
         <ul class="space-y-3 text-gray-600 dark:text-gray-300 mb-8 text-left">
           <li class="flex items-center">
@@ -176,7 +175,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Everything in Pro
+            {{ $t('pricing.enterprise.feat1') }}
           </li>
           <li class="flex items-center">
             <svg
@@ -192,7 +191,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Custom API access
+            {{ $t('pricing.enterprise.feat2') }}
           </li>
           <li class="flex items-center">
             <svg
@@ -208,7 +207,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Dedicated support
+            {{ $t('pricing.enterprise.feat3') }}
           </li>
           <li class="flex items-center">
             <svg
@@ -224,10 +223,10 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            SLA guarantee
+            {{ $t('pricing.enterprise.feat4') }}
           </li>
         </ul>
-        <button class="w-full btn-secondary">Contact Sales</button>
+        <button class="w-full btn-secondary">{{ $t('pricing.enterprise.cta') }}</button>
       </div>
     </div>
   </div>

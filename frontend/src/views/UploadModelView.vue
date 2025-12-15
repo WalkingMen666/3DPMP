@@ -1,8 +1,12 @@
+```vue
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useModelsStore } from "@/stores/models";
 import { useAuthStore } from "@/stores/auth";
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const router = useRouter();
 const modelsStore = useModelsStore();
@@ -32,16 +36,16 @@ const thumbnailPreview = ref(null);
 const imagePreviews = ref([]);
 
 // Category options
-const categories = [
-  { value: "Toys", label: "Toys & Games" },
-  { value: "Home", label: "Home & Garden" },
-  { value: "Gadgets", label: "Gadgets & Tech" },
-  { value: "Art", label: "Art & Sculptures" },
-  { value: "Fashion", label: "Fashion & Accessories" },
-  { value: "Tools", label: "Tools & Functional" },
-  { value: "Education", label: "Education & Learning" },
-  { value: "Other", label: "Other" },
-];
+const categories = computed(() => [
+  { value: "Toys", label: t('marketplace.categoriesList.Toys') },
+  { value: "Home", label: t('marketplace.categoriesList.Home') },
+  { value: "Gadgets", label: t('marketplace.categoriesList.Gadgets') },
+  { value: "Art", label: t('marketplace.categoriesList.Art') },
+  { value: "Fashion", label: t('marketplace.categoriesList.Fashion') },
+  { value: "Tools", label: t('marketplace.categoriesList.Tools') },
+  { value: "Education", label: t('marketplace.categoriesList.Education') },
+  { value: "Other", label: t('marketplace.categoriesList.Other') },
+]);
 
 // Check auth
 if (!authStore.isAuthenticated) {
@@ -62,18 +66,18 @@ const handleDrop = (e) => {
     stlFile.value = file;
     error.value = "";
   } else {
-    error.value = "Please upload an STL file";
+    error.value = t('upload.validation.uploadStl');
   }
 };
 
 const handleFileSelect = (e) => {
   showValidation.value = false;
   const file = e.target.files[0];
-  if (file && file.name.toLowerCase().endsWith(".stl")) {
+  if (file) {
     stlFile.value = file;
     error.value = "";
   } else {
-    error.value = "Please upload an STL file";
+    error.value = t('upload.validation.uploadStl');
   }
 };
 
@@ -112,9 +116,15 @@ const removeThumbnail = () => {
 const nextStep = () => {
   if (!canProceed.value) {
     showValidation.value = true;
+    if (step.value === 1) {
+      error.value = t('upload.validation.stlRequired');
+    } else if (step.value === 2) {
+      error.value = t('upload.validation.nameRequired');
+    }
     return;
   }
   showValidation.value = false;
+  error.value = ""; // Clear general error if validation passes
   if (step.value < 3) {
     step.value++;
   }
@@ -122,6 +132,7 @@ const nextStep = () => {
 
 const prevStep = () => {
   showValidation.value = false;
+  error.value = ""; // Clear general error
   if (step.value > 1) {
     step.value--;
   }
@@ -129,7 +140,7 @@ const prevStep = () => {
 
 const uploadModel = async () => {
   if (!stlFile.value || !modelName.value.trim()) {
-    error.value = "Please provide a model name and STL file";
+    error.value = t('upload.validation.modelNameAndStlRequired');
     showValidation.value = true;
     return;
   }
@@ -182,7 +193,7 @@ const uploadModel = async () => {
       router.push("/dashboard");
     }, 500);
   } catch (err) {
-    error.value = err.message || "Failed to upload model";
+    error.value = err.message || t('upload.errors.failedToUpload');
     uploading.value = false;
   }
 };
@@ -208,10 +219,10 @@ const resetForm = () => {
     <h1
       class="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center"
     >
-      Upload Model
+      {{ t('upload.title') }}
     </h1>
     <p class="text-gray-500 dark:text-gray-400 text-center mb-8">
-      Share your 3D creation with the community
+      {{ t('upload.subtitle') }}
     </p>
 
     <!-- Progress Steps -->
@@ -257,7 +268,7 @@ const resetForm = () => {
     <!-- Step 1: Upload STL -->
     <div v-if="step === 1">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-        Step 1: Upload STL File
+        {{ t('upload.steps.1') }}
       </h2>
       
       <!-- Validation Error Alert -->
@@ -265,7 +276,7 @@ const resetForm = () => {
         <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
-        <span class="text-red-700 dark:text-red-400 font-medium">Please upload an STL file before proceeding to the next step.</span>
+        <span class="text-red-700 dark:text-red-400 font-medium">{{ t('upload.validation.stlRequired') }}</span>
       </div>
 
       <div
@@ -297,13 +308,13 @@ const resetForm = () => {
             />
           </svg>
           <p class="mt-4 text-lg" :class="showValidation ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'">
-            <span v-if="showValidation">Please upload an STL file to continue</span>
+            <span v-if="showValidation">{{ t('upload.validation.uploadStl') }}</span>
             <span v-else>
-              Drag and drop your STL file here, or
+              {{ t('upload.dragDrop') }}
               <label
                 class="text-primary-600 hover:text-primary-500 cursor-pointer font-medium"
               >
-                browse
+                {{ t('upload.browse') }}
                 <input
                   type="file"
                   class="hidden"
@@ -314,7 +325,7 @@ const resetForm = () => {
             </span>
           </p>
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            STL files up to 50MB
+            {{ t('upload.maxSize') }}
           </p>
         </div>
 
@@ -344,7 +355,7 @@ const resetForm = () => {
             @click="stlFile = null"
             class="text-red-600 hover:text-red-500 text-sm font-medium"
           >
-            Remove file
+            {{ t('upload.removeFile') }}
           </button>
         </div>
       </div>
@@ -353,7 +364,7 @@ const resetForm = () => {
     <!-- Step 2: Model Details -->
     <div v-if="step === 2">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-        Step 2: Model Details
+        {{ t('upload.steps.2') }}
       </h2>
       
       <!-- Validation Error Alert -->
@@ -361,7 +372,7 @@ const resetForm = () => {
         <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
-        <span class="text-red-700 dark:text-red-400 font-medium">Model name is required. Please enter a name for your model.</span>
+        <span class="text-red-700 dark:text-red-400 font-medium">{{ t('upload.validation.nameRequired') }}</span>
       </div>
 
       <div class="space-y-6">
@@ -370,18 +381,18 @@ const resetForm = () => {
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Model Name *
+            {{ t('upload.form.name') }} *
           </label>
           <input
             v-model="modelName"
             type="text"
             class="input-field"
             :class="showValidation && !modelName.trim() ? 'border-red-500 ring-1 ring-red-500' : ''"
-            placeholder="Enter a descriptive name for your model"
+            :placeholder="t('upload.form.namePlaceholder')"
             required
           />
           <p v-if="showValidation && !modelName.trim()" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            Model name is required
+            {{ t('upload.validation.nameRequired') }}
           </p>
         </div>
 
@@ -390,13 +401,13 @@ const resetForm = () => {
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Description
+            {{ t('upload.form.description') }}
           </label>
           <textarea
             v-model="description"
             rows="4"
             class="input-field"
-            placeholder="Describe your model, printing recommendations, etc."
+            :placeholder="t('upload.form.descriptionPlaceholder')"
           ></textarea>
         </div>
 
@@ -405,7 +416,7 @@ const resetForm = () => {
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Category
+            {{ t('upload.form.category') }}
           </label>
           <select v-model="category" class="input-field">
             <option v-for="cat in categories" :key="cat.value" :value="cat.value">
@@ -419,16 +430,16 @@ const resetForm = () => {
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Tags
+            {{ t('upload.form.tags') }}
           </label>
           <input
             v-model="tags"
             type="text"
             class="input-field"
-            placeholder="miniature, gaming, tabletop (comma separated)"
+            :placeholder="t('upload.form.tagsPlaceholder')"
           />
           <p class="mt-1 text-sm text-gray-500">
-            Separate tags with commas
+            {{ t('upload.form.tagsHelp') }}
           </p>
         </div>
       </div>
@@ -437,7 +448,7 @@ const resetForm = () => {
     <!-- Step 3: Images -->
     <div v-if="step === 3">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-        Step 3: Add Images (Optional)
+        {{ t('upload.steps.3') }}
       </h2>
 
       <!-- Thumbnail -->
@@ -445,7 +456,7 @@ const resetForm = () => {
         <label
           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
-          Thumbnail Image
+          {{ t('upload.form.thumbnail') }}
         </label>
         <div class="flex items-start space-x-4">
           <div
@@ -455,7 +466,7 @@ const resetForm = () => {
             <img
               :src="thumbnailPreview"
               class="w-full h-full object-cover"
-              alt="Thumbnail preview"
+              :alt="t('upload.form.thumbnail')"
             />
             <button
               @click="removeThumbnail"
@@ -473,7 +484,7 @@ const resetForm = () => {
             <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            <span class="text-xs text-gray-500 mt-1">Add thumbnail</span>
+            <span class="text-xs text-gray-500 mt-1">{{ t('upload.form.addThumbnail') }}</span>
             <input
               type="file"
               class="hidden"
@@ -489,7 +500,7 @@ const resetForm = () => {
         <label
           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
-          Additional Images
+          {{ t('upload.form.additionalImages') }}
         </label>
         <div class="grid grid-cols-4 gap-4">
           <div
@@ -500,7 +511,7 @@ const resetForm = () => {
             <img
               :src="preview"
               class="w-full h-full object-cover"
-              alt="Image preview"
+              :alt="t('upload.form.additionalImages')"
             />
             <button
               @click="removeImage(index)"
@@ -518,7 +529,7 @@ const resetForm = () => {
             <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            <span class="text-xs text-gray-500 mt-1">Add image</span>
+            <span class="text-xs text-gray-500 mt-1">{{ t('upload.form.addImage') }}</span>
             <input
               type="file"
               class="hidden"

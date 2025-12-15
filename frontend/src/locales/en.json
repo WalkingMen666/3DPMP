@@ -1,0 +1,546 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "success": "Success",
+    "error": "Error",
+    "back": "Back",
+    "next": "Next",
+    "viewAll": "View All",
+    "viewDetails": "View Details"
+  },
+  "nav": {
+    "home": "Home",
+    "models": "Models",
+    "upload": "Upload",
+    "cart": "Cart",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "logout": "Sign out",
+    "register": "Register",
+    "profile": "My Profile",
+    "admin": "Admin Dashboard"
+  },
+  "model": {
+    "by": "by"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "or": "Or",
+    "createAccount": "create a new account",
+    "email": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "confirmPassword": "Confirm Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot your password?",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "continueWith": "Or continue with",
+    "googleNotConfigured": "Google (Not configured)",
+    "signInWithGoogle": "Sign in with Google on login page",
+    "createAccountTitle": "Create an account",
+    "alreadyHaveAccount": "Already have an account?",
+    "signUp": "Sign up",
+    "creatingAccount": "Creating account...",
+    "signUpWith": "Or sign up with",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "passwordsMatch": "✓ Passwords match",
+    "passwordRequired": "Password is required",
+    "authFailed": "Invalid email or password. Please check your credentials.",
+    "googleFailed": "Google sign-in failed. Please try again.",
+    "registrationFailed": "Registration failed",
+    "passwordStrength": {
+      "title": "Password Strength",
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong",
+      "min": "At least 8 characters",
+      "upper": "One uppercase letter",
+      "lower": "One lowercase letter",
+      "number": "One number",
+      "special": "One special character (recommended)"
+    }
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "title": "Dashboard Overview",
+    "totalOrders": "Total Orders",
+    "modelsUploaded": "Models Uploaded",
+    "balance": "Balance",
+    "quickActions": "Quick Actions",
+    "uploadModel": "Upload Model",
+    "browseMarketplace": "Browse Marketplace",
+    "myOrders": "My Orders",
+    "myModels": "My Models",
+    "settings": "Settings",
+    "noOrdersYet": "No orders yet",
+    "startShopping": "Start shopping to see your orders here",
+    "noModelsYet": "No models uploaded yet",
+    "shareCreations": "Share your 3D creations with the community",
+    "uploadFirstModel": "Upload Your First Model",
+    "orderId": "Order ID",
+    "date": "Date",
+    "status": "Status",
+    "total": "Total",
+    "action": "Action",
+    "cancelOrder": "Cancel",
+    "views": "views",
+    "downloads": "downloads",
+    "confirmDelete": "Are you sure you want to delete this model? This action cannot be undone.",
+    "deleteFailed": "Failed to delete model",
+    "confirmSubmit": "Submit this model for public review? An admin will review and approve it for the marketplace.",
+    "submitSuccess": "Model submitted for review successfully!",
+    "submitFailed": "Failed to submit for review",
+    "rejectionReasonTitle": "Rejection Reason",
+    "noReason": "No reason provided",
+    "reviewedBy": "Reviewed by",
+    "dateReviewed": "Date",
+    "noRejectionDetails": "No rejection details found.",
+    "loadRejectionFailed": "Failed to load rejection details.",
+    "confirmCancelOrder": "Are you sure you want to cancel this order?",
+    "cancelFailed": "Failed to cancel order",
+    "uploadImage": "Please upload an image file",
+    "imageSize": "Image size should be less than 5MB",
+    "updateAvatarFailed": "Failed to update avatar",
+    "saveNameFailed": "Failed to save display name",
+    "modelStatuses": {
+      "PRIVATE": "PRIVATE",
+      "PUBLIC": "PUBLIC",
+      "PENDING": "PENDING",
+      "REJECTED": "REJECTED"
+    },
+    "submitting": "Submitting...",
+    "resubmit": "Resubmit",
+    "makePublic": "Make Public",
+    "why": "Why?",
+    "viewRejectionReason": "View rejection reason",
+    "submitForPublicReview": "Submit for public review",
+    "viewModel": "View model",
+    "deleteModel": "Delete model"
+  },
+  "settings": {
+    "title": "Settings",
+    "avatar": "Avatar",
+    "upload": "Upload",
+    "saveAvatar": "Save Avatar",
+    "saving": "Saving...",
+    "profileInfo": "Profile Information",
+    "displayName": "Display Name",
+    "enterDisplayName": "Enter your display name",
+    "email": "Email",
+    "emailCannotChange": "Email cannot be changed",
+    "notifications": "Notifications",
+    "emailNotifications": "Email notifications for orders",
+    "orderUpdates": "Receive updates about your order status",
+    "marketingEmails": "Marketing emails",
+    "marketingUpdates": "Receive news about new features and promotions",
+    "preferences": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "themeNote": "Use the theme toggle in the navigation bar to switch between light and dark mode",
+    "saveChanges": "Save Changes",
+    "saved": "Saved",
+    "settingsSaved": "Settings saved successfully!"
+  },
+  "about": {
+    "title": "About Us",
+    "mission": {
+      "title": "Our Mission",
+      "description": "3DPMP (3D Printing Model Platform) is dedicated to creating the ultimate marketplace for 3D printing enthusiasts, designers, and businesses. We connect creators with customers, making it easy to share, discover, and print amazing 3D models."
+    },
+    "offer": {
+      "title": "What We Offer",
+      "marketplace": "Model Marketplace",
+      "marketplaceDesc": "Browse thousands of high-quality 3D models from talented creators worldwide.",
+      "slicing": "Automatic Slicing",
+      "slicingDesc": "Get instant print estimates including time, material usage, and cost.",
+      "services": "Printing Services",
+      "servicesDesc": "Don't have a printer? We'll print and ship your models directly to you.",
+      "tools": "Creator Tools",
+      "toolsDesc": "Upload your models and earn money from your designs."
+    },
+    "team": {
+      "title": "Our Team",
+      "description": "We are a passionate team of engineers, designers, and 3D printing enthusiasts committed to advancing the world of digital fabrication. Founded in 2025, 3DPMP continues to innovate and expand the possibilities of 3D printing technology."
+    }
+  },
+  "home": {
+    "hero": {
+      "titlePrefix": "Bring Your Ideas to",
+      "titleSuffix": "Life",
+      "subtitle": "The premier platform for sharing 3D models and professional printing services. Upload, slice, and print in minutes.",
+      "explore": "Explore Models",
+      "start": "Start Printing"
+    },
+    "features": {
+      "upload": "Instant Upload & Slicing",
+      "uploadDesc": "Upload your STL files and get instant slicing estimates, material usage, and pricing.",
+      "printing": "Professional Printing",
+      "printingDesc": "High-quality printing services with various materials delivered straight to your doorstep.",
+      "community": "Community Driven",
+      "communityDesc": "Join a thriving community of creators. Share your designs and get feedback."
+    },
+    "featured": {
+      "title": "Featured Models",
+      "subtitle": "Discover the most popular designs this week"
+    }
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Choose the plan that's right for you. All plans include access to our model marketplace.",
+    "month": "/mo",
+    "free": {
+      "title": "Free",
+      "feat1": "Browse marketplace",
+      "feat2": "Download free models",
+      "feat3": "Basic slicing info",
+      "cta": "Get Started"
+    },
+    "pro": {
+      "title": "Pro",
+      "popular": "Popular",
+      "feat1": "Everything in Free",
+      "feat2": "Upload unlimited models",
+      "feat3": "Advanced slicing options",
+      "feat4": "Priority support",
+      "cta": "Subscribe"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "price": "Custom",
+      "feat1": "Everything in Pro",
+      "feat2": "Custom API access",
+      "feat3": "Dedicated support",
+      "feat4": "SLA guarantee",
+      "cta": "Contact Sales"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: December 2, 2025",
+    "sections": {
+      "collection": {
+        "title": "1. Information We Collect",
+        "description": "We collect information you provide directly to us, such as when you create an account, upload models, make purchases, or contact us for support. This may include:",
+        "items": [
+          "Name and email address",
+          "Payment information",
+          "Shipping address",
+          "3D model files you upload",
+          "Communications with our support team"
+        ]
+      },
+      "usage": {
+        "title": "2. How We Use Your Information",
+        "description": "We use the information we collect to provide, maintain, and improve our services, process transactions, send you technical notices and support messages, and respond to your comments and questions."
+      },
+      "security": {
+        "title": "3. Data Security",
+        "description": "We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet is 100% secure."
+      },
+      "rights": {
+        "title": "4. Your Rights",
+        "description": "You have the right to access, update, or delete your personal information at any time. You can do this through your account settings or by contacting us directly."
+      },
+      "contact": {
+        "title": "5. Contact Us",
+        "description": "If you have any questions about this Privacy Policy, please contact us at"
+      }
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: December 2, 2025",
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "description": "By accessing and using 3DPMP, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our platform."
+      },
+      "accounts": {
+        "title": "2. User Accounts",
+        "description": "You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.",
+        "items": [
+          "You must provide accurate and complete information",
+          "You must be at least 18 years old to create an account",
+          "You may not share your account credentials with others"
+        ]
+      },
+      "intellectual": {
+        "title": "3. Intellectual Property",
+        "description": "Users retain ownership of the 3D models they upload. By uploading content, you grant 3DPMP a non-exclusive license to display and distribute your models on the platform. You must only upload content that you have the rights to share."
+      },
+      "prohibited": {
+        "title": "4. Prohibited Content",
+        "description": "You may not upload or share content that:",
+        "items": [
+          "Infringes on intellectual property rights",
+          "Contains illegal or harmful content",
+          "Violates any applicable laws or regulations",
+          "Contains malicious code or files"
+        ]
+      },
+      "payment": {
+        "title": "5. Payment Terms",
+        "description": "All purchases are subject to our pricing and payment terms. Prices are subject to change without notice. We accept various payment methods as indicated during checkout."
+      },
+      "liability": {
+        "title": "6. Limitation of Liability",
+        "description": "3DPMP is provided \"as is\" without warranties of any kind. We are not liable for any damages arising from your use of the platform, including but not limited to direct, indirect, incidental, or consequential damages."
+      }
+    }
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "browseModels": "Browse Models",
+    "material": "Material",
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "total": "Total",
+      "checkout": "Proceed to Checkout"
+    }
+  },
+  "modelDetail": {
+    "by": "by",
+    "addToCart": "Add to Cart",
+    "addedToCart": "Added to Cart!",
+    "backToMarketplace": "← Back to Marketplace",
+    "notFound": {
+      "title": "Model Not Found",
+      "description": "The model you're looking for doesn't exist or has been removed."
+    },
+    "slicing": {
+      "title": "Slicing Estimates",
+      "calculating": "Calculating print parameters...",
+      "pending": "Slicing pending - estimates will be available once processing is complete",
+      "weight": "Weight",
+      "time": "Time",
+      "filament": "Filament"
+    }
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "searchPlaceholder": "Search models...",
+    "categories": "Categories",
+    "maxPrice": "Max Price",
+    "sortBy": "Sort By",
+    "showingResults": "Showing {count} results",
+    "noModelsFound": "No models found",
+    "tryAdjusting": "Try adjusting your search or filter criteria",
+    "sortOptions": {
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "priceAsc": "Price (Low to High)",
+      "priceDesc": "Price (High to Low)",
+      "authorAsc": "Author (A-Z)"
+    },
+    "categoriesList": {
+      "All": "All",
+      "Art": "Art & Sculptures",
+      "Engineering": "Engineering",
+      "Fashion": "Fashion & Accessories",
+      "Gadgets": "Gadgets & Tech",
+      "Toys": "Toys & Games",
+      "Home": "Home & Garden",
+      "Tools": "Tools & Functional",
+      "Education": "Education & Learning",
+      "Other": "Others"
+    }
+  },
+  "upload": {
+    "title": "Upload Model",
+    "subtitle": "Share your 3D creation with the community",
+    "steps": {
+      "1": "Step 1: Upload STL File",
+      "2": "Step 2: Model Details",
+      "3": "Step 3: Add Images (Optional)"
+    },
+    "dragDrop": "Drag and drop your STL file here, or",
+    "browse": "browse",
+    "maxSize": "STL files up to 50MB",
+    "removeFile": "Remove file",
+    "validation": {
+      "stlRequired": "Please upload an STL file before proceeding to the next step.",
+      "nameRequired": "Model name is required. Please enter a name for your model.",
+      "uploadStl": "Please upload an STL file"
+    },
+    "form": {
+      "name": "Model Name *",
+      "namePlaceholder": "Enter a descriptive name for your model",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe your model, printing recommendations, etc.",
+      "category": "Category",
+      "tags": "Tags",
+      "tagsPlaceholder": "miniature, gaming, tabletop (comma separated)",
+      "tagsHelp": "Separate tags with commas",
+      "thumbnail": "Thumbnail Image",
+      "addThumbnail": "Add thumbnail",
+      "additionalImages": "Additional Images",
+      "addImage": "Add image",
+      "imagesHelp": "You can add up to 8 images. Recommended: 1920x1080 or higher."
+    },
+    "buttons": {
+      "prev": "← Previous",
+      "next": "Next →",
+      "reset": "Reset",
+      "upload": "Upload Model",
+      "uploading": "Uploading..."
+    }
+  },
+  "admin": {
+    "sidebar": {
+      "pendingModels": "Pending Models",
+      "orders": "Orders",
+      "materials": "Materials",
+      "shipping": "Shipping Options",
+      "discounts": "Discounts",
+      "employees": "Employees"
+    },
+    "pendingReviews": {
+      "title": "Pending Model Reviews",
+      "noPending": "No models pending review",
+      "clickToView": "Click to view details",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectTitle": "Reject Model",
+      "rejectReason": "Please provide a reason for rejecting \"{name}\":",
+      "enterReason": "Enter rejection reason (required)...",
+      "cancel": "Cancel",
+      "confirmReject": "Reject"
+    },
+    "orders": {
+      "title": "Order Management",
+      "noPending": "No pending orders",
+      "columns": {
+        "id": "Order ID",
+        "customer": "Customer",
+        "status": "Status",
+        "total": "Total",
+        "actions": "Actions"
+      },
+      "process": "Process",
+      "ship": "Ship"
+    },
+    "materials": {
+      "title": "Materials Management",
+      "add": "+ Add Material",
+      "noMaterials": "No materials configured",
+      "columns": {
+        "name": "Name",
+        "density": "Density (g/cm³)",
+        "price": "Price (TWD/g)",
+        "actions": "Actions"
+      },
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "shipping": {
+      "title": "Shipping Options",
+      "add": "+ Add Option",
+      "noOptions": "No shipping options configured",
+      "type": "Type",
+      "baseFee": "Base Fee",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit"
+    },
+    "common": {
+      "comingSoon": "{feature} management coming soon",
+      "useDjangoAdmin": "Use Django Admin for now: /admin/"
+    }
+  },
+  "footer": {
+    "description": "The premier platform for 3D model sharing and professional printing services.",
+    "platform": "Platform",
+    "pricing": "Pricing",
+    "company": "Company",
+    "about": "About Us",
+    "contact": "Contact",
+    "careers": "Careers",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "faq": "FAQ",
+    "shipping": "Shipping",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "© {year} 3D Print Marketplace. All rights reserved."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about our platform.",
+    "stillHaveQuestions": "Still have questions?",
+    "contact": "Contact Us",
+    "questions": {
+      "formats": {
+        "q": "What file formats do you support?",
+        "a": "We primarily support STL files, which is the most common format for 3D printing. We also accept OBJ and 3MF files."
+      },
+      "slicing": {
+        "q": "How does the automatic slicing work?",
+        "a": "When you upload or view a model, our system automatically calculates print parameters including estimated print time, material usage, and weight. This uses industry-standard slicer algorithms."
+      },
+      "sell": {
+        "q": "Can I sell my own 3D models?",
+        "a": "Yes! You can upload your own 3D models to our marketplace and set your own prices. We take a small commission on each sale to cover platform costs."
+      },
+      "materials": {
+        "q": "What materials are available for printing?",
+        "a": "We offer PLA, PETG, ABS, and various specialty materials. Each material has different properties suitable for different applications."
+      },
+      "shipping": {
+        "q": "How long does shipping take?",
+        "a": "Print times vary based on model complexity. After printing, standard shipping typically takes 3-7 business days. Express shipping options are also available."
+      },
+      "refunds": {
+        "q": "Do you offer refunds?",
+        "a": "Yes, we offer full refunds for defective prints. For digital model purchases, refunds are handled case-by-case. Please contact support for assistance."
+      }
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have a question or feedback? We'd love to hear from you.",
+    "success": {
+      "title": "Message Sent!",
+      "message": "We'll get back to you as soon as possible."
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "subject": "Subject",
+      "selectTopic": "Select a topic",
+      "topics": {
+        "general": "General Inquiry",
+        "support": "Technical Support",
+        "billing": "Billing Question",
+        "partnership": "Partnership"
+      },
+      "message": "Message",
+      "messagePlaceholder": "Your message...",
+      "send": "Send Message",
+      "sending": "Sending..."
+    },
+    "info": {
+      "email": "Email",
+      "address": "Address",
+      "addressValue": "123 Innovation Street\nTech City, TC 12345",
+      "hours": "Business Hours",
+      "hoursValue": "Monday - Friday: 9AM - 6PM\nSaturday - Sunday: Closed"
+    }
+  }
+}

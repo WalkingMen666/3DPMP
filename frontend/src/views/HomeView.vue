@@ -3,7 +3,9 @@ import { ref, onMounted, computed } from "vue";
 import { RouterLink } from "vue-router";
 import ModelCard from "../components/ModelCard.vue";
 import { useModelsStore } from "../stores/models";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const modelsStore = useModelsStore();
 const loading = ref(true);
 
@@ -26,7 +28,7 @@ const featuredModels = computed(() => {
     name: model.model_name,
     author: model.owner_name || 'Unknown',
     price: model.base_price || '0.00',
-    image: model.thumbnail || `https://placehold.co/400x400/6366f1/fff?text=${encodeURIComponent(model.model_name?.slice(0, 8) || 'Model')}`
+    image: model.thumbnail || `https://placehold.co/400x400/6366f1/fff?text=${encodeURIComponent(model.model_name?.slice(0, 8) || t('nav.models'))}`
   }));
 });
 </script>
@@ -43,22 +45,21 @@ const featuredModels = computed(() => {
           <h1
             class="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight"
           >
-            Bring Your Ideas to
+            {{ $t('home.hero.titlePrefix') }}
             <span
               class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-400"
-              >Life</span
+              >{{ $t('home.hero.titleSuffix') }}</span
             >
           </h1>
           <p class="text-xl text-gray-600 dark:text-gray-300 mb-10">
-            The premier platform for sharing 3D models and professional printing
-            services. Upload, slice, and print in minutes.
+            {{ $t('home.hero.subtitle') }}
           </p>
           <div class="flex justify-center gap-4">
             <RouterLink to="/models" class="btn-primary text-lg px-8 py-3">
-              Explore Models
+              {{ $t('home.hero.explore') }}
             </RouterLink>
             <RouterLink to="/upload" class="btn-secondary text-lg px-8 py-3">
-              Start Printing
+              {{ $t('home.hero.start') }}
             </RouterLink>
           </div>
         </div>
@@ -91,11 +92,10 @@ const featuredModels = computed(() => {
               </svg>
             </div>
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Instant Upload & Slicing
+              {{ $t('home.features.upload') }}
             </h3>
             <p class="text-gray-600 dark:text-gray-400">
-              Upload your STL files and get instant slicing estimates, material
-              usage, and pricing.
+              {{ $t('home.features.uploadDesc') }}
             </p>
           </div>
           <div
@@ -120,11 +120,10 @@ const featuredModels = computed(() => {
               </svg>
             </div>
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Professional Printing
+              {{ $t('home.features.printing') }}
             </h3>
             <p class="text-gray-600 dark:text-gray-400">
-              High-quality printing services with various materials delivered
-              straight to your doorstep.
+              {{ $t('home.features.printingDesc') }}
             </p>
           </div>
           <div
@@ -149,11 +148,10 @@ const featuredModels = computed(() => {
               </svg>
             </div>
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Community Driven
+              {{ $t('home.features.community') }}
             </h3>
             <p class="text-gray-600 dark:text-gray-400">
-              Join a thriving community of creators. Share your designs and get
-              feedback.
+              {{ $t('home.features.communityDesc') }}
             </p>
           </div>
         </div>
@@ -166,17 +164,17 @@ const featuredModels = computed(() => {
         <div class="flex justify-between items-end mb-10">
           <div>
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Featured Models
+              {{ $t('home.featured.title') }}
             </h2>
             <p class="text-gray-600 dark:text-gray-400">
-              Discover the most popular designs this week
+              {{ $t('home.featured.subtitle') }}
             </p>
           </div>
           <RouterLink
             to="/models"
             class="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 flex items-center"
           >
-            View All
+            {{ $t('common.viewAll') }}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-5 w-5 ml-1"

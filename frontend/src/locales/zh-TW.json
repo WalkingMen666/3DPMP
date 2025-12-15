@@ -1,0 +1,546 @@
+{
+  "common": {
+    "loading": "載入中...",
+    "save": "儲存",
+    "cancel": "取消",
+    "delete": "刪除",
+    "edit": "編輯",
+    "view": "檢視",
+    "submit": "提交",
+    "confirm": "確認",
+    "yes": "是",
+    "no": "否",
+    "success": "成功",
+    "error": "錯誤",
+    "back": "返回",
+    "next": "下一步",
+    "viewAll": "查看全部",
+    "viewDetails": "查看詳情"
+  },
+  "nav": {
+    "home": "首頁",
+    "models": "模型",
+    "upload": "上傳",
+    "cart": "購物車",
+    "dashboard": "儀表板",
+    "login": "登入",
+    "logout": "登出",
+    "register": "註冊",
+    "profile": "我的個人資料",
+    "admin": "管理員儀表板"
+  },
+  "model": {
+    "by": "作者"
+  },
+  "auth": {
+    "welcomeBack": "歡迎回來",
+    "or": "或",
+    "createAccount": "建立新帳號",
+    "email": "電子郵件地址",
+    "emailPlaceholder": "you@example.com",
+    "password": "密碼",
+    "passwordPlaceholder": "••••••••",
+    "confirmPassword": "確認密碼",
+    "rememberMe": "記住我",
+    "forgotPassword": "忘記密碼？",
+    "signIn": "登入",
+    "signingIn": "登入中...",
+    "continueWith": "或透過以下方式繼續",
+    "googleNotConfigured": "Google (未設定)",
+    "signInWithGoogle": "在登入頁面透過 Google 登入",
+    "createAccountTitle": "建立帳號",
+    "alreadyHaveAccount": "已經有帳號了嗎？",
+    "signUp": "註冊",
+    "creatingAccount": "建立帳號中...",
+    "signUpWith": "或透過以下方式註冊",
+    "passwordsDoNotMatch": "密碼不符",
+    "passwordsMatch": "✓ 密碼相符",
+    "passwordRequired": "密碼為必填",
+    "authFailed": "無效的電子郵件或密碼。請檢查您的憑證。",
+    "googleFailed": "Google 登入失敗。請再試一次。",
+    "registrationFailed": "註冊失敗",
+    "passwordStrength": {
+      "title": "密碼強度",
+      "weak": "弱",
+      "medium": "中",
+      "strong": "強",
+      "min": "至少 8 個字元",
+      "upper": "一個大寫字母",
+      "lower": "一個小寫字母",
+      "number": "一個數字",
+      "special": "一個特殊符號 (建議)"
+    }
+  },
+  "dashboard": {
+    "overview": "總覽",
+    "title": "儀表板總覽",
+    "totalOrders": "總訂單數",
+    "modelsUploaded": "已上傳模型",
+    "balance": "餘額",
+    "quickActions": "快速操作",
+    "uploadModel": "上傳模型",
+    "browseMarketplace": "瀏覽市集",
+    "myOrders": "我的訂單",
+    "myModels": "我的模型",
+    "settings": "設定",
+    "noOrdersYet": "尚無訂單",
+    "startShopping": "開始購物以在此處查看您的訂單",
+    "noModelsYet": "尚未上傳任何模型",
+    "shareCreations": "與社群分享您的 3D 創作",
+    "uploadFirstModel": "上傳您的第一個模型",
+    "orderId": "訂單編號",
+    "date": "日期",
+    "status": "狀態",
+    "total": "總計",
+    "action": "操作",
+    "cancelOrder": "取消",
+    "views": "次瀏覽",
+    "downloads": "次下載",
+    "confirmDelete": "您確定要刪除此模型嗎？此操作無法撤銷。",
+    "deleteFailed": "刪除模型失敗",
+    "confirmSubmit": "提交此模型進行公開審核？管理員將審核並批准其在市場上架。",
+    "submitSuccess": "模型已成功提交審核！",
+    "submitFailed": "提交審核失敗",
+    "rejectionReasonTitle": "拒絕原因",
+    "noReason": "未提供原因",
+    "reviewedBy": "審核人",
+    "dateReviewed": "日期",
+    "noRejectionDetails": "未找到拒絕詳情。",
+    "loadRejectionFailed": "加載拒絕詳情失敗。",
+    "confirmCancelOrder": "您確定要取消此訂單嗎？",
+    "cancelFailed": "取消訂單失敗",
+    "uploadImage": "請上傳圖片文件",
+    "imageSize": "圖片大小應小於 5MB",
+    "updateAvatarFailed": "更新頭像失敗",
+    "saveNameFailed": "保存顯示名稱失敗",
+    "modelStatuses": {
+      "PRIVATE": "私有",
+      "PUBLIC": "公開",
+      "PENDING": "審核中",
+      "REJECTED": "已拒絕"
+    },
+    "submitting": "提交中...",
+    "resubmit": "重新提交",
+    "makePublic": "設為公開",
+    "why": "原因？",
+    "viewRejectionReason": "查看拒絕原因",
+    "submitForPublicReview": "提交公開審核",
+    "viewModel": "查看模型",
+    "deleteModel": "刪除模型"
+  },
+  "settings": {
+    "title": "設定",
+    "avatar": "頭像",
+    "upload": "上傳",
+    "saveAvatar": "儲存頭像",
+    "saving": "儲存中...",
+    "profileInfo": "個人資料",
+    "displayName": "顯示名稱",
+    "enterDisplayName": "輸入您的顯示名稱",
+    "email": "電子郵件",
+    "emailCannotChange": "電子郵件無法變更",
+    "notifications": "通知",
+    "emailNotifications": "訂單電子郵件通知",
+    "orderUpdates": "接收訂單狀態更新",
+    "marketingEmails": "行銷電子郵件",
+    "marketingUpdates": "接收新功能和促銷消息",
+    "preferences": "偏好設定",
+    "language": "語言",
+    "theme": "主題",
+    "themeNote": "使用導航列的主題切換按鈕在淺色和深色模式之間切換",
+    "saveChanges": "儲存變更",
+    "saved": "已儲存",
+    "settingsSaved": "設定已成功儲存！"
+  },
+  "about": {
+    "title": "關於我們",
+    "mission": {
+      "title": "我們的使命",
+      "description": "3DPMP (3D Printing Model Platform) 致力於為 3D 列印愛好者、設計師和企業打造終極市集。我們連結創作者與客戶，讓分享、探索和列印精彩的 3D 模型變得容易。"
+    },
+    "offer": {
+      "title": "我們提供什麼",
+      "marketplace": "模型市集",
+      "marketplaceDesc": "瀏覽來自全球才華橫溢的創作者的成千上萬的高品質 3D 模型。",
+      "slicing": "自動切片",
+      "slicingDesc": "獲得即時的列印估算，包括時間、材料用量和成本。",
+      "services": "列印服務",
+      "servicesDesc": "沒有印表機？我們將為您列印模型並直接運送給您。",
+      "tools": "創作者工具",
+      "toolsDesc": "上傳您的模型並通過您的設計賺取收入。"
+    },
+    "team": {
+      "title": "我們的團隊",
+      "description": "我們是一群充滿熱情的工程師、設計師和 3D 列印愛好者，致力於推進數位製造領域的發展。3DPMP 成立於 2025 年，持續創新並擴展 3D 列印技術的可能性。"
+    }
+  },
+  "home": {
+    "hero": {
+      "titlePrefix": "將您的創意變為",
+      "titleSuffix": "現實",
+      "subtitle": "用於分享 3D 模型和專業列印服務的首選平台。幾分鐘內即可上傳、切片和列印。",
+      "explore": "探索模型",
+      "start": "開始列印"
+    },
+    "features": {
+      "upload": "即時上傳與切片",
+      "uploadDesc": "上傳您的 STL 檔案並獲得即時切片估算、材料用量和定價。",
+      "printing": "專業列印",
+      "printingDesc": "提供多種材料的高品質列印服務，直接送到您家門口。",
+      "community": "社群驅動",
+      "communityDesc": "加入蓬勃發展的創作者社群。分享您的設計並獲得回饋。"
+    },
+    "featured": {
+      "title": "精選模型",
+      "subtitle": "探索本週最受歡迎的設計"
+    }
+  },
+  "pricing": {
+    "title": "價格",
+    "subtitle": "選擇最適合您的方案。所有方案皆包含存取我們的模型市集。",
+    "month": "/月",
+    "free": {
+      "title": "免費",
+      "feat1": "瀏覽市集",
+      "feat2": "下載免費模型",
+      "feat3": "基本切片資訊",
+      "cta": "開始使用"
+    },
+    "pro": {
+      "title": "專業版",
+      "popular": "熱門",
+      "feat1": "包含免費版所有功能",
+      "feat2": "上傳無限模型",
+      "feat3": "進階切片選項",
+      "feat4": "優先支援",
+      "cta": "訂閱"
+    },
+    "enterprise": {
+      "title": "企業版",
+      "price": "客製化",
+      "feat1": "包含專業版所有功能",
+      "feat2": "客製化 API 存取",
+      "feat3": "專屬支援",
+      "feat4": "SLA 保證",
+      "cta": "聯絡銷售"
+    }
+  },
+  "privacy": {
+    "title": "隱私權政策",
+    "lastUpdated": "最後更新：2025 年 12 月 2 日",
+    "sections": {
+      "collection": {
+        "title": "1. 我們收集的資訊",
+        "description": "我們收集您直接提供給我們的資訊，例如當您建立帳號、上傳模型、進行購買或聯絡我們尋求支援時。這可能包括：",
+        "items": [
+          "姓名和電子郵件地址",
+          "付款資訊",
+          "運送地址",
+          "您上傳的 3D 模型檔案",
+          "與我們支援團隊的通訊"
+        ]
+      },
+      "usage": {
+        "title": "2. 我們如何使用您的資訊",
+        "description": "我們使用收集的資訊來提供、維護和改善我們的服務，處理交易，發送技術通知和支援訊息，並回應您的評論和問題。"
+      },
+      "security": {
+        "title": "3. 資料安全",
+        "description": "我們實施適當的安全措施來保護您的個人資訊，防止未經授權的存取、變更、揭露或破壞。然而，網際網路上的傳輸方法並非 100% 安全。"
+      },
+      "rights": {
+        "title": "4. 您的權利",
+        "description": "您有權隨時存取、更新或刪除您的個人資訊。您可以透過您的帳號設定或直接聯絡我們來完成此操作。"
+      },
+      "contact": {
+        "title": "5. 聯絡我們",
+        "description": "如果您對本隱私權政策有任何疑問，請聯絡我們："
+      }
+    }
+  },
+  "terms": {
+    "title": "服務條款",
+    "lastUpdated": "最後更新：2025年12月2日",
+    "sections": {
+      "acceptance": {
+        "title": "1. 接受條款",
+        "description": "通過訪問和使用 3DPMP，即表示您同意受這些服務條款的約束。如果您不同意這些條款，請勿使用我們的平台。"
+      },
+      "accounts": {
+        "title": "2. 用戶帳戶",
+        "description": "您有責任維護您的帳戶和密碼的機密性。您同意對您帳戶下發生的所有活動負責。",
+        "items": [
+          "您必須提供準確和完整的信息",
+          "您必須年滿 18 歲才能創建帳戶",
+          "您不得與他人共享您的帳戶憑據"
+        ]
+      },
+      "intellectual": {
+        "title": "3. 知識產權",
+        "description": "用戶保留其上傳的 3D 模型的所有權。通過上傳內容，即表示您授予 3DPMP 在平台上顯示和分發您的模型的非獨家許可。您必須僅上傳您有權分享的內容。"
+      },
+      "prohibited": {
+        "title": "4. 禁止內容",
+        "description": "您不得上傳或分享以下內容：",
+        "items": [
+          "侵犯知識產權",
+          "包含非法或有害內容",
+          "違反任何適用法律或法規",
+          "包含惡意代碼或文件"
+        ]
+      },
+      "payment": {
+        "title": "5. 付款條款",
+        "description": "所有購買均受我們的定價和付款條款約束。價格如有更改，恕不另行通知。我們接受結賬時指明的各種付款方式。"
+      },
+      "liability": {
+        "title": "6. 責任限制",
+        "description": "3DPMP 按「原樣」提供，不作任何保證。我們不對因您使用平台而產生的任何損害負責，包括但不限於直接、間接、偶然或後果性損害。"
+      }
+    }
+  },
+  "cart": {
+    "title": "購物車",
+    "empty": "您的購物車是空的",
+    "browseModels": "瀏覽模型",
+    "material": "材質",
+    "summary": {
+      "title": "訂單摘要",
+      "subtotal": "小計",
+      "shipping": "運費",
+      "total": "總計",
+      "checkout": "前往結帳"
+    }
+  },
+  "modelDetail": {
+    "by": "作者",
+    "addToCart": "加入購物車",
+    "addedToCart": "已加入！",
+    "backToMarketplace": "← 返回市場",
+    "notFound": {
+      "title": "找不到模型",
+      "description": "您尋找的模型不存在或已被移除。"
+    },
+    "slicing": {
+      "title": "切片估算",
+      "calculating": "正在計算列印參數...",
+      "pending": "切片處理中 - 處理完成後將顯示估算值",
+      "weight": "重量",
+      "time": "時間",
+      "filament": "耗材"
+    }
+  },
+  "marketplace": {
+    "title": "市場",
+    "searchPlaceholder": "搜尋模型...",
+    "categories": "分類",
+    "maxPrice": "最高價格",
+    "sortBy": "排序方式",
+    "showingResults": "顯示 {count} 個結果",
+    "noModelsFound": "找不到模型",
+    "tryAdjusting": "嘗試調整您的搜尋或篩選條件",
+    "sortOptions": {
+      "nameAsc": "名稱 (A-Z)",
+      "nameDesc": "名稱 (Z-A)",
+      "priceAsc": "價格 (由低到高)",
+      "priceDesc": "價格 (由高到低)",
+      "authorAsc": "作者 (A-Z)"
+    },
+    "categoriesList": {
+      "All": "全部",
+      "Art": "藝術與雕塑",
+      "Engineering": "工程",
+      "Fashion": "時尚與配件",
+      "Gadgets": "小工具與科技",
+      "Toys": "玩具與遊戲",
+      "Home": "居家與園藝",
+      "Tools": "工具與功能性",
+      "Education": "教育與學習",
+      "Other": "其他"
+    }
+  },
+  "upload": {
+    "title": "上傳模型",
+    "subtitle": "與社群分享您的 3D 創作",
+    "steps": {
+      "1": "步驟 1：上傳 STL 檔案",
+      "2": "步驟 2：模型詳情",
+      "3": "步驟 3：新增圖片 (選填)"
+    },
+    "dragDrop": "拖放您的 STL 檔案至此，或",
+    "browse": "瀏覽",
+    "maxSize": "STL 檔案上限 50MB",
+    "removeFile": "移除檔案",
+    "validation": {
+      "stlRequired": "請在上傳 STL 檔案後再繼續下一步。",
+      "nameRequired": "模型名稱為必填。請輸入您的模型名稱。",
+      "uploadStl": "請上傳 STL 檔案"
+    },
+    "form": {
+      "name": "模型名稱 *",
+      "namePlaceholder": "輸入您的模型名稱",
+      "description": "描述",
+      "descriptionPlaceholder": "描述您的模型、列印建議等",
+      "category": "分類",
+      "tags": "標籤",
+      "tagsPlaceholder": "微縮模型, 遊戲, 桌遊 (以逗號分隔)",
+      "tagsHelp": "以逗號分隔標籤",
+      "thumbnail": "縮圖",
+      "addThumbnail": "新增縮圖",
+      "additionalImages": "其他圖片",
+      "addImage": "新增圖片",
+      "imagesHelp": "您最多可以新增 8 張圖片。建議尺寸：1920x1080 或更高。"
+    },
+    "buttons": {
+      "prev": "← 上一步",
+      "next": "下一步 →",
+      "reset": "重置",
+      "upload": "上傳模型",
+      "uploading": "上傳中..."
+    }
+  },
+  "admin": {
+    "sidebar": {
+      "pendingModels": "待審核模型",
+      "orders": "訂單",
+      "materials": "材質管理",
+      "shipping": "運送選項",
+      "discounts": "折扣",
+      "employees": "員工"
+    },
+    "pendingReviews": {
+      "title": "待審核模型",
+      "noPending": "沒有待審核的模型",
+      "clickToView": "點擊查看詳情",
+      "approve": "批准",
+      "reject": "拒絕",
+      "rejectTitle": "拒絕模型",
+      "rejectReason": "請提供拒絕 \"{name}\" 的理由：",
+      "enterReason": "輸入拒絕理由 (必填)...",
+      "cancel": "取消",
+      "confirmReject": "確認拒絕"
+    },
+    "orders": {
+      "title": "訂單管理",
+      "noPending": "沒有待處理訂單",
+      "columns": {
+        "id": "訂單編號",
+        "customer": "客戶",
+        "status": "狀態",
+        "total": "總計",
+        "actions": "操作"
+      },
+      "process": "處理",
+      "ship": "出貨"
+    },
+    "materials": {
+      "title": "材質管理",
+      "add": "+ 新增材質",
+      "noMaterials": "尚未設定材質",
+      "columns": {
+        "name": "名稱",
+        "density": "密度 (g/cm³)",
+        "price": "價格 (TWD/g)",
+        "actions": "操作"
+      },
+      "edit": "編輯",
+      "delete": "刪除"
+    },
+    "shipping": {
+      "title": "運送選項",
+      "add": "+ 新增選項",
+      "noOptions": "尚未設定運送選項",
+      "type": "類型",
+      "baseFee": "基本費用",
+      "active": "啟用",
+      "inactive": "停用",
+      "edit": "編輯"
+    },
+    "common": {
+      "comingSoon": "{feature} 管理即將推出",
+      "useDjangoAdmin": "目前請使用 Django 管理後台：/admin/"
+    }
+  },
+  "footer": {
+    "description": "用於 3D 模型分享和專業列印服務的首選平台。",
+    "platform": "平台",
+    "pricing": "價格",
+    "company": "公司",
+    "about": "關於我們",
+    "contact": "聯絡我們",
+    "careers": "職缺",
+    "support": "支援",
+    "helpCenter": "幫助中心",
+    "faq": "常見問題",
+    "shipping": "運送",
+    "legal": "法律",
+    "privacy": "隱私權政策",
+    "terms": "服務條款",
+    "copyright": "© {year} 3D 列印市集。保留所有權利。"
+  },
+  "faq": {
+    "title": "常見問題",
+    "subtitle": "尋找關於我們平台的常見問題解答。",
+    "stillHaveQuestions": "還有問題嗎？",
+    "contact": "聯絡我們",
+    "questions": {
+      "formats": {
+        "q": "你們支援什麼檔案格式？",
+        "a": "我們主要支援 STL 檔案，這也是 3D 列印最常見的格式。我們也接受 OBJ 和 3MF 檔案。"
+      },
+      "slicing": {
+        "q": "自動切片如何運作？",
+        "a": "當您上傳或檢視模型時，我們的系統會自動計算列印參數，包括預估列印時間、材料用量和重量。這使用業界標準的切片演算法。"
+      },
+      "sell": {
+        "q": "我可以販售我自己的 3D 模型嗎？",
+        "a": "可以！您可以將您自己的 3D 模型上傳到我們的市集並設定您自己的價格。我們會從每筆銷售中收取少量佣金以支付平台成本。"
+      },
+      "materials": {
+        "q": "有哪些列印材料可用？",
+        "a": "我們提供 PLA、PETG、ABS 和各種特殊材料。每種材料都有適合不同應用的不同特性。"
+      },
+      "shipping": {
+        "q": "運送需要多久？",
+        "a": "列印時間因模型複雜度而異。列印完成後，標準運送通常需要 3-7 個工作天。也提供快遞選項。"
+      },
+      "refunds": {
+        "q": "你們提供退款嗎？",
+        "a": "是的，對於有缺陷的列印品我們提供全額退款。對於數位模型購買，退款將視情況處理。請聯絡支援以尋求協助。"
+      }
+    }
+  },
+  "contact": {
+    "title": "聯絡我們",
+    "subtitle": "有問題或回饋？我們很樂意聽取您的意見。",
+    "success": {
+      "title": "訊息已發送！",
+      "message": "我們會盡快回覆您。"
+    },
+    "form": {
+      "name": "姓名",
+      "namePlaceholder": "您的姓名",
+      "email": "電子郵件",
+      "emailPlaceholder": "you@example.com",
+      "subject": "主旨",
+      "selectTopic": "選擇一個主題",
+      "topics": {
+        "general": "一般諮詢",
+        "support": "技術支援",
+        "billing": "帳務問題",
+        "partnership": "合作夥伴"
+      },
+      "message": "訊息",
+      "messagePlaceholder": "您的訊息...",
+      "send": "發送訊息",
+      "sending": "發送中..."
+    },
+    "info": {
+      "email": "電子郵件",
+      "address": "地址",
+      "addressValue": "123 創新街\n科技城, TC 12345",
+      "hours": "營業時間",
+      "hoursValue": "週一 - 週五: 9AM - 6PM\n週六 - 週日: 休息"
+    }
+  }
+}

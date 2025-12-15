@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter, RouterLink } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import { useI18n } from "vue-i18n";
 import axios from "axios";
 
 const router = useRouter();
@@ -82,6 +83,8 @@ const handleGoogleCallback = async (response) => {
 };
 
 // Password strength validation
+const { t } = useI18n();
+
 const passwordChecks = computed(() => ({
   minLength: password.value.length >= 8,
   hasUppercase: /[A-Z]/.test(password.value),
@@ -95,10 +98,10 @@ const passwordChecks = computed(() => ({
 
 const passwordStrength = computed(() => {
   const checks = Object.values(passwordChecks.value).filter(Boolean).length;
-  if (checks <= 2) return { label: "Weak", color: "bg-red-500", width: "33%" };
+  if (checks <= 2) return { label: "Weak", translatedLabel: t('auth.passwordStrength.weak'), color: "bg-red-500", width: "33%" };
   if (checks <= 4)
-    return { label: "Medium", color: "bg-yellow-500", width: "66%" };
-  return { label: "Strong", color: "bg-green-500", width: "100%" };
+    return { label: "Medium", translatedLabel: t('auth.passwordStrength.medium'), color: "bg-yellow-500", width: "66%" };
+  return { label: "Strong", translatedLabel: t('auth.passwordStrength.strong'), color: "bg-green-500", width: "100%" };
 });
 
 const isPasswordValid = computed(
@@ -147,15 +150,15 @@ const handleRegister = async () => {
         <h2
           class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white"
         >
-          Create an account
+          {{ $t('auth.createAccountTitle') }}
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Already have an account?
+          {{ $t('auth.alreadyHaveAccount') }}
           <RouterLink
             to="/login"
             class="font-medium text-primary-600 hover:text-primary-500"
           >
-            Sign in
+            {{ $t('auth.signIn') }}
           </RouterLink>
         </p>
       </div>
@@ -165,7 +168,7 @@ const handleRegister = async () => {
             <label
               for="email-address"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Email address</label
+              >{{ $t('auth.email') }}</label
             >
             <input
               id="email-address"
@@ -175,14 +178,14 @@ const handleRegister = async () => {
               required
               v-model="email"
               class="input-field"
-              placeholder="you@example.com"
+              :placeholder="$t('auth.emailPlaceholder')"
             />
           </div>
           <div class="mb-4">
             <label
               for="password"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Password</label
+              >{{ $t('auth.password') }}</label
             >
             <input
               id="password"
@@ -192,14 +195,14 @@ const handleRegister = async () => {
               required
               v-model="password"
               class="input-field"
-              placeholder="••••••••"
+              :placeholder="$t('auth.passwordPlaceholder')"
             />
 
             <!-- Password Strength Indicator -->
             <div v-if="password" class="mt-2">
               <div class="flex justify-between items-center mb-1">
                 <span class="text-xs text-gray-500 dark:text-gray-400"
-                  >Password Strength</span
+                  >{{ $t('auth.passwordStrength.title') }}</span
                 >
                 <span
                   :class="[
@@ -210,7 +213,7 @@ const handleRegister = async () => {
                       : '',
                     passwordStrength.label === 'Strong' ? 'text-green-500' : '',
                   ]"
-                  >{{ passwordStrength.label }}</span
+                  >{{ passwordStrength.translatedLabel }}</span
                 >
               </div>
               <div
@@ -237,7 +240,7 @@ const handleRegister = async () => {
                   <span class="mr-1">{{
                     passwordChecks.minLength ? "✓" : "○"
                   }}</span>
-                  At least 8 characters
+                  {{ $t('auth.passwordStrength.min') }}
                 </li>
                 <li
                   :class="
@@ -249,7 +252,7 @@ const handleRegister = async () => {
                   <span class="mr-1">{{
                     passwordChecks.hasUppercase ? "✓" : "○"
                   }}</span>
-                  One uppercase letter
+                  {{ $t('auth.passwordStrength.upper') }}
                 </li>
                 <li
                   :class="
@@ -261,7 +264,7 @@ const handleRegister = async () => {
                   <span class="mr-1">{{
                     passwordChecks.hasLowercase ? "✓" : "○"
                   }}</span>
-                  One lowercase letter
+                  {{ $t('auth.passwordStrength.lower') }}
                 </li>
                 <li
                   :class="
@@ -273,7 +276,7 @@ const handleRegister = async () => {
                   <span class="mr-1">{{
                     passwordChecks.hasNumber ? "✓" : "○"
                   }}</span>
-                  One number
+                  {{ $t('auth.passwordStrength.number') }}
                 </li>
                 <li
                   :class="
@@ -285,7 +288,7 @@ const handleRegister = async () => {
                   <span class="mr-1">{{
                     passwordChecks.hasSpecial ? "✓" : "○"
                   }}</span>
-                  One special character (recommended)
+                  {{ $t('auth.passwordStrength.special') }}
                 </li>
               </ul>
             </div>
@@ -294,7 +297,7 @@ const handleRegister = async () => {
             <label
               for="confirm-password"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 mt-4"
-              >Confirm Password</label
+              >{{ $t('auth.confirmPassword') }}</label
             >
             <input
               id="confirm-password"
@@ -304,19 +307,19 @@ const handleRegister = async () => {
               required
               v-model="confirmPassword"
               class="input-field"
-              placeholder="••••••••"
+              :placeholder="$t('auth.passwordPlaceholder')"
             />
             <p
               v-if="confirmPassword && !passwordsMatch"
               class="mt-1 text-xs text-red-500"
             >
-              Passwords do not match
+              {{ $t('auth.passwordsDoNotMatch') }}
             </p>
             <p
               v-if="confirmPassword && passwordsMatch"
               class="mt-1 text-xs text-green-500"
             >
-              ✓ Passwords match
+              {{ $t('auth.passwordsMatch') }}
             </p>
           </div>
         </div>
@@ -359,7 +362,7 @@ const handleRegister = async () => {
                 ></path>
               </svg>
             </span>
-            {{ loading ? "Creating account..." : "Sign up" }}
+            {{ loading ? $t('auth.creatingAccount') : $t('auth.signUp') }}
           </button>
         </div>
 
@@ -369,7 +372,7 @@ const handleRegister = async () => {
             <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-white dark:bg-dark-surface text-gray-500">Or sign up with</span>
+            <span class="px-2 bg-white dark:bg-dark-surface text-gray-500">{{ $t('auth.signUpWith') }}</span>
           </div>
         </div>
 
@@ -378,7 +381,7 @@ const handleRegister = async () => {
           <div v-if="googleClientId" id="google-signup-btn" class="flex justify-center"></div>
           <div v-else class="text-center text-sm text-gray-500">
             <RouterLink to="/login" class="text-primary-600 hover:text-primary-500">
-              Sign in with Google on login page
+              {{ $t('auth.signInWithGoogle') }}
             </RouterLink>
           </div>
         </div>

@@ -20,8 +20,7 @@ import { RouterLink } from "vue-router";
             >
           </div>
           <p class="text-gray-500 dark:text-gray-400 text-sm">
-            The premier platform for 3D model sharing and professional printing
-            services.
+            {{ $t('footer.description') }}
           </p>
         </div>
 
@@ -29,28 +28,28 @@ import { RouterLink } from "vue-router";
           <h3
             class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4"
           >
-            Platform
+            {{ $t('footer.platform') }}
           </h3>
           <ul class="space-y-3">
             <li>
               <RouterLink
                 to="/models"
                 class="text-base text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                >Marketplace</RouterLink
+                >{{ $t('nav.models') }}</RouterLink
               >
             </li>
             <li>
               <RouterLink
                 to="/about"
                 class="text-base text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                >About Us</RouterLink
+                >{{ $t('footer.about') }}</RouterLink
               >
             </li>
             <li>
               <RouterLink
                 to="/pricing"
                 class="text-base text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                >Pricing</RouterLink
+                >{{ $t('footer.pricing') }}</RouterLink
               >
             </li>
           </ul>
@@ -60,21 +59,21 @@ import { RouterLink } from "vue-router";
           <h3
             class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4"
           >
-            Support
+            {{ $t('footer.support') }}
           </h3>
           <ul class="space-y-3">
             <li>
               <RouterLink
                 to="/faq"
                 class="text-base text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                >FAQ</RouterLink
+                >{{ $t('footer.faq') }}</RouterLink
               >
             </li>
             <li>
               <RouterLink
                 to="/contact"
                 class="text-base text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                >Contact Us</RouterLink
+                >{{ $t('footer.contact') }}</RouterLink
               >
             </li>
           </ul>
@@ -84,21 +83,21 @@ import { RouterLink } from "vue-router";
           <h3
             class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4"
           >
-            Legal
+            {{ $t('footer.legal') }}
           </h3>
           <ul class="space-y-3">
             <li>
               <RouterLink
                 to="/privacy"
                 class="text-base text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                >Privacy Policy</RouterLink
+                >{{ $t('footer.privacy') }}</RouterLink
               >
             </li>
             <li>
               <RouterLink
                 to="/terms"
                 class="text-base text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                >Terms of Service</RouterLink
+                >{{ $t('footer.terms') }}</RouterLink
               >
             </li>
           </ul>
@@ -106,7 +105,7 @@ import { RouterLink } from "vue-router";
       </div>
       <div class="mt-8 border-t border-gray-100 dark:border-gray-800 pt-8">
         <p class="text-base text-gray-400 text-center">
-          &copy; 2025 3DPMP. All rights reserved.
+          {{ $t('footer.copyright', { year: new Date().getFullYear() }) }}
         </p>
       </div>
     </div>

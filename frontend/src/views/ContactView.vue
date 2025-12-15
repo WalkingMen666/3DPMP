@@ -26,10 +26,10 @@ const submitForm = () => {
     <h1
       class="text-4xl font-bold text-gray-900 dark:text-white mb-4 text-center"
     >
-      Contact Us
+      {{ $t('contact.title') }}
     </h1>
     <p class="text-lg text-gray-600 dark:text-gray-300 mb-12 text-center">
-      Have a question or feedback? We'd love to hear from you.
+      {{ $t('contact.subtitle') }}
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -50,10 +50,10 @@ const submitForm = () => {
             />
           </svg>
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-            Message Sent!
+            {{ $t('contact.success.title') }}
           </h3>
           <p class="text-gray-600 dark:text-gray-300">
-            We'll get back to you as soon as possible.
+            {{ $t('contact.success.message') }}
           </p>
         </div>
 
@@ -61,53 +61,53 @@ const submitForm = () => {
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Name</label
+              >{{ $t('contact.form.name') }}</label
             >
             <input
               type="text"
               v-model="form.name"
               required
               class="input-field"
-              placeholder="Your name"
+              :placeholder="$t('contact.form.namePlaceholder')"
             />
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Email</label
+              >{{ $t('contact.form.email') }}</label
             >
             <input
               type="email"
               v-model="form.email"
               required
               class="input-field"
-              placeholder="you@example.com"
+              :placeholder="$t('contact.form.emailPlaceholder')"
             />
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Subject</label
+              >{{ $t('contact.form.subject') }}</label
             >
             <select v-model="form.subject" required class="input-field">
-              <option value="">Select a topic</option>
-              <option value="general">General Inquiry</option>
-              <option value="support">Technical Support</option>
-              <option value="billing">Billing Question</option>
-              <option value="partnership">Partnership</option>
+              <option value="">{{ $t('contact.form.selectTopic') }}</option>
+              <option value="general">{{ $t('contact.form.topics.general') }}</option>
+              <option value="support">{{ $t('contact.form.topics.support') }}</option>
+              <option value="billing">{{ $t('contact.form.topics.billing') }}</option>
+              <option value="partnership">{{ $t('contact.form.topics.partnership') }}</option>
             </select>
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Message</label
+              >{{ $t('contact.form.message') }}</label
             >
             <textarea
               v-model="form.message"
               required
               rows="5"
               class="input-field"
-              placeholder="Your message..."
+              :placeholder="$t('contact.form.messagePlaceholder')"
             ></textarea>
           </div>
           <button
@@ -115,7 +115,7 @@ const submitForm = () => {
             :disabled="loading"
             class="w-full btn-primary py-3"
           >
-            {{ loading ? "Sending..." : "Send Message" }}
+            {{ loading ? $t('contact.form.sending') : $t('contact.form.send') }}
           </button>
         </form>
       </div>
@@ -138,7 +138,7 @@ const submitForm = () => {
               />
             </svg>
             <div>
-              <h3 class="font-semibold text-gray-900 dark:text-white">Email</h3>
+              <h3 class="font-semibold text-gray-900 dark:text-white">{{ $t('contact.info.email') }}</h3>
               <p class="text-gray-600 dark:text-gray-300">support@3dpmp.com</p>
             </div>
           </div>
@@ -167,11 +167,9 @@ const submitForm = () => {
             </svg>
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white">
-                Address
+                {{ $t('contact.info.address') }}
               </h3>
-              <p class="text-gray-600 dark:text-gray-300">
-                123 Innovation Street<br />Tech City, TC 12345
-              </p>
+              <p class="text-gray-600 dark:text-gray-300 whitespace-pre-line">{{ $t('contact.info.addressValue') }}</p>
             </div>
           </div>
         </div>
@@ -193,11 +191,9 @@ const submitForm = () => {
             </svg>
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white">
-                Business Hours
+                {{ $t('contact.info.hours') }}
               </h3>
-              <p class="text-gray-600 dark:text-gray-300">
-                Monday - Friday: 9AM - 6PM<br />Saturday - Sunday: Closed
-              </p>
+              <p class="text-gray-600 dark:text-gray-300 whitespace-pre-line">{{ $t('contact.info.hoursValue') }}</p>
             </div>
           </div>
         </div>

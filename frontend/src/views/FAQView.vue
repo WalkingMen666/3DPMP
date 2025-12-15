@@ -1,47 +1,22 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-const faqs = ref([
-  {
-    question: "What file formats do you support?",
-    answer:
-      "We primarily support STL files, which is the most common format for 3D printing. We also accept OBJ and 3MF files.",
-    isOpen: false,
-  },
-  {
-    question: "How does the automatic slicing work?",
-    answer:
-      "When you upload or view a model, our system automatically calculates print parameters including estimated print time, material usage, and weight. This uses industry-standard slicer algorithms.",
-    isOpen: false,
-  },
-  {
-    question: "Can I sell my own 3D models?",
-    answer:
-      "Yes! You can upload your own 3D models to our marketplace and set your own prices. We take a small commission on each sale to cover platform costs.",
-    isOpen: false,
-  },
-  {
-    question: "What materials are available for printing?",
-    answer:
-      "We offer PLA, PETG, ABS, and various specialty materials. Each material has different properties suitable for different applications.",
-    isOpen: false,
-  },
-  {
-    question: "How long does shipping take?",
-    answer:
-      "Print times vary based on model complexity. After printing, standard shipping typically takes 3-7 business days. Express shipping options are also available.",
-    isOpen: false,
-  },
-  {
-    question: "Do you offer refunds?",
-    answer:
-      "Yes, we offer full refunds for defective prints. For digital model purchases, refunds are handled case-by-case. Please contact support for assistance.",
-    isOpen: false,
-  },
-]);
+const { t } = useI18n();
+
+const faqKeys = ['formats', 'slicing', 'sell', 'materials', 'shipping', 'refunds'];
+const openStates = ref(new Array(faqKeys.length).fill(false));
+
+const faqs = computed(() => {
+  return faqKeys.map((key, index) => ({
+    question: t(`faq.questions.${key}.q`),
+    answer: t(`faq.questions.${key}.a`),
+    isOpen: openStates.value[index]
+  }));
+});
 
 const toggleFaq = (index) => {
-  faqs.value[index].isOpen = !faqs.value[index].isOpen;
+  openStates.value[index] = !openStates.value[index];
 };
 </script>
 
@@ -50,10 +25,10 @@ const toggleFaq = (index) => {
     <h1
       class="text-4xl font-bold text-gray-900 dark:text-white mb-4 text-center"
     >
-      Frequently Asked Questions
+      {{ $t('faq.title') }}
     </h1>
     <p class="text-lg text-gray-600 dark:text-gray-300 mb-12 text-center">
-      Find answers to common questions about our platform.
+      {{ $t('faq.subtitle') }}
     </p>
 
     <div class="space-y-4">
@@ -93,8 +68,8 @@ const toggleFaq = (index) => {
     </div>
 
     <div class="mt-12 text-center">
-      <p class="text-gray-600 dark:text-gray-300 mb-4">Still have questions?</p>
-      <router-link to="/contact" class="btn-primary">Contact Us</router-link>
+      <p class="text-gray-600 dark:text-gray-300 mb-4">{{ $t('faq.stillHaveQuestions') }}</p>
+      <router-link to="/contact" class="btn-primary">{{ $t('faq.contact') }}</router-link>
     </div>
   </div>
 </template>

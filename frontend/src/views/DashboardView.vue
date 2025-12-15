@@ -5,12 +5,14 @@ import { useAuthStore } from "../stores/auth";
 import { useCartStore } from "../stores/cart";
 import { useOrdersStore } from "../stores/orders";
 import { useModelsStore } from "../stores/models";
+import { useI18n } from "vue-i18n";
 
 const route = useRoute();
 const auth = useAuthStore();
 const cart = useCartStore();
 const ordersStore = useOrdersStore();
 const modelsStore = useModelsStore();
+const { locale, t } = useI18n();
 const activeTab = ref("overview");
 const loading = ref(true);
 const deletingModel = ref(null);
@@ -58,28 +60,28 @@ watch(
   }
 );
 
-const tabs = [
+const tabs = computed(() => [
   {
     id: "overview",
-    name: "Overview",
+    name: t("dashboard.overview"),
     icon: "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z",
   },
   {
     id: "orders",
-    name: "My Orders",
+    name: t("dashboard.myOrders"),
     icon: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
   },
   {
     id: "models",
-    name: "My Models",
+    name: t("dashboard.myModels"),
     icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10",
   },
   {
     id: "settings",
-    name: "Settings",
+    name: t("dashboard.settings"),
     icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
   },
-];
+]);
 
 // Real data - from stores
 const orders = computed(() => ordersStore.orders);
@@ -105,7 +107,7 @@ const getModelThumbnail = (model) => {
 
 // Delete model
 const deleteModel = async (modelId) => {
-  if (!confirm('Are you sure you want to delete this model? This action cannot be undone.')) {
+  if (!confirm(t('dashboard.confirmDelete'))) {
     return;
   }
   
@@ -113,7 +115,7 @@ const deleteModel = async (modelId) => {
   try {
     await modelsStore.deleteModel(modelId);
   } catch (error) {
-    alert(error.message || 'Failed to delete model');
+    alert(error.message || t('dashboard.deleteFailed'));
   } finally {
     deletingModel.value = null;
   }
@@ -121,16 +123,16 @@ const deleteModel = async (modelId) => {
 
 // Submit model for public review
 const submitForReview = async (modelId) => {
-  if (!confirm('Submit this model for public review? An admin will review and approve it for the marketplace.')) {
+  if (!confirm(t('dashboard.confirmSubmit'))) {
     return;
   }
   
   submittingForReview.value = modelId;
   try {
     await modelsStore.submitForReview(modelId);
-    alert('Model submitted for review successfully!');
+    alert(t('dashboard.submitSuccess'));
   } catch (error) {
-    alert(error.message || 'Failed to submit for review');
+    alert(error.message || t('dashboard.submitFailed'));
   } finally {
     submittingForReview.value = null;
   }
@@ -143,13 +145,13 @@ const showRejectionReason = async (model) => {
     console.log('Review logs:', logs); // Debug log
     const rejectionLog = logs.find(log => log.new_status === 'REJECTED');
     if (rejectionLog) {
-      alert(`Rejection Reason:\n\n${rejectionLog.reason || 'No reason provided'}\n\nReviewed by: ${rejectionLog.reviewer_name || 'Unknown'}\nDate: ${new Date(rejectionLog.timestamp).toLocaleString()}`);
+      alert(`${t('dashboard.rejectionReasonTitle')}:\n\n${rejectionLog.reason || t('dashboard.noReason')}\n\n${t('dashboard.reviewedBy')}: ${rejectionLog.reviewer_name || 'Unknown'}\n${t('dashboard.dateReviewed')}: ${new Date(rejectionLog.timestamp).toLocaleString()}`);
     } else {
-      alert('No rejection details found.');
+      alert(t('dashboard.noRejectionDetails'));
     }
   } catch (error) {
     console.error('Failed to load rejection details:', error);
-    alert('Failed to load rejection details.');
+    alert(t('dashboard.loadRejectionFailed'));
   }
 };
 
@@ -183,6 +185,7 @@ watch(
   () => settings.value.language,
   (val) => {
     localStorage.setItem("settings_language", val);
+    locale.value = val;
   }
 );
 
@@ -192,7 +195,7 @@ const saveSettings = async () => {
     try {
       await auth.updateProfile(displayName.value);
     } catch (error) {
-      alert(error.message || 'Failed to save display name');
+      alert(error.message || t('dashboard.saveNameFailed'));
       return;
     }
   }
@@ -205,7 +208,7 @@ const saveSettings = async () => {
 };
 
 const cancelOrder = async (orderId) => {
-  if (confirm('Are you sure you want to cancel this order?')) {
+  if (confirm(t('dashboard.confirmCancelOrder'))) {
     try {
       await ordersStore.cancelOrder(orderId);
     } catch (error) {
@@ -231,11 +234,11 @@ const handleCustomAvatarUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+      alert(t('dashboard.uploadImage'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image size should be less than 5MB');
+      alert(t('dashboard.imageSize'));
       return;
     }
     customAvatarFile.value = file;
@@ -253,7 +256,7 @@ const saveAvatar = async () => {
       settingsSaved.value = false;
     }, 3000);
   } catch (error) {
-    alert(error.message || 'Failed to update avatar');
+    alert(error.message || t('dashboard.updateAvatarFailed'));
   } finally {
     savingAvatar.value = false;
   }
@@ -330,12 +333,12 @@ const getAvatarDisplayUrl = (avatarId) => {
         <!-- Overview Tab -->
         <div v-if="activeTab === 'overview'" class="space-y-6 animate-fade-in">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Dashboard Overview
+            {{ $t('dashboard.title') }}
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="card p-6">
               <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Total Orders
+                {{ $t('dashboard.totalOrders') }}
               </div>
               <div class="text-3xl font-bold text-gray-900 dark:text-white">
                 {{ stats.totalOrders }}
@@ -343,7 +346,7 @@ const getAvatarDisplayUrl = (avatarId) => {
             </div>
             <div class="card p-6">
               <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Models Uploaded
+                {{ $t('dashboard.modelsUploaded') }}
               </div>
               <div class="text-3xl font-bold text-gray-900 dark:text-white">
                 {{ stats.modelsUploaded }}
@@ -351,7 +354,7 @@ const getAvatarDisplayUrl = (avatarId) => {
             </div>
             <div class="card p-6">
               <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Balance
+                {{ $t('dashboard.balance') }}
               </div>
               <div class="text-3xl font-bold text-gray-900 dark:text-white">
                 {{ stats.balance }}
@@ -364,14 +367,14 @@ const getAvatarDisplayUrl = (avatarId) => {
             <h3
               class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
             >
-              Quick Actions
+              {{ $t('dashboard.quickActions') }}
             </h3>
             <div class="flex flex-wrap gap-4">
               <router-link to="/upload" class="btn-primary"
-                >Upload Model</router-link
+                >{{ $t('dashboard.uploadModel') }}</router-link
               >
               <router-link to="/models" class="btn-secondary"
-                >Browse Marketplace</router-link
+                >{{ $t('dashboard.browseMarketplace') }}</router-link
               >
             </div>
           </div>
@@ -380,7 +383,7 @@ const getAvatarDisplayUrl = (avatarId) => {
         <!-- Orders Tab -->
         <div v-if="activeTab === 'orders'" class="space-y-6 animate-fade-in">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-            My Orders
+            {{ $t('dashboard.myOrders') }}
           </h2>
 
           <div
@@ -400,12 +403,12 @@ const getAvatarDisplayUrl = (avatarId) => {
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
               />
             </svg>
-            <p class="text-gray-500 dark:text-gray-400 mb-2">No orders yet</p>
+            <p class="text-gray-500 dark:text-gray-400 mb-2">{{ $t('dashboard.noOrdersYet') }}</p>
             <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">
-              Start shopping to see your orders here
+              {{ $t('dashboard.startShopping') }}
             </p>
             <router-link to="/models" class="btn-primary"
-              >Browse Marketplace</router-link
+              >{{ $t('dashboard.browseMarketplace') }}</router-link
             >
           </div>
 
@@ -421,27 +424,27 @@ const getAvatarDisplayUrl = (avatarId) => {
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Order ID
+                    {{ $t('dashboard.orderId') }}
                   </th>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Date
+                    {{ $t('dashboard.date') }}
                   </th>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Status
+                    {{ $t('dashboard.status') }}
                   </th>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Total
+                    {{ $t('dashboard.total') }}
                   </th>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Action
+                    {{ $t('dashboard.action') }}
                   </th>
                 </tr>
               </thead>
@@ -484,12 +487,12 @@ const getAvatarDisplayUrl = (avatarId) => {
                       @click="cancelOrder(order.id)"
                       class="text-red-600 hover:text-red-900 dark:hover:text-red-400 mr-3"
                     >
-                      Cancel
+                      {{ $t('dashboard.cancelOrder') }}
                     </button>
                     <a
                       href="#"
                       class="text-primary-600 hover:text-primary-900 dark:hover:text-primary-400"
-                      >View</a
+                      >{{ $t('common.view') }}</a
                     >
                   </td>
                 </tr>
@@ -502,10 +505,10 @@ const getAvatarDisplayUrl = (avatarId) => {
         <div v-if="activeTab === 'models'" class="space-y-6 animate-fade-in">
           <div class="flex justify-between items-center">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-              My Models
+              {{ $t('dashboard.myModels') }}
             </h2>
             <router-link to="/upload" class="btn-primary text-sm"
-              >Upload New Model</router-link
+              >{{ $t('dashboard.uploadModel') }}</router-link
             >
           </div>
 
@@ -527,13 +530,13 @@ const getAvatarDisplayUrl = (avatarId) => {
               />
             </svg>
             <p class="text-gray-500 dark:text-gray-400 mb-2">
-              No models uploaded yet
+              {{ $t('dashboard.noModelsYet') }}
             </p>
             <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">
-              Share your 3D creations with the community
+              {{ $t('dashboard.shareCreations') }}
             </p>
             <router-link to="/upload" class="btn-primary"
-              >Upload Your First Model</router-link
+              >{{ $t('dashboard.uploadFirstModel') }}</router-link
             >
           </div>
 
@@ -562,7 +565,7 @@ const getAvatarDisplayUrl = (avatarId) => {
                     {{ model.model_name || model.name }}
                   </h3>
                   <div class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ model.view_count || 0 }} views • {{ model.download_count || 0 }} downloads
+                    {{ model.view_count || 0 }} {{ $t('dashboard.views') }} • {{ model.download_count || 0 }} {{ $t('dashboard.downloads') }}
                   </div>
                 </div>
               </div>
@@ -579,7 +582,7 @@ const getAvatarDisplayUrl = (avatarId) => {
                           : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
                   ]"
                 >
-                  {{ model.visibility_status || model.visibility || 'PRIVATE' }}
+                  {{ $t(`dashboard.modelStatuses.${model.visibility_status || model.visibility || 'PRIVATE'}`) }}
                 </span>
                 
                 <!-- Rejection reason tooltip for REJECTED models -->
@@ -587,9 +590,9 @@ const getAvatarDisplayUrl = (avatarId) => {
                   v-if="(model.visibility_status || model.visibility) === 'REJECTED'"
                   @click="showRejectionReason(model)"
                   class="text-red-500 hover:text-red-700 text-xs underline"
-                  title="View rejection reason"
+                  :title="$t('dashboard.viewRejectionReason')"
                 >
-                  Why?
+                  {{ $t('dashboard.why') }}
                 </button>
                 
                 <!-- Submit for Review Button (for PRIVATE or REJECTED models) -->
@@ -598,17 +601,17 @@ const getAvatarDisplayUrl = (avatarId) => {
                   @click="submitForReview(model.id)"
                   :disabled="submittingForReview === model.id"
                   class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium disabled:opacity-50"
-                  title="Submit for public review"
+                  :title="$t('dashboard.submitForPublicReview')"
                 >
-                  <span v-if="submittingForReview === model.id">Submitting...</span>
-                  <span v-else>{{ (model.visibility_status || model.visibility) === 'REJECTED' ? 'Resubmit' : 'Make Public' }}</span>
+                  <span v-if="submittingForReview === model.id">{{ $t('dashboard.submitting') }}</span>
+                  <span v-else>{{ (model.visibility_status || model.visibility) === 'REJECTED' ? $t('dashboard.resubmit') : $t('dashboard.makePublic') }}</span>
                 </button>
                 
                 <!-- View Button -->
                 <router-link
                   :to="`/model/${model.id}`"
                   class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                  title="View model"
+                  :title="$t('dashboard.viewModel')"
                 >
                   <svg
                     class="w-5 h-5"
@@ -636,7 +639,7 @@ const getAvatarDisplayUrl = (avatarId) => {
                   @click="deleteModel(model.id)"
                   :disabled="deletingModel === model.id"
                   class="text-red-400 hover:text-red-600 dark:hover:text-red-300 disabled:opacity-50"
-                  title="Delete model"
+                  :title="$t('dashboard.deleteModel')"
                 >
                   <svg v-if="deletingModel === model.id" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -654,7 +657,7 @@ const getAvatarDisplayUrl = (avatarId) => {
         <!-- Settings Tab -->
         <div v-if="activeTab === 'settings'" class="space-y-6 animate-fade-in">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Settings
+            {{ $t('settings.title') }}
           </h2>
 
           <!-- Success Message -->
@@ -675,7 +678,7 @@ const getAvatarDisplayUrl = (avatarId) => {
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            Settings saved successfully!
+            {{ $t('settings.settingsSaved') }}
           </div>
 
           <div class="card p-6 space-y-6">
@@ -684,7 +687,7 @@ const getAvatarDisplayUrl = (avatarId) => {
               <h3
                 class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
               >
-                Avatar
+                {{ $t('settings.avatar') }}
               </h3>
               
               <!-- Avatar Preview and Actions Row -->
@@ -711,7 +714,7 @@ const getAvatarDisplayUrl = (avatarId) => {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span>Upload</span>
+                  <span>{{ $t('settings.upload') }}</span>
                 </button>
                 
                 <button
@@ -724,9 +727,9 @@ const getAvatarDisplayUrl = (avatarId) => {
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                     </svg>
-                    Saving...
+                    {{ $t('settings.saving') }}
                   </span>
-                  <span v-else>Save Avatar</span>
+                  <span v-else>{{ $t('settings.saveAvatar') }}</span>
                 </button>
                 
                 <span v-if="customAvatarFile" class="text-sm text-gray-500 dark:text-gray-400">
@@ -740,25 +743,25 @@ const getAvatarDisplayUrl = (avatarId) => {
               <h3
                 class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
               >
-                Profile Information
+                {{ $t('settings.profileInfo') }}
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >Display Name</label
+                    >{{ $t('settings.displayName') }}</label
                   >
                   <input
                     type="text"
                     v-model="displayName"
                     class="input-field"
-                    placeholder="Enter your display name"
+                    :placeholder="$t('settings.enterDisplayName')"
                   />
                 </div>
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >Email</label
+                    >{{ $t('settings.email') }}</label
                   >
                   <input
                     type="email"
@@ -767,7 +770,7 @@ const getAvatarDisplayUrl = (avatarId) => {
                     disabled
                   />
                   <p class="text-xs text-gray-500 mt-1">
-                    Email cannot be changed
+                    {{ $t('settings.emailCannotChange') }}
                   </p>
                 </div>
               </div>
@@ -778,7 +781,7 @@ const getAvatarDisplayUrl = (avatarId) => {
               <h3
                 class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
               >
-                Notifications
+                {{ $t('settings.notifications') }}
               </h3>
               <div class="space-y-4">
                 <label
@@ -787,10 +790,10 @@ const getAvatarDisplayUrl = (avatarId) => {
                   <div>
                     <span
                       class="text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"
-                      >Email notifications for orders</span
+                      >{{ $t('settings.emailNotifications') }}</span
                     >
                     <p class="text-xs text-gray-500 dark:text-gray-400">
-                      Receive updates about your order status
+                      {{ $t('settings.orderUpdates') }}
                     </p>
                   </div>
                   <div class="relative">
@@ -810,10 +813,10 @@ const getAvatarDisplayUrl = (avatarId) => {
                   <div>
                     <span
                       class="text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"
-                      >Marketing emails</span
+                      >{{ $t('settings.marketingEmails') }}</span
                     >
                     <p class="text-xs text-gray-500 dark:text-gray-400">
-                      Receive news about new features and promotions
+                      {{ $t('settings.marketingUpdates') }}
                     </p>
                   </div>
                   <div class="relative">
@@ -835,29 +838,26 @@ const getAvatarDisplayUrl = (avatarId) => {
               <h3
                 class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
               >
-                Preferences
+                {{ $t('settings.preferences') }}
               </h3>
               <div class="space-y-4">
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >Language</label
+                    >{{ $t('settings.language') }}</label
                   >
                   <select v-model="settings.language" class="input-field w-48">
                     <option value="en">English</option>
                     <option value="zh-TW">繁體中文</option>
-                    <option value="zh-CN">简体中文</option>
-                    <option value="ja">日本語</option>
                   </select>
                 </div>
                 <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >Theme</label
+                    >{{ $t('settings.theme') }}</label
                   >
                   <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                    Use the theme toggle in the navigation bar to switch between
-                    light and dark mode
+                    {{ $t('settings.themeNote') }}
                   </p>
                 </div>
               </div>
@@ -867,12 +867,12 @@ const getAvatarDisplayUrl = (avatarId) => {
               class="border-t border-gray-100 dark:border-gray-700 pt-6 flex items-center gap-4"
             >
               <button @click="saveSettings" class="btn-primary">
-                Save Changes
+                {{ $t('settings.saveChanges') }}
               </button>
               <span
                 v-if="settingsSaved"
                 class="text-green-600 dark:text-green-400 text-sm"
-                >✓ Saved</span
+                >✓ {{ $t('settings.saved') }}</span
               >
             </div>
           </div>

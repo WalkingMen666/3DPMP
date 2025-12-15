@@ -21,7 +21,7 @@ const shipping = computed(() => (cart.items.length > 0 ? 10.0 : 0));
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-      Shopping Cart
+      {{ $t('cart.title') }}
     </h1>
 
     <div class="flex flex-col lg:flex-row gap-12">
@@ -45,10 +45,10 @@ const shipping = computed(() => (cart.items.length > 0 ? 10.0 : 0));
             />
           </svg>
           <p class="text-gray-500 dark:text-gray-400 mb-4">
-            Your cart is empty
+            {{ $t('cart.empty') }}
           </p>
           <router-link to="/models" class="btn-primary"
-            >Browse Models</router-link
+            >{{ $t('cart.browseModels') }}</router-link
           >
         </div>
 
@@ -69,7 +69,7 @@ const shipping = computed(() => (cart.items.length > 0 ? 10.0 : 0));
               {{ item.name }}
             </h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Material: {{ item.material }}
+              {{ $t('cart.material') }}: {{ item.material }}
             </p>
           </div>
 
@@ -127,22 +127,22 @@ const shipping = computed(() => (cart.items.length > 0 ? 10.0 : 0));
           class="bg-white dark:bg-dark-surface rounded-xl p-6 border border-gray-100 dark:border-gray-700/50 sticky top-24"
         >
           <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
-            Order Summary
+            {{ $t('cart.summary.title') }}
           </h2>
 
           <div class="space-y-4 mb-6">
             <div class="flex justify-between text-gray-600 dark:text-gray-400">
-              <span>Subtotal</span>
+              <span>{{ $t('cart.summary.subtotal') }}</span>
               <span>${{ cart.subtotal.toFixed(2) }}</span>
             </div>
             <div class="flex justify-between text-gray-600 dark:text-gray-400">
-              <span>Shipping</span>
+              <span>{{ $t('cart.summary.shipping') }}</span>
               <span>${{ shipping.toFixed(2) }}</span>
             </div>
             <div
               class="border-t border-gray-100 dark:border-gray-700 pt-4 flex justify-between font-bold text-lg text-gray-900 dark:text-white"
             >
-              <span>Total</span>
+              <span>{{ $t('cart.summary.total') }}</span>
               <span>${{ cart.total.toFixed(2) }}</span>
             </div>
           </div>
@@ -151,7 +151,7 @@ const shipping = computed(() => (cart.items.length > 0 ? 10.0 : 0));
             :disabled="cart.items.length === 0"
             class="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Proceed to Checkout
+            {{ $t('cart.summary.checkout') }}
           </button>
         </div>
       </div>
