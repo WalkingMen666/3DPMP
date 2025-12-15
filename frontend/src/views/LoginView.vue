@@ -198,12 +198,12 @@ const handleLogin = async () => {
           </div>
 
           <div class="text-sm">
-            <a
-              href="#"
+            <RouterLink
+              to="/forgot-password"
               class="font-medium text-primary-600 hover:text-primary-500"
             >
               {{ $t('auth.forgotPassword') }}
-            </a>
+            </RouterLink>
           </div>
         </div>
 

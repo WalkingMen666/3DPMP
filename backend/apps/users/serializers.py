@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
+from dj_rest_auth.serializers import PasswordResetSerializer as DefaultPasswordResetSerializer
 from django.db import transaction
 from .models import Customer, Employee, User
+from .forms import CustomPasswordResetForm
 
 class CustomRegisterSerializer(RegisterSerializer):
     # Remove username field requirement
@@ -64,3 +66,12 @@ class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = '__all__'
+
+
+class CustomPasswordResetSerializer(DefaultPasswordResetSerializer):
+    """Custom password reset serializer to use custom form."""
+
+    @property
+    def password_reset_form_class(self):
+        """Return custom password reset form."""
+        return CustomPasswordResetForm

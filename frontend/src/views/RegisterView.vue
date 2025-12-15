@@ -13,6 +13,8 @@ const password = ref("");
 const confirmPassword = ref("");
 const loading = ref(false);
 const error = ref("");
+const success = ref(false);
+const registeredEmail = ref("");
 const googleClientId = ref(null);
 
 // Fetch Google Client ID on mount
@@ -127,10 +129,13 @@ const handleRegister = async () => {
 
   loading.value = true;
   error.value = "";
+  success.value = false;
 
   try {
     await auth.register(email.value, password.value, confirmPassword.value);
-    router.push("/dashboard");
+    // Show email verification message instead of redirecting
+    registeredEmail.value = email.value;
+    success.value = true;
   } catch (e) {
     error.value = e.message || "Registration failed";
   } finally {
@@ -162,7 +167,36 @@ const handleRegister = async () => {
           </RouterLink>
         </p>
       </div>
-      <form class="mt-8 space-y-6" @submit.prevent="handleRegister">
+
+      <!-- Email Verification Success Message -->
+      <div v-if="success" class="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+        <p class="font-medium mb-2">Registration successful!</p>
+        <p>We've sent a verification email to <strong>{{ registeredEmail }}</strong>.</p>
+        <p class="mt-2">Please check your email and click the verification link to activate your account.</p>
+        <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+          Note: In development mode, the email will be printed to the server console. Check the terminal window.
+        </p>
+        <RouterLink to="/login" class="mt-3 inline-block font-medium text-primary-600 hover:text-primary-500">
+          Go to login
+        </RouterLink>
+      </div>
+
+      <!-- Error Message Display -->
+      <div
+        v-if="error && !success"
+        class="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800"
+      >
+        <div class="flex items-start">
+          <svg class="h-5 w-5 text-red-400 mr-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+          <div>
+            <p class="font-medium">{{ error }}</p>
+          </div>
+        </div>
+      </div>
+
+      <form v-if="!success" class="mt-8 space-y-6" @submit.prevent="handleRegister">
         <div class="rounded-md shadow-sm -space-y-px">
           <div class="mb-4">
             <label
@@ -177,9 +211,15 @@ const handleRegister = async () => {
               autocomplete="email"
               required
               v-model="email"
-              class="input-field"
+              :class="[
+                'input-field',
+                error && error.toLowerCase().includes('email') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+              ]"
               :placeholder="$t('auth.emailPlaceholder')"
             />
+            <p v-if="error && error.toLowerCase().includes('email')" class="mt-1 text-xs text-red-600">
+              {{ error }}
+            </p>
           </div>
           <div class="mb-4">
             <label
@@ -322,13 +362,6 @@ const handleRegister = async () => {
               {{ $t('auth.passwordsMatch') }}
             </p>
           </div>
-        </div>
-
-        <div
-          v-if="error"
-          class="text-red-500 text-sm text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg"
-        >
-          {{ error }}
         </div>
 
         <div>
