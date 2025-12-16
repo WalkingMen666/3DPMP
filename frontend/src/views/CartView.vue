@@ -1,10 +1,16 @@
 <script setup>
 import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useCartStore } from "../stores/cart";
 import { useAuthStore } from "../stores/auth";
 
+const router = useRouter();
 const cart = useCartStore();
 const auth = useAuthStore();
+
+const goToCheckout = () => {
+  router.push('/checkout');
+};
 
 // Fetch cart from backend on mount if authenticated
 onMounted(async () => {
@@ -97,7 +103,7 @@ const shipping = computed(() => (cart.items.length > 0 ? 10.0 : 0));
             <div
               class="font-bold text-gray-900 dark:text-white w-20 text-right"
             >
-              ${{ (item.price * item.quantity).toFixed(2) }}
+              NT$ {{ (item.price * item.quantity).toFixed(2) }}
             </div>
             <button
               @click="cart.removeItem(item.id)"
@@ -133,23 +139,20 @@ const shipping = computed(() => (cart.items.length > 0 ? 10.0 : 0));
           <div class="space-y-4 mb-6">
             <div class="flex justify-between text-gray-600 dark:text-gray-400">
               <span>{{ $t('cart.summary.subtotal') }}</span>
-              <span>${{ cart.subtotal.toFixed(2) }}</span>
+              <span>NT$ {{ cart.subtotal.toFixed(2) }}</span>
             </div>
             <div class="flex justify-between text-gray-600 dark:text-gray-400">
               <span>{{ $t('cart.summary.shipping') }}</span>
-              <span>${{ shipping.toFixed(2) }}</span>
+              <span>NT$ {{ shipping.toFixed(2) }}</span>
             </div>
-            <div
-              class="border-t border-gray-100 dark:border-gray-700 pt-4 flex justify-between font-bold text-lg text-gray-900 dark:text-white"
-            >
-              <span>{{ $t('cart.summary.total') }}</span>
-              <span>${{ cart.total.toFixed(2) }}</span>
+            <div class="flex justify-between text-lg font-bold">
+              <span class="text-gray-900 dark:text-white">{{ $t('cart.summary.total') }}</span>
+              <span class="text-primary-600">NT$ {{ cart.total.toFixed(2) }}</span>
             </div>
           </div>
-
           <button
-            :disabled="cart.items.length === 0"
-            class="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="router.push('/checkout')"
+            class="w-full mt-6 btn btn-primary flex justify-center py-3"
           >
             {{ $t('cart.summary.checkout') }}
           </button>

@@ -112,14 +112,13 @@ export const useAuthStore = defineStore('auth', {
           password1,
           password2
         })
-        
-        // After successful registration, login automatically
-        await this.login(email, password1)
-        return true
+
+        // Return response data (includes detail about email verification)
+        return response.data
       } catch (error) {
         const errorData = error.response?.data
         let errorMessage = 'Registration failed'
-        
+
         if (errorData) {
           if (errorData.email) {
             errorMessage = errorData.email[0]
@@ -129,9 +128,11 @@ export const useAuthStore = defineStore('auth', {
             errorMessage = errorData.password2[0]
           } else if (errorData.non_field_errors) {
             errorMessage = errorData.non_field_errors[0]
+          } else if (errorData.detail) {
+            errorMessage = errorData.detail
           }
         }
-        
+
         throw new Error(errorMessage)
       }
     },

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import Material, CartItem
 from .serializers import MaterialSerializer, CartItemSerializer, CartItemCreateSerializer
-from apps.users.models import Customer
+from apps.users.models import Customer, Employee
 
 
 def get_or_create_customer(user):
@@ -14,15 +14,36 @@ def get_or_create_customer(user):
     return customer
 
 
-class MaterialViewSet(viewsets.ReadOnlyModelViewSet):
+class IsAdminEmployee(permissions.BasePermission):
+    """Permission class for admin employees."""
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if not request.user.is_authenticated:
+            return False
+        try:
+            return request.user.employee_profile.is_admin
+        except Employee.DoesNotExist:
+            return False
+
+
+class MaterialViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for viewing materials.
-    Only active materials are shown to regular users.
+    ViewSet for managing materials.
+    - Anyone can view active materials
+    - Only admin employees can create/update/delete
     """
     serializer_class = MaterialSerializer
-    permission_classes = [permissions.AllowAny]
-    
+    permission_classes = [IsAdminEmployee]
+
     def get_queryset(self):
+        # Admins see all materials, others only see active ones
+        if self.request.user.is_authenticated:
+            try:
+                if self.request.user.employee_profile.is_admin:
+                    return Material.objects.all()
+            except Employee.DoesNotExist:
+                pass
         return Material.objects.filter(is_active=True)
 
 

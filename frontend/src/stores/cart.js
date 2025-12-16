@@ -149,7 +149,11 @@ export const useCartStore = defineStore('cart', {
         // Local storage update
         const item = this.items.find(item => item.id === id)
         if (item) {
-          item.quantity = Math.max(1, quantity)
+          if (quantity <= 0) {
+            this.items = this.items.filter(i => i.id !== id)
+          } else {
+            item.quantity = quantity
+          }
           this.saveToLocalStorage()
         }
         return
@@ -158,9 +162,13 @@ export const useCartStore = defineStore('cart', {
       this.loading = true
       this.error = null
       try {
-        await apiClient.post(`/cart/${id}/update_quantity/`, {
-          quantity: Math.max(1, quantity)
-        })
+        if (quantity <= 0) {
+          // Remove item if quantity is 0 or less
+          await apiClient.delete(`/cart/${id}/`)
+        } else {
+          // Use PATCH to update quantity
+          await apiClient.patch(`/cart/${id}/`, { quantity })
+        }
         await this.fetchCart()
       } catch (error) {
         this.error = 'Failed to update quantity'

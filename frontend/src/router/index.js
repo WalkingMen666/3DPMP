@@ -3,10 +3,14 @@ import { useAuthStore } from '../stores/auth'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
+import ForgotPasswordView from '../views/ForgotPasswordView.vue'
+import PasswordResetConfirmView from '../views/PasswordResetConfirmView.vue'
+import VerifyEmailView from '../views/VerifyEmailView.vue'
 import ModelListView from '../views/ModelListView.vue'
 import ModelDetailView from '../views/ModelDetailView.vue'
 import UploadModelView from '../views/UploadModelView.vue'
 import CartView from '../views/CartView.vue'
+import CheckoutView from '../views/CheckoutView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import AdminDashboardView from '../views/AdminDashboardView.vue'
 import AboutView from '../views/AboutView.vue'
@@ -35,6 +39,21 @@ const router = createRouter({
       component: RegisterView
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView
+    },
+    {
+      path: '/password-reset-confirm/:uid/:token',
+      name: 'password-reset-confirm',
+      component: PasswordResetConfirmView
+    },
+    {
+      path: '/verify-email/:key',
+      name: 'verify-email',
+      component: VerifyEmailView
+    },
+    {
       path: '/models',
       name: 'models',
       component: ModelListView
@@ -59,6 +78,12 @@ const router = createRouter({
       path: '/cart',
       name: 'cart',
       component: CartView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: CheckoutView,
       meta: { requiresAuth: true }
     },
     {

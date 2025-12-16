@@ -90,9 +90,12 @@ class OrderItem(models.Model):
         related_name='items'
     )
     # Keep FKs for reference but price is snapshotted
+    # SET_NULL allows admin to delete models while preserving order history
     model = models.ForeignKey(
         'printing_models.Model',
-        on_delete=models.PROTECT,  # Don't allow deleting models that are in orders
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='order_items'
     )
     material = models.ForeignKey(

@@ -69,15 +69,45 @@ SPECTACULAR_SETTINGS = {
 
 # dj-rest-auth settings
 REST_AUTH = {
+    'LOGIN_SERIALIZER': 'apps.users.serializers.CustomLoginSerializer',
     'REGISTER_SERIALIZER': 'apps.users.serializers.CustomRegisterSerializer',
     'SESSION_LOGIN': False,
+    'EMAIL_VERIFICATION_URL': 'http://localhost:5173/verify-email/{key}',
+    'PASSWORD_RESET_CONFIRM_URL': 'http://localhost:5173/password-reset-confirm/{uid}/{token}',
+    'PASSWORD_RESET_SERIALIZER': 'apps.users.serializers.CustomPasswordResetSerializer',
 }
 
 # allauth settings
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # For development simplicity
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # email* means email is required
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Require email verification for new accounts
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_ADAPTER = 'apps.users.adapters.CustomAccountAdapter'
+
+# Authentication backends - required for allauth adapter to work with dj-rest-auth
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of allauth
+    'django.contrib.auth.backends.ModelBackend',
+    # allauth specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+
+# Email Configuration (Gmail SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@3dpmp.com')
+
+# Frontend URL for email links
+FRONTEND_URL = 'http://localhost:5173'
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = f'{FRONTEND_URL}/login?verified=true'
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = f'{FRONTEND_URL}/dashboard'
 
 # Social account settings for Google OAuth
 SOCIALACCOUNT_PROVIDERS = {

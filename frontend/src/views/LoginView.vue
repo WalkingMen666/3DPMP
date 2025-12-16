@@ -92,7 +92,7 @@ const handleGoogleCallback = async (response) => {
     await auth.googleLogin(response.credential);
     router.push("/dashboard");
   } catch (e) {
-    error.value = e.message || "Google sign-in failed. Please try again.";
+    error.value = t("auth.googleFailed");
   } finally {
     googleLoading.value = false;
   }
@@ -105,8 +105,7 @@ const handleLogin = async () => {
     await auth.login(email.value, password.value);
     router.push("/dashboard");
   } catch (e) {
-    error.value =
-      e.message || "Invalid email or password. Please check your credentials.";
+    error.value = t("auth.authFailed");
   } finally {
     loading.value = false;
   }
@@ -198,12 +197,12 @@ const handleLogin = async () => {
           </div>
 
           <div class="text-sm">
-            <a
-              href="#"
+            <RouterLink
+              to="/forgot-password"
               class="font-medium text-primary-600 hover:text-primary-500"
             >
               {{ $t('auth.forgotPassword') }}
-            </a>
+            </RouterLink>
           </div>
         </div>
 

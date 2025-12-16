@@ -6,9 +6,13 @@ from apps.materials.models import CartItem
 
 class OrderItemSerializer(serializers.ModelSerializer):
     """Serializer for order items."""
-    model_name = serializers.CharField(source='model.model_name', read_only=True)
+    model_name = serializers.SerializerMethodField()
     material_name = serializers.CharField(source='material.name', read_only=True)
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    def get_model_name(self, obj):
+        """Return model name or [Deleted Model] if model was deleted."""
+        return obj.model.model_name if obj.model else '[Deleted Model]'
     
     class Meta:
         model = OrderItem
@@ -107,7 +111,14 @@ class OrderCreateSerializer(serializers.Serializer):
             )
         except SavedAddress.DoesNotExist:
             raise serializers.ValidationError("Invalid address")
-        
+
+        # Validate that shipping option type matches address type
+        if shipping_option.type != saved_address.address_type:
+            raise serializers.ValidationError(
+                f"Shipping method type ({shipping_option.get_type_display()}) must match "
+                f"delivery address type ({saved_address.get_address_type_display()})"
+            )
+
         # Create shipping snapshot (immutable)
         ship_snapshot = {
             'service_name': shipping_option.name,
