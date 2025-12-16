@@ -78,7 +78,7 @@ const handleGoogleCallback = async (response) => {
     await auth.googleLogin(response.credential);
     router.push("/dashboard");
   } catch (e) {
-    error.value = e.message || "Google sign-up failed. Please try again.";
+    error.value = e.message || t("auth.googleSignUpFailed");
   } finally {
     loading.value = false;
   }
@@ -118,12 +118,12 @@ const passwordsMatch = computed(() => password.value === confirmPassword.value);
 
 const handleRegister = async () => {
   if (!passwordsMatch.value) {
-    error.value = "Passwords do not match";
+    error.value = t("auth.passwordsDoNotMatch");
     return;
   }
 
   if (password.value.length < 1) {
-    error.value = "Password is required";
+    error.value = t("auth.passwordRequired");
     return;
   }
 
@@ -137,7 +137,7 @@ const handleRegister = async () => {
     registeredEmail.value = email.value;
     success.value = true;
   } catch (e) {
-    error.value = e.message || "Registration failed";
+    error.value = e.message || t("auth.registrationFailed");
   } finally {
     loading.value = false;
   }
@@ -170,14 +170,14 @@ const handleRegister = async () => {
 
       <!-- Email Verification Success Message -->
       <div v-if="success" class="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-        <p class="font-medium mb-2">Registration successful!</p>
-        <p>We've sent a verification email to <strong>{{ registeredEmail }}</strong>.</p>
-        <p class="mt-2">Please check your email and click the verification link to activate your account.</p>
+        <p class="font-medium mb-2">{{ $t('auth.forgotPasswordPage.successTitle') }}</p>
+        <p>{{ $t('auth.forgotPasswordPage.successMessage', { email: registeredEmail }) }}</p>
+        <p class="mt-2">{{ $t('auth.forgotPasswordPage.checkEmail') }}</p>
         <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
-          Note: In development mode, the email will be printed to the server console. Check the terminal window.
+          {{ $t('auth.forgotPasswordPage.devNote') }}
         </p>
         <RouterLink to="/login" class="mt-3 inline-block font-medium text-primary-600 hover:text-primary-500">
-          Go to login
+          {{ $t('auth.verifyEmailPage.goToLogin') }}
         </RouterLink>
       </div>
 

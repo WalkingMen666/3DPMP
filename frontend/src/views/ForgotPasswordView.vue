@@ -2,6 +2,9 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const email = ref('')
 const loading = ref(false)
@@ -19,7 +22,7 @@ const handleSubmit = async () => {
     })
     success.value = true
   } catch (e) {
-    error.value = e.response?.data?.email?.[0] || e.response?.data?.detail || 'Failed to send password reset email. Please try again.'
+    error.value = e.response?.data?.email?.[0] || e.response?.data?.detail || t('auth.forgotPasswordPage.error')
   } finally {
     loading.value = false
   }
@@ -31,29 +34,29 @@ const handleSubmit = async () => {
     <div class="max-w-md w-full space-y-8 bg-white dark:bg-dark-surface p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700/50">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          Reset your password
+          {{ $t('auth.forgotPasswordPage.title') }}
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Remember your password?
+          {{ $t('auth.forgotPasswordPage.subtitle') }}
           <RouterLink to="/login" class="font-medium text-primary-600 hover:text-primary-500">
-            Sign in
+            {{ $t('auth.forgotPasswordPage.signIn') }}
           </RouterLink>
         </p>
       </div>
 
       <div v-if="success" class="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-        <p class="font-medium mb-2">Password reset email sent!</p>
-        <p>We've sent a password reset link to <strong>{{ email }}</strong>.</p>
-        <p class="mt-2">Please check your email (and spam folder) for instructions to reset your password.</p>
+        <p class="font-medium mb-2">{{ $t('auth.forgotPasswordPage.successTitle') }}</p>
+        <p>{{ $t('auth.forgotPasswordPage.successMessage', { email }) }}</p>
+        <p class="mt-2">{{ $t('auth.forgotPasswordPage.checkEmail') }}</p>
         <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
-          Note: In development mode, the email will be printed to the server console.
+          {{ $t('auth.forgotPasswordPage.devNote') }}
         </p>
       </div>
 
       <form v-else class="mt-8 space-y-6" @submit.prevent="handleSubmit">
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Email address
+            {{ $t('auth.email') }}
           </label>
           <input
             id="email"
@@ -63,10 +66,10 @@ const handleSubmit = async () => {
             required
             v-model="email"
             class="input-field"
-            placeholder="Enter your email"
+            :placeholder="$t('auth.emailPlaceholder')"
           />
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Enter the email address associated with your account and we'll send you a link to reset your password.
+            {{ $t('auth.forgotPasswordPage.description') }}
           </p>
         </div>
 
@@ -86,7 +89,7 @@ const handleSubmit = async () => {
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             </span>
-            {{ loading ? 'Sending...' : 'Send reset link' }}
+            {{ loading ? $t('auth.forgotPasswordPage.sending') : $t('auth.forgotPasswordPage.sendLink') }}
           </button>
         </div>
       </form>

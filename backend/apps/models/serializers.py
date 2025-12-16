@@ -41,7 +41,7 @@ class ModelSerializer(serializers.ModelSerializer):
                            'download_count', 'view_count', 'created_at', 'updated_at']
     
     def get_owner_name(self, obj):
-        return obj.owner.first_name or obj.owner.email.split('@')[0]
+        return obj.owner.display_name or obj.owner.first_name or obj.owner.email.split('@')[0]
     
     def get_images(self, obj):
         """Return images with proper absolute URLs."""
@@ -141,7 +141,7 @@ class ModelListSerializer(serializers.ModelSerializer):
         ]
 
     def get_owner_name(self, obj):
-        return obj.owner.first_name or obj.owner.email.split('@')[0]
+        return obj.owner.display_name or obj.owner.first_name or obj.owner.email.split('@')[0]
 
     def get_file_url(self, obj):
         """Return the STL file URL for download."""

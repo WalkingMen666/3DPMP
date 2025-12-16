@@ -96,7 +96,7 @@ const myModels = computed(() => modelsStore.myModels);
 const stats = computed(() => ({
   totalOrders: orders.value.length,
   modelsUploaded: myModels.value.length,
-  balance: "$0.00",
+  balance: "NT$ 0.00",
 }));
 
 // Helper to get model thumbnail
@@ -507,7 +507,7 @@ const getAvatarDisplayUrl = (avatarId) => {
                   <td
                     class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
                   >
-                    ${{ parseFloat(order.total_price).toFixed(2) }}
+                    NT$ {{ parseFloat(order.total_price).toFixed(2) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button

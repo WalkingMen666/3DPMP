@@ -1,9 +1,57 @@
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from dj_rest_auth.serializers import PasswordResetSerializer as DefaultPasswordResetSerializer
+from dj_rest_auth.serializers import LoginSerializer
+from allauth.account.models import EmailAddress
 from django.db import transaction
+from django.contrib.auth import authenticate
 from .models import Customer, Employee, User
 from .forms import CustomPasswordResetForm
+
+
+class CustomLoginSerializer(LoginSerializer):
+    """
+    Custom login serializer that bypasses email verification for staff users.
+    Regular customers still require email verification.
+    """
+    
+    def validate(self, attrs):
+        username = attrs.get('username')
+        email = attrs.get('email')
+        password = attrs.get('password')
+        
+        user = None
+        
+        # Try to authenticate
+        if email:
+            user = authenticate(
+                request=self.context.get('request'),
+                email=email,
+                password=password
+            )
+        
+        if user is None:
+            msg = 'Unable to log in with provided credentials.'
+            raise serializers.ValidationError(msg)
+        
+        # Check if user is active
+        if not user.is_active:
+            msg = 'User account is disabled.'
+            raise serializers.ValidationError(msg)
+        
+        # For staff users (employees/admins), bypass email verification
+        if user.is_staff:
+            attrs['user'] = user
+            return attrs
+        
+        # For regular users, check email verification
+        email_address = EmailAddress.objects.filter(user=user, email=user.email).first()
+        if email_address is None or not email_address.verified:
+            msg = 'E-mail is not verified.'
+            raise serializers.ValidationError(msg)
+        
+        attrs['user'] = user
+        return attrs
 
 class CustomRegisterSerializer(RegisterSerializer):
     # Remove username field requirement

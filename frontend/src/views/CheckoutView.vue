@@ -100,7 +100,7 @@ const saveNewAddress = async () => {
     newAddress.value = { name: '', address_type: 'HOME_DELIVERY', address_details: '' }
     error.value = ''
   } catch (err) {
-    error.value = 'Failed to save address'
+    error.value = 'checkout.errors.saveAddressFailed'
   }
 }
 
@@ -169,7 +169,7 @@ const placeOrder = async () => {
       router.push('/dashboard')
     }, 2000)
   } catch (err) {
-    error.value = err.response?.data?.detail || err.response?.data?.[0] || 'Failed to place order'
+    error.value = err.response?.data?.detail || err.response?.data?.[0] || 'checkout.errors.placeOrderFailed'
   } finally {
     loading.value = false
   }
@@ -262,7 +262,7 @@ const placeOrder = async () => {
         <!-- Compatible Addresses Warning -->
         <div v-if="selectedShippingOption && compatibleAddresses.length === 0 && savedAddresses.length > 0" class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
           <p class="text-sm text-yellow-800 dark:text-yellow-200">
-            選擇的配送方式 ({{ $t(`checkout.addressTypes.${selectedShippingOption.type}`) }}) 沒有相符的地址。請新增一個。
+            {{ $t('checkout.address.noCompatibleAddressWarning', { type: $t(`checkout.addressTypes.${selectedShippingOption.type}`) }) }}
           </p>
         </div>
 

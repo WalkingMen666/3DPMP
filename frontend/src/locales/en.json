@@ -59,6 +59,7 @@
     "passwordRequired": "Password is required",
     "authFailed": "Invalid email or password. Please check your credentials.",
     "googleFailed": "Google sign-in failed. Please try again.",
+    "googleSignUpFailed": "Google sign-up failed. Please try again.",
     "registrationFailed": "Registration failed",
     "passwordStrength": {
       "title": "Password Strength",
@@ -70,6 +71,44 @@
       "lower": "One lowercase letter",
       "number": "One number",
       "special": "One special character (recommended)"
+    },
+    "forgotPasswordPage": {
+      "title": "Reset your password",
+      "subtitle": "Remember your password?",
+      "signIn": "Sign in",
+      "successTitle": "Password reset email sent!",
+      "successMessage": "We've sent a password reset link to {email}.",
+      "checkEmail": "Please check your email (and spam folder) for instructions to reset your password.",
+      "devNote": "Note: In development mode, the email will be printed to the server console.",
+      "description": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+      "sendLink": "Send reset link",
+      "sending": "Sending...",
+      "error": "Failed to send password reset email. Please try again."
+    },
+    "resetPasswordPage": {
+      "title": "Set new password",
+      "subtitle": "Enter your new password below",
+      "successTitle": "Password reset successful!",
+      "successMessage": "Your password has been changed. You will be redirected to the login page in a few seconds...",
+      "goToLogin": "Go to login now",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "resetBtn": "Reset password",
+      "resetting": "Resetting...",
+      "invalidLink": "Invalid or expired reset link. Please request a new password reset.",
+      "mismatch": "Passwords do not match",
+      "requestNew": "Request a new reset link"
+    },
+    "verifyEmailPage": {
+      "title": "Email Verification",
+      "verifying": "Verifying your email...",
+      "successTitle": "Email verified successfully!",
+      "successMessage": "Your email has been confirmed. You can now log in to your account.",
+      "goToLogin": "Go to login",
+      "failedTitle": "Verification failed",
+      "invalidLink": "Invalid verification link. Please check your email for the correct link.",
+      "expiredLink": "Email verification failed. The link may have expired or is invalid.",
+      "registerAgain": "Register again"
     }
   },
   "dashboard": {
@@ -367,8 +406,9 @@
     "processing": "Processing...",
     "errors": {
       "selectShipping": "Please select a shipping option",
-      "selectAddress": "Please select or add a delivery address",
-      "addressFieldsRequired": "Please fill in all address fields"
+      "selectAddress": "Please select a delivery address",
+      "addressFieldsRequired": "Name and address details are required",
+      "placeOrderFailed": "Failed to place order"
     }
   },
   "modelDetail": {
@@ -538,6 +578,44 @@
     "common": {
       "comingSoon": "{feature} management coming soon",
       "useDjangoAdmin": "Use Django Admin for now: /admin/"
+    },
+    "modals": {
+      "addMaterial": "Add Material",
+      "editMaterial": "Edit Material",
+      "addShipping": "Add Shipping Option",
+      "editShipping": "Edit Shipping Option",
+      "cancel": "Cancel",
+      "create": "Create",
+      "update": "Update",
+      "active": "Active",
+      "namePlaceholder": "e.g. PLA",
+      "densityPlaceholder": "e.g. 1.24",
+      "pricePlaceholder": "e.g. 0.80",
+      "feePlaceholder": "e.g. 60"
+    },
+    "messages": {
+      "loadFailed": "Failed to load data",
+      "approveSuccess": "Model approved successfully",
+      "approveFailed": "Failed to approve model",
+      "rejectReasonRequired": "Rejection reason is required",
+      "rejectSuccess": "Model rejected",
+      "rejectFailed": "Failed to reject model",
+      "statusUpdateSuccess": "Order status updated to {status}",
+      "statusUpdateFailed": "Failed to update order status",
+      "materialSaved": "Material saved successfully",
+      "materialSaveFailed": "Failed to save material",
+      "confirmDeleteMaterial": "Are you sure you want to delete this material?",
+      "materialDeleted": "Material deleted successfully",
+      "materialDeleteFailed": "Failed to delete material",
+      "confirmDeleteShipping": "Are you sure you want to delete this shipping option?",
+      "shippingSaved": "Shipping option saved successfully",
+      "shippingSaveFailed": "Failed to save shipping option",
+      "shippingDeleted": "Shipping option deleted successfully",
+      "shippingDeleteFailed": "Failed to delete shipping option",
+      "modelStatusUpdated": "Model status updated successfully",
+      "confirmDeleteModel": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+      "modelDeleted": "Model deleted successfully",
+      "downloadSTL": "Download STL"
     }
   },
   "footer": {

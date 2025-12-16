@@ -2,9 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import axios from 'axios'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const newPassword1 = ref('')
 const newPassword2 = ref('')
@@ -18,13 +20,13 @@ const token = ref(route.params.token || '')
 
 onMounted(() => {
   if (!uid.value || !token.value) {
-    error.value = 'Invalid password reset link. Please request a new one.'
+    error.value = t('auth.resetPasswordPage.invalidLink')
   }
 })
 
 const handleSubmit = async () => {
   if (newPassword1.value !== newPassword2.value) {
-    error.value = 'Passwords do not match'
+    error.value = t('auth.resetPasswordPage.mismatch')
     return
   }
 
@@ -51,14 +53,14 @@ const handleSubmit = async () => {
       if (errors.new_password2) {
         error.value = errors.new_password2[0]
       } else if (errors.token) {
-        error.value = 'Invalid or expired reset link. Please request a new password reset.'
+        error.value = t('auth.resetPasswordPage.invalidLink')
       } else if (errors.detail) {
         error.value = errors.detail
       } else {
         error.value = JSON.stringify(errors)
       }
     } else {
-      error.value = 'Failed to reset password. Please try again.'
+      error.value = t('auth.resetPasswordPage.error') || t('auth.forgotPasswordPage.error')
     }
   } finally {
     loading.value = false
@@ -71,25 +73,25 @@ const handleSubmit = async () => {
     <div class="max-w-md w-full space-y-8 bg-white dark:bg-dark-surface p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700/50">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          Set new password
+          {{ $t('auth.resetPasswordPage.title') }}
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Enter your new password below
+          {{ $t('auth.resetPasswordPage.subtitle') }}
         </p>
       </div>
 
       <div v-if="success" class="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-        <p class="font-medium mb-2">Password reset successful!</p>
-        <p>Your password has been changed. You will be redirected to the login page in a few seconds...</p>
+        <p class="font-medium mb-2">{{ $t('auth.resetPasswordPage.successTitle') }}</p>
+        <p>{{ $t('auth.resetPasswordPage.successMessage') }}</p>
         <RouterLink to="/login" class="font-medium text-primary-600 hover:text-primary-500 mt-2 inline-block">
-          Go to login now
+          {{ $t('auth.resetPasswordPage.goToLogin') }}
         </RouterLink>
       </div>
 
       <form v-else class="mt-8 space-y-6" @submit.prevent="handleSubmit">
         <div>
           <label for="password1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            New Password
+            {{ $t('auth.resetPasswordPage.newPassword') }}
           </label>
           <input
             id="password1"
@@ -99,14 +101,14 @@ const handleSubmit = async () => {
             required
             v-model="newPassword1"
             class="input-field"
-            placeholder="Enter new password"
+            :placeholder="$t('auth.passwordPlaceholder')"
             :disabled="!uid || !token"
           />
         </div>
 
         <div>
           <label for="password2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Confirm New Password
+            {{ $t('auth.resetPasswordPage.confirmNewPassword') }}
           </label>
           <input
             id="password2"
@@ -116,7 +118,7 @@ const handleSubmit = async () => {
             required
             v-model="newPassword2"
             class="input-field"
-            placeholder="Confirm new password"
+            :placeholder="$t('auth.passwordPlaceholder')"
             :disabled="!uid || !token"
           />
         </div>
@@ -137,13 +139,13 @@ const handleSubmit = async () => {
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             </span>
-            {{ loading ? 'Resetting...' : 'Reset password' }}
+            {{ loading ? $t('auth.resetPasswordPage.resetting') : $t('auth.resetPasswordPage.resetBtn') }}
           </button>
         </div>
 
         <div class="text-center">
           <RouterLink to="/forgot-password" class="text-sm font-medium text-primary-600 hover:text-primary-500">
-            Request a new reset link
+            {{ $t('auth.resetPasswordPage.requestNew') }}
           </RouterLink>
         </div>
       </form>

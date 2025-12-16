@@ -69,6 +69,7 @@ SPECTACULAR_SETTINGS = {
 
 # dj-rest-auth settings
 REST_AUTH = {
+    'LOGIN_SERIALIZER': 'apps.users.serializers.CustomLoginSerializer',
     'REGISTER_SERIALIZER': 'apps.users.serializers.CustomRegisterSerializer',
     'SESSION_LOGIN': False,
     'EMAIL_VERIFICATION_URL': 'http://localhost:5173/verify-email/{key}',
@@ -84,6 +85,15 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Require email verification for new a
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 ACCOUNT_ADAPTER = 'apps.users.adapters.CustomAccountAdapter'
+
+# Authentication backends - required for allauth adapter to work with dj-rest-auth
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of allauth
+    'django.contrib.auth.backends.ModelBackend',
+    # allauth specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 
 # Email Configuration (Gmail SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

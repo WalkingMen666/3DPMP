@@ -87,7 +87,7 @@ const fetchPendingModels = async () => {
     const response = await apiClient.get('/models/pending_review/')
     pendingModels.value = response.data
   } catch (err) {
-    error.value = 'Failed to load pending models'
+    error.value = t('admin.messages.loadFailed')
   } finally {
     loading.value = false
   }
@@ -113,7 +113,7 @@ const fetchMaterials = async () => {
     const response = await apiClient.get('/materials/')
     materials.value = response.data?.results || response.data || []
   } catch (err) {
-    error.value = 'Failed to load materials'
+    error.value = t('admin.messages.loadFailed')
   } finally {
     loading.value = false
   }
@@ -137,7 +137,7 @@ const fetchAllModels = async () => {
     const response = await apiClient.get('/models/')
     allModels.value = response.data?.results || response.data || []
   } catch (err) {
-    error.value = 'Failed to load models'
+    error.value = t('admin.messages.loadFailed')
     allModels.value = []
   } finally {
     loading.value = false
@@ -162,11 +162,11 @@ const approveModel = async (modelId) => {
     await axios.post(`/api/models/${modelId}/approve/`, {}, {
       headers: { Authorization: `Token ${auth.token}` }
     })
-    successMessage.value = 'Model approved successfully'
+    successMessage.value = t('admin.messages.approveSuccess')
     pendingModels.value = pendingModels.value.filter(m => m.id !== modelId)
     setTimeout(() => successMessage.value = '', 3000)
   } catch (err) {
-    error.value = err.response?.data?.error || 'Failed to approve model'
+    error.value = err.response?.data?.error || t('admin.messages.approveFailed')
   }
 }
 
@@ -178,7 +178,7 @@ const openRejectModal = (model) => {
 
 const confirmReject = async () => { // Renamed from rejectModel
   if (!rejectionReason.value.trim()) {
-    error.value = 'Rejection reason is required'
+    error.value = t('admin.messages.rejectReasonRequired')
     return
   }
   
@@ -188,13 +188,13 @@ const confirmReject = async () => { // Renamed from rejectModel
     }, {
       headers: { Authorization: `Token ${auth.token}` }
     })
-    successMessage.value = 'Model rejected'
+    successMessage.value = t('admin.messages.rejectSuccess')
     pendingModels.value = pendingModels.value.filter(m => m.id !== identifyingModel.value.id) // Use identifyingModel
     showRejectModal.value = false
     identifyingModel.value = null // Use identifyingModel
     setTimeout(() => successMessage.value = '', 3000)
   } catch (err) {
-    error.value = err.response?.data?.error || 'Failed to reject model'
+    error.value = err.response?.data?.error || t('admin.messages.rejectFailed')
   }
 }
 
@@ -202,11 +202,11 @@ const confirmReject = async () => { // Renamed from rejectModel
 const updateOrderStatus = async (orderId, newStatus) => {
   try {
     await apiClient.patch(`/orders/${orderId}/update_status/`, { status: newStatus })
-    successMessage.value = `Order status updated to ${newStatus}`
+    successMessage.value = t('admin.messages.statusUpdateSuccess', { status: newStatus })
     await fetchPendingOrders()
     setTimeout(() => successMessage.value = '', 3000)
   } catch (err) {
-    error.value = 'Failed to update order status'
+    error.value = t('admin.messages.statusUpdateFailed')
   }
 }
 
@@ -247,25 +247,25 @@ const saveMaterial = async () => {
       successMessage.value = 'Material updated successfully'
     } else {
       await apiClient.post('/materials/', materialForm.value)
-      successMessage.value = 'Material created successfully'
+      successMessage.value = t('admin.messages.materialSaved')
     }
     showMaterialModal.value = false
     await fetchMaterials()
     setTimeout(() => successMessage.value = '', 3000)
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Failed to save material'
+    error.value = err.response?.data?.detail || t('admin.messages.materialSaveFailed')
   }
 }
 
 const deleteMaterial = async (materialId) => {
-  if (!confirm('Are you sure you want to delete this material?')) return
+  if (!confirm(t('admin.messages.confirmDeleteMaterial'))) return
   try {
     await apiClient.delete(`/materials/${materialId}/`)
-    successMessage.value = 'Material deleted successfully'
+    successMessage.value = t('admin.messages.materialDeleted')
     await fetchMaterials()
     setTimeout(() => successMessage.value = '', 3000)
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Failed to delete material'
+    error.value = err.response?.data?.detail || t('admin.messages.materialDeleteFailed')
   }
 }
 
@@ -305,14 +305,14 @@ const saveShipping = async () => {
 }
 
 const deleteShipping = async (optionId) => {
-  if (!confirm('Are you sure you want to delete this shipping option?')) return
+  if (!confirm(t('admin.messages.confirmDeleteShipping'))) return
   try {
     await apiClient.delete(`/shipping/options/${optionId}/`)
-    successMessage.value = 'Shipping option deleted successfully'
+    successMessage.value = t('admin.messages.shippingDeleted')
     await fetchShippingOptions()
     setTimeout(() => successMessage.value = '', 3000)
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Failed to delete shipping option'
+    error.value = err.response?.data?.detail || t('admin.messages.shippingDeleteFailed')
   }
 }
 
@@ -330,7 +330,7 @@ const updateModelStatus = async () => {
     await apiClient.patch(`/models/${editingModelStatus.value.id}/`, {
       visibility_status: newModelStatus.value
     })
-    successMessage.value = 'Model status updated successfully'
+    successMessage.value = t('admin.messages.modelStatusUpdated')
     showModelStatusModal.value = false
     await fetchAllModels()
     setTimeout(() => successMessage.value = '', 3000)
@@ -340,11 +340,11 @@ const updateModelStatus = async () => {
 }
 
 const deleteModel = async (modelId, modelName) => {
-  if (!confirm(`Are you sure you want to delete "${modelName}"? This action cannot be undone.`)) return
+  if (!confirm(t('admin.messages.confirmDeleteModel', { name: modelName }))) return
 
   try {
     await apiClient.delete(`/models/${modelId}/`)
-    successMessage.value = 'Model deleted successfully'
+    successMessage.value = t('admin.messages.modelDeleted')
     await fetchAllModels()
     setTimeout(() => successMessage.value = '', 3000)
   } catch (err) {
@@ -492,7 +492,7 @@ const allTabs = computed(() => {
                   <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ model.model_name }}</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                      {{ $t('modelDetail.by') }} {{ model.owner_name || model.owner_email }} • {{ model.category_name }}
+                      {{ $t('modelDetail.by') }} {{ model.owner_name || model.owner_email }} • {{ $t('marketplace.categoriesList.' + model.category) }}
                     </p>
                   </div>
                   <div class="flex space-x-2">
@@ -518,7 +518,7 @@ const allTabs = computed(() => {
                     <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    Download STL
+                    {{ $t('admin.messages.downloadSTL') }}
                   </a>
                   <button @click="viewModelDetail(model.id)" class="text-primary-600 hover:text-primary-500">
                     {{ $t('admin.pendingReviews.clickToView') }}
@@ -760,33 +760,41 @@ const allTabs = computed(() => {
     <!-- Material Modal -->
     <div v-if="showMaterialModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div class="bg-white dark:bg-dark-surface rounded-xl p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-          {{ editingMaterial ? 'Edit Material' : 'Add Material' }}
-        </h3>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ editingMaterial ? $t('admin.modals.editMaterial') : $t('admin.modals.addMaterial') }}
+          </h3>
+          <button @click="showMaterialModal = false" class="text-gray-400 hover:text-gray-500">
+            <span class="sr-only">{{ $t('common.close') }}</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-            <input v-model="materialForm.name" type="text" class="input-field w-full" placeholder="e.g. PLA" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('admin.materials.columns.name') }}</label>
+            <input v-model="materialForm.name" type="text" class="input-field w-full" :placeholder="$t('admin.modals.namePlaceholder')" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Density (g/cm³)</label>
-            <input v-model="materialForm.density_g_cm3" type="number" step="0.00001" class="input-field w-full" placeholder="e.g. 1.24" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('admin.materials.columns.density') }}</label>
+            <input v-model="materialForm.density_g_cm3" type="number" step="0.00001" class="input-field w-full" :placeholder="$t('admin.modals.densityPlaceholder')" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (TWD/g)</label>
-            <input v-model="materialForm.price_twd_g" type="number" step="0.01" class="input-field w-full" placeholder="e.g. 0.80" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('admin.materials.columns.price') }}</label>
+            <input v-model="materialForm.price_twd_g" type="number" step="0.01" class="input-field w-full" :placeholder="$t('admin.modals.pricePlaceholder')" />
           </div>
           <div class="flex items-center">
             <input v-model="materialForm.is_active" type="checkbox" id="is_active" class="mr-2" />
-            <label for="is_active" class="text-sm text-gray-700 dark:text-gray-300">Active</label>
+            <label for="is_active" class="text-sm text-gray-700 dark:text-gray-300">{{ $t('admin.modals.active') }}</label>
           </div>
         </div>
         <div class="flex justify-end space-x-4 mt-6">
-          <button @click="showMaterialModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-            Cancel
+          <button type="button" @click="showMaterialModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+            {{ $t('admin.modals.cancel') }}
           </button>
-          <button @click="saveMaterial" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
-            {{ editingMaterial ? 'Update' : 'Create' }}
+          <button type="button" @click="saveMaterial" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+            {{ editingMaterial ? $t('admin.modals.update') : $t('admin.modals.create') }}
           </button>
         </div>
       </div>
@@ -795,35 +803,43 @@ const allTabs = computed(() => {
     <!-- Shipping Modal -->
     <div v-if="showShippingModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div class="bg-white dark:bg-dark-surface rounded-xl p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-          {{ editingShipping ? 'Edit Shipping Option' : 'Add Shipping Option' }}
-        </h3>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ editingShipping ? $t('admin.modals.editShipping') : $t('admin.modals.addShipping') }}
+          </h3>
+          <button @click="showShippingModal = false" class="text-gray-400 hover:text-gray-500">
+            <span class="sr-only">{{ $t('common.close') }}</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-            <input v-model="shippingForm.name" type="text" class="input-field w-full" placeholder="e.g. Black Cat Delivery" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('admin.materials.columns.name') }}</label>
+            <input v-model="shippingForm.name" type="text" class="input-field w-full" :placeholder="$t('admin.modals.namePlaceholder')" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('admin.shipping.type') }}</label>
             <select v-model="shippingForm.type" class="input-field w-full">
               <option v-for="t in shippingTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Base Fee (TWD)</label>
-            <input v-model="shippingForm.base_fee" type="number" step="0.01" class="input-field w-full" placeholder="e.g. 60" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('admin.shipping.baseFee') }} (TWD)</label>
+            <input v-model="shippingForm.base_fee" type="number" step="0.01" class="input-field w-full" :placeholder="$t('admin.modals.feePlaceholder')" />
           </div>
           <div class="flex items-center">
             <input v-model="shippingForm.is_active" type="checkbox" id="shipping_is_active" class="mr-2" />
-            <label for="shipping_is_active" class="text-sm text-gray-700 dark:text-gray-300">Active</label>
+            <label for="shipping_is_active" class="text-sm text-gray-700 dark:text-gray-300">{{ $t('admin.modals.active') }}</label>
           </div>
         </div>
         <div class="flex justify-end space-x-4 mt-6">
-          <button @click="showShippingModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-            Cancel
+          <button type="button" @click="showShippingModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+            {{ $t('admin.modals.cancel') }}
           </button>
-          <button @click="saveShipping" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
-            {{ editingShipping ? 'Update' : 'Create' }}
+          <button type="button" @click="saveShipping" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+            {{ editingShipping ? $t('admin.modals.update') : $t('admin.modals.create') }}
           </button>
         </div>
       </div>
