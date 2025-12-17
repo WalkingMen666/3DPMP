@@ -58,11 +58,15 @@ export const useCartStore = defineStore('cart', {
           materialId: item.material,
           material: item.material_name,
           quantity: item.quantity,
-          price: parseFloat(item.estimated_price) || parseFloat(item.material_price) || 0,
-          unit_price: parseFloat(item.estimated_price) || 0,
+          // Use estimated_price which is calculated from weight_g * price_per_g * quantity
+          // Don't fall back to material_price as that's price per gram, not unit price
+          price: item.estimated_price ? parseFloat(item.estimated_price) / item.quantity : 0,
+          unit_price: item.estimated_price ? parseFloat(item.estimated_price) / item.quantity : 0,
           subtotal: parseFloat(item.estimated_price) || 0,
           image: '/placeholder-model.png',
-          notes: item.notes
+          notes: item.notes,
+          // Flag to show if price is unavailable (no slicing info)
+          priceUnavailable: !item.estimated_price
         }))
       } catch (error) {
         if (error.response?.status !== 401) {

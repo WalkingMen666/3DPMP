@@ -38,7 +38,7 @@
     "or": "Or",
     "createAccount": "create a new account",
     "email": "Email address",
-    "emailPlaceholder": "you@example.com",
+    "emailPlaceholder": "you{'@'}example.com",
     "password": "Password",
     "passwordPlaceholder": "••••••••",
     "confirmPassword": "Confirm Password",
@@ -378,6 +378,7 @@
       "addNew": "+ Add New Address",
       "cancel": "Cancel",
       "noAddresses": "No saved addresses. Please add one.",
+      "noCompatibleAddressWarning": "No saved addresses match the selected shipping type ({type}). Please add a new address.",
       "form": {
         "name": "Address Name",
         "namePlaceholder": "e.g. My Home",
@@ -400,7 +401,16 @@
       "title": "Order Summary",
       "subtotal": "Subtotal",
       "shipping": "Shipping",
-      "total": "Total"
+      "total": "Total",
+      "globalDiscount": "Discount",
+      "couponDiscount": "Coupon"
+    },
+    "coupon": {
+      "title": "Coupon Code",
+      "placeholder": "Enter coupon code",
+      "apply": "Apply",
+      "off": "off",
+      "autoApplied": "Auto-applied discounts"
     },
     "placeOrder": "Place Order",
     "processing": "Processing...",
@@ -678,7 +688,7 @@
       "name": "Name",
       "namePlaceholder": "Your name",
       "email": "Email",
-      "emailPlaceholder": "you@example.com",
+      "emailPlaceholder": "you{'@'}example.com",
       "subject": "Subject",
       "selectTopic": "Select a topic",
       "topics": {

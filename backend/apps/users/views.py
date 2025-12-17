@@ -1,13 +1,101 @@
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes, parser_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.authtoken.models import Token
 from django.conf import settings
 
 from .models import User, Employee, Customer
-from .serializers import UserSerializer, UserAvatarSerializer
+from .serializers import (
+    UserSerializer, UserAvatarSerializer,
+    EmployeeListSerializer, EmployeeCreateSerializer, EmployeeUpdateSerializer
+)
+
+
+class IsAdmin(BasePermission):
+    """Permission class to check if user is an admin."""
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        try:
+            return request.user.employee_profile.is_admin
+        except Employee.DoesNotExist:
+            return request.user.is_superuser
+
+
+class EmployeeViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing employees (Admin only)"""
+    permission_classes = [IsAuthenticated, IsAdmin]
+    queryset = Employee.objects.select_related('user').all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return EmployeeCreateSerializer
+        elif self.action in ['update', 'partial_update']:
+            return EmployeeUpdateSerializer
+        return EmployeeListSerializer
+
+    def list(self, request):
+        """List all employees"""
+        employees = self.get_queryset()
+        serializer = EmployeeListSerializer(employees, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        """Get a single employee by user ID"""
+        try:
+            employee = Employee.objects.select_related('user').get(user__id=pk)
+            serializer = EmployeeListSerializer(employee)
+            return Response(serializer.data)
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def create(self, request):
+        """Create a new employee"""
+        serializer = EmployeeCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            employee = serializer.save()
+            return Response(
+                EmployeeListSerializer(employee).data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk=None):
+        """Update an employee"""
+        try:
+            employee = Employee.objects.get(user__id=pk)
+            serializer = EmployeeUpdateSerializer(employee, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(EmployeeListSerializer(employee).data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def partial_update(self, request, pk=None):
+        """Partially update an employee"""
+        try:
+            employee = Employee.objects.get(user__id=pk)
+            serializer = EmployeeUpdateSerializer(employee, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(EmployeeListSerializer(employee).data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def destroy(self, request, pk=None):
+        """Delete an employee (deactivates the user)"""
+        try:
+            employee = Employee.objects.get(user__id=pk)
+            # Deactivate user instead of deleting
+            employee.user.is_active = False
+            employee.user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])

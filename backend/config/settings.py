@@ -72,8 +72,8 @@ REST_AUTH = {
     'LOGIN_SERIALIZER': 'apps.users.serializers.CustomLoginSerializer',
     'REGISTER_SERIALIZER': 'apps.users.serializers.CustomRegisterSerializer',
     'SESSION_LOGIN': False,
-    'EMAIL_VERIFICATION_URL': 'http://localhost:5173/verify-email/{key}',
-    'PASSWORD_RESET_CONFIRM_URL': 'http://localhost:5173/password-reset-confirm/{uid}/{token}',
+    'EMAIL_VERIFICATION_URL': 'http://localhost:8080/verify-email/{key}',
+    'PASSWORD_RESET_CONFIRM_URL': 'http://localhost:8080/password-reset-confirm/{uid}/{token}',
     'PASSWORD_RESET_SERIALIZER': 'apps.users.serializers.CustomPasswordResetSerializer',
 }
 
@@ -105,7 +105,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@3dpmp.com')
 
 # Frontend URL for email links
-FRONTEND_URL = 'http://localhost:5173'
+FRONTEND_URL = 'http://localhost:8080'
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = f'{FRONTEND_URL}/login?verified=true'
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = f'{FRONTEND_URL}/dashboard'
 

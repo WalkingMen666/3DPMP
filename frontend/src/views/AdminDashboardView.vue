@@ -30,6 +30,7 @@ const materials = ref([])
 const shippingOptions = ref([])
 const employees = ref([])
 const globalDiscounts = ref([])
+const coupons = ref([])
 
 const loading = ref(false)
 const error = ref('')
@@ -70,6 +71,48 @@ const modelStatuses = [
   { value: 'REJECTED', label: 'Rejected' },
   { value: 'PRIVATE', label: 'Private' }
 ]
+
+// GlobalDiscount modal state
+const showGlobalDiscountModal = ref(false)
+const editingGlobalDiscount = ref(null)
+const globalDiscountForm = ref({
+  name: '',
+  discount_type: 'PERCENTAGE',
+  discount_value: '',
+  min_order_amount: '',
+  start_date: '',
+  end_date: '',
+  is_active: true
+})
+const discountTypes = [
+  { value: 'PERCENTAGE', label: 'Percentage (%)' },
+  { value: 'FIXED', label: 'Fixed Amount (NT$)' }
+]
+
+// Coupon modal state
+const showCouponModal = ref(false)
+const editingCoupon = ref(null)
+const couponForm = ref({
+  name: '',
+  code: '',
+  discount_type: 'PERCENTAGE',
+  discount_value: '',
+  min_order_amount: '',
+  max_uses: '',
+  start_date: '',
+  end_date: '',
+  is_active: true
+})
+
+// Employee modal state
+const showEmployeeModal = ref(false)
+const editingEmployee = ref(null)
+const employeeForm = ref({
+  email: '',
+  password: '',
+  employee_name: '',
+  is_admin: false
+})
 
 // API client with auth
 const apiClient = axios.create({ baseURL: '/api' })
@@ -139,6 +182,45 @@ const fetchAllModels = async () => {
   } catch (err) {
     error.value = t('admin.messages.loadFailed')
     allModels.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+// Fetch global discounts
+const fetchGlobalDiscounts = async () => {
+  loading.value = true
+  try {
+    const response = await apiClient.get('/discounts/global-discounts/')
+    globalDiscounts.value = response.data?.results || response.data || []
+  } catch (err) {
+    globalDiscounts.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+// Fetch coupons
+const fetchCoupons = async () => {
+  loading.value = true
+  try {
+    const response = await apiClient.get('/discounts/coupons/')
+    coupons.value = response.data?.results || response.data || []
+  } catch (err) {
+    coupons.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+// Fetch employees
+const fetchEmployees = async () => {
+  loading.value = true
+  try {
+    const response = await apiClient.get('/auth/employees/')
+    employees.value = response.data?.results || response.data || []
+  } catch (err) {
+    employees.value = []
   } finally {
     loading.value = false
   }
@@ -316,6 +398,192 @@ const deleteShipping = async (optionId) => {
   }
 }
 
+// Global Discount CRUD actions
+const openAddGlobalDiscount = () => {
+  editingGlobalDiscount.value = null
+  globalDiscountForm.value = {
+    name: '',
+    discount_type: 'PERCENTAGE',
+    discount_value: '',
+    min_order_amount: '',
+    start_date: '',
+    end_date: '',
+    is_active: true
+  }
+  showGlobalDiscountModal.value = true
+}
+
+const openEditGlobalDiscount = (discount) => {
+  editingGlobalDiscount.value = discount
+  globalDiscountForm.value = {
+    name: discount.name,
+    discount_type: discount.discount_type,
+    discount_value: discount.discount_value,
+    min_order_amount: discount.min_order_amount || '',
+    start_date: discount.start_date?.split('T')[0] || '',
+    end_date: discount.end_date?.split('T')[0] || '',
+    is_active: discount.is_active
+  }
+  showGlobalDiscountModal.value = true
+}
+
+const saveGlobalDiscount = async () => {
+  try {
+    const payload = { ...globalDiscountForm.value }
+    if (!payload.min_order_amount) delete payload.min_order_amount
+    if (!payload.start_date) delete payload.start_date
+    if (!payload.end_date) delete payload.end_date
+
+    if (editingGlobalDiscount.value) {
+      await apiClient.put(`/discounts/global-discounts/${editingGlobalDiscount.value.id}/`, payload)
+      successMessage.value = 'Global discount updated successfully'
+    } else {
+      await apiClient.post('/discounts/global-discounts/', payload)
+      successMessage.value = 'Global discount created successfully'
+    }
+    showGlobalDiscountModal.value = false
+    await fetchGlobalDiscounts()
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    error.value = err.response?.data?.detail || 'Failed to save global discount'
+  }
+}
+
+const deleteGlobalDiscount = async (discountId) => {
+  if (!confirm('Are you sure you want to delete this global discount?')) return
+  try {
+    await apiClient.delete(`/discounts/global-discounts/${discountId}/`)
+    successMessage.value = 'Global discount deleted successfully'
+    await fetchGlobalDiscounts()
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    error.value = err.response?.data?.detail || 'Failed to delete global discount'
+  }
+}
+
+// Coupon CRUD actions
+const openAddCoupon = () => {
+  editingCoupon.value = null
+  couponForm.value = {
+    name: '',
+    code: '',
+    discount_type: 'PERCENTAGE',
+    discount_value: '',
+    min_order_amount: '',
+    max_uses: '',
+    start_date: '',
+    end_date: '',
+    is_active: true
+  }
+  showCouponModal.value = true
+}
+
+const openEditCoupon = (coupon) => {
+  editingCoupon.value = coupon
+  couponForm.value = {
+    name: coupon.name,
+    code: coupon.code,
+    discount_type: coupon.discount_type,
+    discount_value: coupon.discount_value,
+    min_order_amount: coupon.min_order_amount || '',
+    max_uses: coupon.max_uses || '',
+    start_date: coupon.start_date?.split('T')[0] || '',
+    end_date: coupon.end_date?.split('T')[0] || '',
+    is_active: coupon.is_active
+  }
+  showCouponModal.value = true
+}
+
+const saveCoupon = async () => {
+  try {
+    const payload = { ...couponForm.value }
+    if (!payload.min_order_amount) delete payload.min_order_amount
+    if (!payload.max_uses) delete payload.max_uses
+    if (!payload.start_date) delete payload.start_date
+    if (!payload.end_date) delete payload.end_date
+
+    if (editingCoupon.value) {
+      await apiClient.put(`/discounts/coupons/${editingCoupon.value.id}/`, payload)
+      successMessage.value = 'Coupon updated successfully'
+    } else {
+      await apiClient.post('/discounts/coupons/', payload)
+      successMessage.value = 'Coupon created successfully'
+    }
+    showCouponModal.value = false
+    await fetchCoupons()
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    error.value = err.response?.data?.detail || 'Failed to save coupon'
+  }
+}
+
+const deleteCoupon = async (couponId) => {
+  if (!confirm('Are you sure you want to delete this coupon?')) return
+  try {
+    await apiClient.delete(`/discounts/coupons/${couponId}/`)
+    successMessage.value = 'Coupon deleted successfully'
+    await fetchCoupons()
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    error.value = err.response?.data?.detail || 'Failed to delete coupon'
+  }
+}
+
+// Employee CRUD actions
+const openAddEmployee = () => {
+  editingEmployee.value = null
+  employeeForm.value = {
+    email: '',
+    password: '',
+    employee_name: '',
+    is_admin: false
+  }
+  showEmployeeModal.value = true
+}
+
+const openEditEmployee = (employee) => {
+  editingEmployee.value = employee
+  employeeForm.value = {
+    email: employee.email,
+    password: '',
+    employee_name: employee.employee_name,
+    is_admin: employee.is_admin
+  }
+  showEmployeeModal.value = true
+}
+
+const saveEmployee = async () => {
+  try {
+    if (editingEmployee.value) {
+      await apiClient.patch(`/auth/employees/${editingEmployee.value.id}/`, {
+        employee_name: employeeForm.value.employee_name,
+        is_admin: employeeForm.value.is_admin
+      })
+      successMessage.value = 'Employee updated successfully'
+    } else {
+      await apiClient.post('/auth/employees/', employeeForm.value)
+      successMessage.value = 'Employee created successfully'
+    }
+    showEmployeeModal.value = false
+    await fetchEmployees()
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    error.value = err.response?.data?.email?.[0] || err.response?.data?.detail || 'Failed to save employee'
+  }
+}
+
+const deleteEmployee = async (employeeId) => {
+  if (!confirm('Are you sure you want to deactivate this employee?')) return
+  try {
+    await apiClient.delete(`/auth/employees/${employeeId}/`)
+    successMessage.value = 'Employee deactivated successfully'
+    await fetchEmployees()
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    error.value = err.response?.data?.detail || 'Failed to deactivate employee'
+  }
+}
+
 // Model management actions
 const openModelStatusModal = (model) => {
   editingModelStatus.value = model
@@ -375,6 +643,11 @@ const changeTab = (tab) => {
   else if (tab === 'models' && isAdmin.value) fetchAllModels()
   else if (tab === 'materials' && isAdmin.value) fetchMaterials()
   else if (tab === 'shipping' && isAdmin.value) fetchShippingOptions()
+  else if (tab === 'discounts' && isAdmin.value) {
+    fetchGlobalDiscounts()
+    fetchCoupons()
+  }
+  else if (tab === 'employees' && isAdmin.value) fetchEmployees()
 }
 
 // Initialize
@@ -743,15 +1016,157 @@ const allTabs = computed(() => {
           </div>
         </div>
 
-        <!-- Other Tabs -->
-        <div v-if="['discounts', 'employees'].includes(activeTab) && isAdmin">
-          <div class="text-center py-24 bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {{ $t('admin.common.comingSoon', { feature: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }) }}
-            </h2>
-            <p class="text-gray-500 dark:text-gray-400">
-              {{ $t('admin.common.useDjangoAdmin') }}
-            </p>
+        <!-- Discounts Tab (Admin only) -->
+        <div v-if="activeTab === 'discounts' && isAdmin">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Discounts Management</h2>
+
+          <!-- Global Discounts Section -->
+          <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Global Discounts</h3>
+              <button @click="openAddGlobalDiscount" class="btn-primary py-2 text-sm">+ Add Global Discount</button>
+            </div>
+
+            <div v-if="loading" class="text-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+            </div>
+
+            <div v-else-if="globalDiscounts.length === 0" class="text-center py-8 bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50">
+              <p class="text-gray-500">No global discounts found</p>
+            </div>
+
+            <div v-else class="grid gap-4">
+              <div v-for="discount in globalDiscounts" :key="discount.id" class="bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50 p-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white">{{ discount.name }}</h4>
+                    <p class="text-sm text-gray-500">
+                      {{ discount.discount_type === 'PERCENTAGE' ? `${discount.discount_value}% off` : `NT$ ${discount.discount_value} off` }}
+                    </p>
+                    <p v-if="discount.min_order_amount" class="text-xs text-gray-400">Min order: NT$ {{ discount.min_order_amount }}</p>
+                    <p v-if="discount.start_date || discount.end_date" class="text-xs text-gray-400">
+                      {{ discount.start_date?.split('T')[0] || 'No start' }} - {{ discount.end_date?.split('T')[0] || 'No end' }}
+                    </p>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <span :class="discount.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" class="px-2 py-1 text-xs font-semibold rounded-full">
+                      {{ discount.is_active ? 'Active' : 'Inactive' }}
+                    </span>
+                    <button @click="openEditGlobalDiscount(discount)" class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
+                    <button @click="deleteGlobalDiscount(discount.id)" class="text-red-600 hover:text-red-800 text-sm">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coupons Section -->
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Coupons</h3>
+              <button @click="openAddCoupon" class="btn-primary py-2 text-sm">+ Add Coupon</button>
+            </div>
+
+            <div v-if="loading" class="text-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+            </div>
+
+            <div v-else-if="coupons.length === 0" class="text-center py-8 bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50">
+              <p class="text-gray-500">No coupons found</p>
+            </div>
+
+            <div v-else class="bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Discount</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uses</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                  <tr v-for="coupon in coupons" :key="coupon.id">
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ coupon.name }}</td>
+                    <td class="px-4 py-3 text-sm font-mono text-primary-600">{{ coupon.code }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">
+                      {{ coupon.discount_type === 'PERCENTAGE' ? `${coupon.discount_value}%` : `NT$ ${coupon.discount_value}` }}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500">{{ coupon.times_used || 0 }} / {{ coupon.max_uses || '∞' }}</td>
+                    <td class="px-4 py-3">
+                      <span :class="coupon.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" class="px-2 py-1 text-xs font-semibold rounded-full">
+                        {{ coupon.is_active ? 'Active' : 'Inactive' }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm space-x-2">
+                      <button @click="openEditCoupon(coupon)" class="text-primary-600 hover:text-primary-800">Edit</button>
+                      <button @click="deleteCoupon(coupon.id)" class="text-red-600 hover:text-red-800">Delete</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employees Tab (Admin only) -->
+        <div v-if="activeTab === 'employees' && isAdmin">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Employees Management</h2>
+            <button @click="openAddEmployee" class="btn-primary py-2 text-sm">+ Add Employee</button>
+          </div>
+
+          <div v-if="loading" class="text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          </div>
+
+          <div v-else-if="employees.length === 0" class="text-center py-12 bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50">
+            <p class="text-gray-500">No employees found</p>
+          </div>
+
+          <div v-else class="bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Employee</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Email</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Role</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tr v-for="employee in employees" :key="employee.id">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mr-3">
+                        <span class="text-primary-600 dark:text-primary-400 font-medium">
+                          {{ employee.employee_name?.charAt(0)?.toUpperCase() || 'E' }}
+                        </span>
+                      </div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ employee.employee_name }}</div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ employee.email }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span :class="employee.is_admin ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'" class="px-2 py-1 text-xs font-semibold rounded-full">
+                      {{ employee.is_admin ? 'Admin' : 'Employee' }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span :class="employee.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 text-xs font-semibold rounded-full">
+                      {{ employee.is_active ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button @click="openEditEmployee(employee)" class="text-primary-600 hover:text-primary-800 dark:hover:text-primary-400">Edit</button>
+                    <button @click="deleteEmployee(employee.id)" class="text-red-600 hover:text-red-800 dark:hover:text-red-400">Deactivate</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -911,6 +1326,172 @@ const allTabs = computed(() => {
             class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
           >
             {{ $t('admin.models.updateStatus') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Discount Modal -->
+    <div v-if="showGlobalDiscountModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-dark-surface rounded-xl p-6 max-w-md w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ editingGlobalDiscount ? 'Edit Global Discount' : 'Add Global Discount' }}
+          </h3>
+          <button @click="showGlobalDiscountModal = false" class="text-gray-400 hover:text-gray-500">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+            <input v-model="globalDiscountForm.name" type="text" class="input-field w-full" placeholder="e.g., Summer Sale" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+              <select v-model="globalDiscountForm.discount_type" class="input-field w-full">
+                <option v-for="t in discountTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Value</label>
+              <input v-model="globalDiscountForm.discount_value" type="number" step="0.01" class="input-field w-full" placeholder="10" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Order Amount (optional)</label>
+            <input v-model="globalDiscountForm.min_order_amount" type="number" step="0.01" class="input-field w-full" placeholder="100" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+              <input v-model="globalDiscountForm.start_date" type="date" class="input-field w-full" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+              <input v-model="globalDiscountForm.end_date" type="date" class="input-field w-full" />
+            </div>
+          </div>
+          <div class="flex items-center">
+            <input v-model="globalDiscountForm.is_active" type="checkbox" id="discount_is_active" class="mr-2" />
+            <label for="discount_is_active" class="text-sm text-gray-700 dark:text-gray-300">Active</label>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-4 mt-6">
+          <button @click="showGlobalDiscountModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">Cancel</button>
+          <button @click="saveGlobalDiscount" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg">
+            {{ editingGlobalDiscount ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coupon Modal -->
+    <div v-if="showCouponModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-dark-surface rounded-xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ editingCoupon ? 'Edit Coupon' : 'Add Coupon' }}
+          </h3>
+          <button @click="showCouponModal = false" class="text-gray-400 hover:text-gray-500">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+            <input v-model="couponForm.name" type="text" class="input-field w-full" placeholder="e.g., Welcome Discount" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Code</label>
+            <input v-model="couponForm.code" type="text" class="input-field w-full font-mono uppercase" placeholder="WELCOME10" :disabled="editingCoupon" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+              <select v-model="couponForm.discount_type" class="input-field w-full">
+                <option v-for="t in discountTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Value</label>
+              <input v-model="couponForm.discount_value" type="number" step="0.01" class="input-field w-full" placeholder="10" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Order (optional)</label>
+              <input v-model="couponForm.min_order_amount" type="number" step="0.01" class="input-field w-full" placeholder="100" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Uses (optional)</label>
+              <input v-model="couponForm.max_uses" type="number" class="input-field w-full" placeholder="100" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+              <input v-model="couponForm.start_date" type="date" class="input-field w-full" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+              <input v-model="couponForm.end_date" type="date" class="input-field w-full" />
+            </div>
+          </div>
+          <div class="flex items-center">
+            <input v-model="couponForm.is_active" type="checkbox" id="coupon_is_active" class="mr-2" />
+            <label for="coupon_is_active" class="text-sm text-gray-700 dark:text-gray-300">Active</label>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-4 mt-6">
+          <button @click="showCouponModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">Cancel</button>
+          <button @click="saveCoupon" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg">
+            {{ editingCoupon ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee Modal -->
+    <div v-if="showEmployeeModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-dark-surface rounded-xl p-6 max-w-md w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ editingEmployee ? 'Edit Employee' : 'Add Employee' }}
+          </h3>
+          <button @click="showEmployeeModal = false" class="text-gray-400 hover:text-gray-500">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <input v-model="employeeForm.email" type="email" class="input-field w-full" placeholder="employee@example.com" :disabled="editingEmployee" />
+          </div>
+          <div v-if="!editingEmployee">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <input v-model="employeeForm.password" type="password" class="input-field w-full" placeholder="Minimum 8 characters" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee Name</label>
+            <input v-model="employeeForm.employee_name" type="text" class="input-field w-full" placeholder="John Doe" />
+          </div>
+          <div class="flex items-center">
+            <input v-model="employeeForm.is_admin" type="checkbox" id="employee_is_admin" class="mr-2" />
+            <label for="employee_is_admin" class="text-sm text-gray-700 dark:text-gray-300">Administrator (full access)</label>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-4 mt-6">
+          <button @click="showEmployeeModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">Cancel</button>
+          <button @click="saveEmployee" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg">
+            {{ editingEmployee ? 'Update' : 'Create' }}
           </button>
         </div>
       </div>

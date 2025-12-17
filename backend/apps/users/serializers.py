@@ -116,6 +116,73 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class EmployeeListSerializer(serializers.ModelSerializer):
+    """Flat serializer for employee listing with user details"""
+    id = serializers.UUIDField(source='user.id', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    display_name = serializers.CharField(source='user.display_name', read_only=True)
+    date_joined = serializers.DateTimeField(source='user.date_joined', read_only=True)
+    is_active = serializers.BooleanField(source='user.is_active', read_only=True)
+
+    class Meta:
+        model = Employee
+        fields = ['id', 'email', 'display_name', 'employee_name', 'is_admin', 'date_joined', 'is_active']
+
+
+class EmployeeCreateSerializer(serializers.Serializer):
+    """Serializer for creating a new employee"""
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True, min_length=8)
+    employee_name = serializers.CharField(max_length=255)
+    is_admin = serializers.BooleanField(default=False)
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
+    def create(self, validated_data):
+        # Create user
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        user.is_staff = True  # Allow admin panel access
+        user.save()
+
+        # Create employee profile
+        employee = Employee.objects.create(
+            user=user,
+            employee_name=validated_data['employee_name'],
+            is_admin=validated_data.get('is_admin', False)
+        )
+        return employee
+
+
+class EmployeeUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating employee"""
+    is_active = serializers.BooleanField(required=False)
+
+    class Meta:
+        model = Employee
+        fields = ['employee_name', 'is_admin', 'is_active']
+
+    def update(self, instance, validated_data):
+        is_active = validated_data.pop('is_active', None)
+
+        # Update employee fields
+        instance.employee_name = validated_data.get('employee_name', instance.employee_name)
+        instance.is_admin = validated_data.get('is_admin', instance.is_admin)
+        instance.save()
+
+        # Update user is_active if provided
+        if is_active is not None:
+            instance.user.is_active = is_active
+            instance.user.save()
+
+        return instance
+
+
 class CustomPasswordResetSerializer(DefaultPasswordResetSerializer):
     """Custom password reset serializer to use custom form."""
 

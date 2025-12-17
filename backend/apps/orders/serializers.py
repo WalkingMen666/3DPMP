@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from decimal import Decimal
+from django.utils import timezone
+from django.db.models import Q
 from .models import Order, OrderItem, OrderLog, OrderStatus
 from apps.materials.models import CartItem
 
@@ -155,11 +157,97 @@ class OrderCreateSerializer(serializers.Serializer):
             })
         
         # Add shipping fee
-        total_price = subtotal + shipping_option.base_fee
-        
-        # TODO: Apply discounts (Global + Coupon)
-        # This would involve checking GlobalDiscount and Coupon tables
-        
+        shipping_fee = shipping_option.base_fee
+
+        # Apply Global Discounts
+        now = timezone.now()
+        active_global_discounts = GlobalDiscount.objects.select_related('discount').filter(
+            discount__is_active=True
+        ).filter(
+            Q(discount__start_date__lte=now) | Q(discount__start_date__isnull=True)
+        ).filter(
+            Q(discount__due_date__gte=now) | Q(discount__due_date__isnull=True)
+        ).order_by('-priority')
+
+        global_discount_total = Decimal('0')
+        applied_global_discounts = []
+
+        for gd in active_global_discounts:
+            min_order = gd.discount.min_price or Decimal('0')
+            if subtotal < min_order:
+                continue
+
+            if gd.discount.is_fixed:
+                discount_amount = min(gd.discount.dis_value, subtotal)
+            else:
+                discount_amount = subtotal * (gd.discount.dis_value / Decimal('100'))
+                if gd.discount.max_discount:
+                    discount_amount = min(discount_amount, gd.discount.max_discount)
+
+            global_discount_total += discount_amount
+            applied_global_discounts.append({
+                'global_discount': gd,
+                'amount': discount_amount,
+                'snapshot': {
+                    'name': gd.discount.name,
+                    'is_fixed': gd.discount.is_fixed,
+                    'value': str(gd.discount.dis_value),
+                    'min_price': str(gd.discount.min_price or 0),
+                    'priority': gd.priority,
+                }
+            })
+
+        # Apply Coupon if provided
+        coupon_discount = Decimal('0')
+        applied_coupon = None
+        coupon_code = validated_data.get('coupon_code', '').strip().upper()
+
+        if coupon_code:
+            try:
+                coupon = Coupon.objects.select_related('discount').get(coupon_code__iexact=coupon_code)
+
+                # Validate coupon
+                if not coupon.discount.is_active:
+                    raise serializers.ValidationError("Coupon is not active")
+                if coupon.discount.start_date and now < coupon.discount.start_date:
+                    raise serializers.ValidationError("Coupon is not yet valid")
+                if coupon.discount.due_date and now > coupon.discount.due_date:
+                    raise serializers.ValidationError("Coupon has expired")
+                if coupon.max_uses_total and coupon.total_redemptions >= coupon.max_uses_total:
+                    raise serializers.ValidationError("Coupon usage limit reached")
+                if not coupon.is_valid_for_customer(customer):
+                    raise serializers.ValidationError("Coupon already used by this customer")
+
+                min_order = coupon.discount.min_price or Decimal('0')
+                if subtotal < min_order:
+                    raise serializers.ValidationError(f"Order subtotal must be at least NT${min_order}")
+
+                if coupon.discount.is_fixed:
+                    coupon_discount = min(coupon.discount.dis_value, subtotal - global_discount_total)
+                else:
+                    coupon_discount = subtotal * (coupon.discount.dis_value / Decimal('100'))
+                    if coupon.discount.max_discount:
+                        coupon_discount = min(coupon_discount, coupon.discount.max_discount)
+
+                applied_coupon = {
+                    'coupon': coupon,
+                    'amount': coupon_discount,
+                    'snapshot': {
+                        'code': coupon.coupon_code,
+                        'name': coupon.discount.name,
+                        'is_fixed': coupon.discount.is_fixed,
+                        'value': str(coupon.discount.dis_value),
+                        'min_price': str(coupon.discount.min_price or 0),
+                    }
+                }
+
+            except Coupon.DoesNotExist:
+                raise serializers.ValidationError("Invalid coupon code")
+
+        # Calculate final total
+        total_discount = global_discount_total + coupon_discount
+        total_price = max(Decimal('0'), subtotal - total_discount + shipping_fee)
+
         # Create order
         order = Order.objects.create(
             customer=customer,
@@ -167,14 +255,33 @@ class OrderCreateSerializer(serializers.Serializer):
             total_price=total_price,
             notes=validated_data.get('notes', ''),
         )
-        
+
         # Create order items
         for item_data in order_items_data:
             OrderItem.objects.create(order=order, **item_data)
-        
+
+        # Record applied global discounts
+        for gd_data in applied_global_discounts:
+            IsAffected.objects.create(
+                order=order,
+                global_discount=gd_data['global_discount'],
+                discount_snapshot_info=gd_data['snapshot'],
+                discount_amount=gd_data['amount'],
+            )
+
+        # Record coupon redemption
+        if applied_coupon:
+            CouponRedemption.objects.create(
+                customer=customer,
+                coupon=applied_coupon['coupon'],
+                order=order,
+                discount_snapshot_info=applied_coupon['snapshot'],
+                discount_amount=applied_coupon['amount'],
+            )
+
         # Clear cart after successful order
         cart_items.delete()
-        
+
         return order
 
 

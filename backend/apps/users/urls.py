@@ -1,5 +1,9 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
+
+router = DefaultRouter()
+router.register(r'employees', views.EmployeeViewSet, basename='employee')
 
 urlpatterns = [
     path('', include('dj_rest_auth.urls')),
@@ -11,4 +15,6 @@ urlpatterns = [
     # Google OAuth
     path('google/', views.google_login, name='google-login'),
     path('google/client-id/', views.google_client_id, name='google-client-id'),
+    # Employee management (Admin only)
+    path('', include(router.urls)),
 ]

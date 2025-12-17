@@ -103,6 +103,23 @@ const currentImage = computed(() => {
   return model.value.images[selectedImageIndex.value] || model.value.images[0];
 });
 
+// Calculate price based on material, weight, and quantity
+const calculatedPrice = computed(() => {
+  if (!model.value?.slicingInfo?.weight_grams || !selectedMaterial.value) {
+    return null;
+  }
+
+  const material = materials.value.find(m => m.id === selectedMaterial.value);
+  if (!material) return null;
+
+  const weightGrams = parseFloat(model.value.slicingInfo.weight_grams) || 0;
+  const pricePerGram = parseFloat(material.price_twd_g) || 0;
+  const qty = parseInt(quantity.value) || 1;
+
+  const total = weightGrams * pricePerGram * qty;
+  return total.toFixed(2);
+});
+
 const addToCart = async () => {
   if (!auth.isAuthenticated) {
     router.push("/login");
@@ -281,9 +298,17 @@ const addToCart = async () => {
 
         <div class="space-y-4">
           <div class="flex items-center justify-between">
-            <span class="text-2xl font-bold text-gray-900 dark:text-white"
-              >${{ model.price }}</span
-            >
+            <span class="text-2xl font-bold text-gray-900 dark:text-white">
+              <template v-if="calculatedPrice !== null">
+                NT$ {{ calculatedPrice }}
+              </template>
+              <template v-else-if="model.slicingInfo">
+                NT$ --
+              </template>
+              <template v-else>
+                <span class="text-base text-gray-500">{{ $t('modelDetail.slicing.pending') }}</span>
+              </template>
+            </span>
             <div class="flex items-center space-x-4">
               <select v-model="selectedMaterial" class="input-field w-32">
                 <option v-for="mat in materials" :key="mat.id" :value="mat.id">

@@ -38,7 +38,7 @@
     "or": "或",
     "createAccount": "建立新帳號",
     "email": "電子郵件地址",
-    "emailPlaceholder": "you@example.com",
+    "emailPlaceholder": "you{'@'}example.com",
     "password": "密碼",
     "passwordPlaceholder": "••••••••",
     "confirmPassword": "確認密碼",
@@ -384,6 +384,7 @@
       "addNew": "+ 新增地址",
       "cancel": "取消",
       "noAddresses": "無已儲存的地址。請新增一個。",
+      "noCompatibleAddressWarning": "沒有符合所選配送方式 ({type}) 的地址。請新增一個。",
       "form": {
         "name": "地址名稱",
         "namePlaceholder": "例如：我的家",
@@ -406,7 +407,16 @@
       "title": "訂單摘要",
       "subtotal": "小計",
       "shipping": "運費",
-      "total": "總計"
+      "total": "總計",
+      "globalDiscount": "折扣",
+      "couponDiscount": "優惠券"
+    },
+    "coupon": {
+      "title": "優惠券代碼",
+      "placeholder": "輸入優惠券代碼",
+      "apply": "套用",
+      "off": "折扣",
+      "autoApplied": "自動套用的折扣"
     },
     "placeOrder": "送出訂單",
     "processing": "處理中...",
@@ -683,7 +693,7 @@
       "name": "姓名",
       "namePlaceholder": "您的姓名",
       "email": "電子郵件",
-      "emailPlaceholder": "you@example.com",
+      "emailPlaceholder": "you{'@'}example.com",
       "subject": "主旨",
       "selectTopic": "選擇一個主題",
       "topics": {
