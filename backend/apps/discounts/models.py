@@ -153,6 +153,12 @@ class Coupon(models.Model):
         default=1,
         validators=[MinValueValidator(1)]
     )
+    
+    # Whether this coupon can be combined with global discounts
+    is_stackable = models.BooleanField(
+        default=True,
+        help_text="Whether this coupon can be used together with global discounts"
+    )
 
     class Meta:
         db_table = 'coupon'

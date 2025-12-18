@@ -109,7 +109,7 @@ const fetchGlobalDiscounts = async () => {
 
 const applyCoupon = async () => {
   if (!couponCode.value.trim()) {
-    couponError.value = 'Please enter a coupon code'
+    couponError.value = t('checkout.errors.enterCouponCode')
     return
   }
 
@@ -118,7 +118,7 @@ const applyCoupon = async () => {
 
   try {
     const response = await apiClient.post('/discounts/coupons/validate/', {
-      code: couponCode.value.trim().toUpperCase()
+      code: couponCode.value.trim()
     })
 
     if (response.data.valid) {

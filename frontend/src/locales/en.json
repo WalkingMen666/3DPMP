@@ -418,8 +418,10 @@
       "selectShipping": "Please select a shipping option",
       "selectAddress": "Please select a delivery address",
       "addressFieldsRequired": "Name and address details are required",
+      "saveAddressFailed": "Failed to save address",
       "placeOrderFailed": "Failed to place order",
-      "invalidCoupon": "Invalid coupon code"
+      "invalidCoupon": "Invalid coupon code",
+      "enterCouponCode": "Please enter a coupon code"
     }
   },
   "modelDetail": {

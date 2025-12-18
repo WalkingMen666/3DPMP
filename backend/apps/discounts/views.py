@@ -51,7 +51,7 @@ class GlobalDiscountViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, pk=None):
         """Get a single global discount"""
         try:
-            global_discount = GlobalDiscount.objects.select_related('discount').get(discount__id=pk)
+            global_discount = GlobalDiscount.objects.select_related('discount').get(id=pk)
             serializer = self.get_serializer(global_discount)
             return Response(serializer.data)
         except GlobalDiscount.DoesNotExist:
@@ -71,7 +71,7 @@ class GlobalDiscountViewSet(viewsets.ModelViewSet):
     def update(self, request, pk=None):
         """Update a global discount"""
         try:
-            global_discount = GlobalDiscount.objects.select_related('discount').get(discount__id=pk)
+            global_discount = GlobalDiscount.objects.select_related('discount').get(id=pk)
             serializer = self.get_serializer(global_discount, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -83,7 +83,7 @@ class GlobalDiscountViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         """Partially update a global discount"""
         try:
-            global_discount = GlobalDiscount.objects.select_related('discount').get(discount__id=pk)
+            global_discount = GlobalDiscount.objects.select_related('discount').get(id=pk)
             serializer = self.get_serializer(global_discount, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
@@ -95,7 +95,7 @@ class GlobalDiscountViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         """Delete a global discount"""
         try:
-            global_discount = GlobalDiscount.objects.select_related('discount').get(discount__id=pk)
+            global_discount = GlobalDiscount.objects.select_related('discount').get(id=pk)
             # Delete the linked Discount (will cascade delete GlobalDiscount)
             global_discount.discount.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -118,7 +118,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, pk=None):
         """Get a single coupon"""
         try:
-            coupon = Coupon.objects.select_related('discount').get(discount__id=pk)
+            coupon = Coupon.objects.select_related('discount').get(id=pk)
             serializer = self.get_serializer(coupon)
             return Response(serializer.data)
         except Coupon.DoesNotExist:
@@ -138,7 +138,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     def update(self, request, pk=None):
         """Update a coupon"""
         try:
-            coupon = Coupon.objects.select_related('discount').get(discount__id=pk)
+            coupon = Coupon.objects.select_related('discount').get(id=pk)
             serializer = self.get_serializer(coupon, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -150,7 +150,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         """Partially update a coupon"""
         try:
-            coupon = Coupon.objects.select_related('discount').get(discount__id=pk)
+            coupon = Coupon.objects.select_related('discount').get(id=pk)
             serializer = self.get_serializer(coupon, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
@@ -162,7 +162,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         """Delete a coupon"""
         try:
-            coupon = Coupon.objects.select_related('discount').get(discount__id=pk)
+            coupon = Coupon.objects.select_related('discount').get(id=pk)
             # Delete the linked Discount (will cascade delete Coupon)
             coupon.discount.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)

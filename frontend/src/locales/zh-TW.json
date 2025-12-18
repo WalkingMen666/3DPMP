@@ -419,8 +419,10 @@
       "selectShipping": "請選擇配送方式",
       "selectAddress": "請選擇或新增收貨地址",
       "addressFieldsRequired": "請填寫所有地址欄位",
+      "saveAddressFailed": "儲存地址失敗",
       "placeOrderFailed": "下單失敗",
-      "invalidCoupon": "無效的優惠券代碼"
+      "invalidCoupon": "無效的優惠券代碼",
+      "enterCouponCode": "請輸入優惠券代碼"
     }
   },
   "modelDetail": {

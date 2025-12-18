@@ -102,7 +102,7 @@ class CouponListSerializer(serializers.ModelSerializer):
         model = Coupon
         fields = [
             'id', 'name', 'code', 'discount_type', 'discount_value',
-            'min_order_amount', 'max_uses', 'times_used',
+            'min_order_amount', 'max_uses', 'times_used', 'is_stackable',
             'start_date', 'end_date', 'is_active', 'created_at'
         ]
 
@@ -140,7 +140,8 @@ class CouponListSerializer(serializers.ModelSerializer):
             discount=discount,
             coupon_code=validated_data.get('coupon_code'),
             max_uses_total=validated_data.get('max_uses_total'),
-            max_uses_per_customer=validated_data.get('max_uses_per_customer', 1)
+            max_uses_per_customer=validated_data.get('max_uses_per_customer', 1),
+            is_stackable=validated_data.get('is_stackable', True)
         )
         return coupon
 
@@ -161,6 +162,8 @@ class CouponListSerializer(serializers.ModelSerializer):
             instance.max_uses_total = validated_data['max_uses_total']
         if 'max_uses_per_customer' in validated_data:
             instance.max_uses_per_customer = validated_data['max_uses_per_customer']
+        if 'is_stackable' in validated_data:
+            instance.is_stackable = validated_data['is_stackable']
         instance.save()
 
         return instance

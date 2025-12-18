@@ -200,7 +200,7 @@ class OrderCreateSerializer(serializers.Serializer):
         # Apply Coupon if provided
         coupon_discount = Decimal('0')
         applied_coupon = None
-        coupon_code = validated_data.get('coupon_code', '').strip().upper()
+        coupon_code = validated_data.get('coupon_code', '').strip()
 
         if coupon_code:
             try:
@@ -222,8 +222,13 @@ class OrderCreateSerializer(serializers.Serializer):
                 if subtotal < min_order:
                     raise serializers.ValidationError(f"Order subtotal must be at least NT${min_order}")
 
+                # Check if coupon is stackable with global discounts
+                if not coupon.is_stackable and global_discount_total > Decimal('0'):
+                    raise serializers.ValidationError("This coupon cannot be combined with other discounts")
+
+                # Calculate coupon discount from ORIGINAL subtotal (not after global discounts)
                 if coupon.discount.is_fixed:
-                    coupon_discount = min(coupon.discount.dis_value, subtotal - global_discount_total)
+                    coupon_discount = min(coupon.discount.dis_value, subtotal)
                 else:
                     coupon_discount = subtotal * (coupon.discount.dis_value / Decimal('100'))
                     if coupon.discount.max_discount:
@@ -244,8 +249,8 @@ class OrderCreateSerializer(serializers.Serializer):
             except Coupon.DoesNotExist:
                 raise serializers.ValidationError("Invalid coupon code")
 
-        # Calculate final total
-        total_discount = global_discount_total + coupon_discount
+        # Calculate final total (cap total discount at subtotal)
+        total_discount = min(global_discount_total + coupon_discount, subtotal)
         total_price = max(Decimal('0'), subtotal - total_discount + shipping_fee)
 
         # Create order
