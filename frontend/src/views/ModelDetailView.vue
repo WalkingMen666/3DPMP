@@ -103,6 +103,40 @@ const currentImage = computed(() => {
   return model.value.images[selectedImageIndex.value] || model.value.images[0];
 });
 
+// Calculate price based on material, volume (filament_used_cm3), and quantity
+const calculatedPrice = computed(() => {
+  if (!model.value?.slicingInfo || !selectedMaterial.value) {
+    return null;
+  }
+
+  const material = materials.value.find(m => m.id === selectedMaterial.value);
+  if (!material) return null;
+
+  // Calculate weight from volume × material density (not hardcoded)
+  let weightGrams = 0;
+  if (model.value.slicingInfo.weight_grams) {
+    // Legacy: use pre-calculated weight if available
+    weightGrams = parseFloat(model.value.slicingInfo.weight_grams) || 0;
+  } else if (model.value.slicingInfo.filament_used_cm3 && material.density_g_cm3) {
+    // Calculate weight from volume × selected material's density
+    const volumeCm3 = parseFloat(model.value.slicingInfo.filament_used_cm3) || 0;
+    const density = parseFloat(material.density_g_cm3);
+    if (density > 0) {
+      weightGrams = volumeCm3 * density;
+    }
+  }
+
+  if (weightGrams <= 0) return null;
+
+  const pricePerGram = parseFloat(material.price_twd_g) || 0;
+  if (pricePerGram <= 0) return null;
+
+  const qty = parseInt(quantity.value) || 1;
+
+  const total = weightGrams * pricePerGram * qty;
+  return total.toFixed(2);
+});
+
 const addToCart = async () => {
   if (!auth.isAuthenticated) {
     router.push("/login");
@@ -243,29 +277,21 @@ const addToCart = async () => {
             </svg>
             <span>{{ $t('modelDetail.slicing.calculating') }}</span>
           </div>
-          <div v-else-if="model.slicingInfo" class="grid grid-cols-3 gap-4">
+          <div v-else-if="model.slicingInfo" class="grid grid-cols-2 gap-4">
             <div class="text-center">
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('modelDetail.slicing.weight') }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('modelDetail.slicing.filament') }}</div>
               <div class="font-semibold text-gray-900 dark:text-white">
-                {{ model.slicingInfo.weight }}
-              </div>
-            </div>
-            <div
-              class="text-center border-l border-gray-200 dark:border-gray-700"
-            >
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('modelDetail.slicing.time') }}</div>
-              <div class="font-semibold text-gray-900 dark:text-white">
-                {{ model.slicingInfo.printTime }}
+                {{ model.slicingInfo.filamentLength || (model.slicingInfo.filament_used_mm ? `${(model.slicingInfo.filament_used_mm / 1000).toFixed(2)}m` : '--') }}
               </div>
             </div>
             <div
               class="text-center border-l border-gray-200 dark:border-gray-700"
             >
               <div class="text-sm text-gray-500 dark:text-gray-400">
-                {{ $t('modelDetail.slicing.filament') }}
+                {{ $t('modelDetail.slicing.volume') || '體積' }}
               </div>
               <div class="font-semibold text-gray-900 dark:text-white">
-                {{ model.slicingInfo.filamentLength }}
+                {{ model.slicingInfo.filament_used_cm3 ? `${model.slicingInfo.filament_used_cm3.toFixed(2)} cm³` : '--' }}
               </div>
             </div>
           </div>
@@ -281,9 +307,17 @@ const addToCart = async () => {
 
         <div class="space-y-4">
           <div class="flex items-center justify-between">
-            <span class="text-2xl font-bold text-gray-900 dark:text-white"
-              >${{ model.price }}</span
-            >
+            <span class="text-2xl font-bold text-gray-900 dark:text-white">
+              <template v-if="calculatedPrice !== null">
+                NT$ {{ calculatedPrice }}
+              </template>
+              <template v-else-if="model.slicingInfo">
+                NT$ --
+              </template>
+              <template v-else>
+                <span class="text-base text-gray-500">{{ $t('modelDetail.slicing.pending') }}</span>
+              </template>
+            </span>
             <div class="flex items-center space-x-4">
               <select v-model="selectedMaterial" class="input-field w-32">
                 <option v-for="mat in materials" :key="mat.id" :value="mat.id">

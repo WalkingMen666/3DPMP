@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
-from .models import Model, ModelImage, ModelReviewLog, VisibilityStatus
+from .models import Model, ModelImage, ModelReviewLog, VisibilityStatus, SlicingStatus
 from .serializers import (
     ModelSerializer, ModelCreateSerializer, ModelListSerializer,
     ModelImageSerializer, ModelReviewLogSerializer, ModelUpdateSerializer
@@ -313,6 +313,75 @@ class ModelViewSet(viewsets.ModelViewSet):
         model = self.get_object()
         logs = ModelReviewLog.objects.filter(model=model).order_by('-timestamp')
         serializer = ModelReviewLogSerializer(logs, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsEmployee])
+    def reslice(self, request, pk=None):
+        """Trigger re-slicing for a model (Employee only)."""
+        from apps.models.tasks import slice_model
+        
+        model = self.get_object()
+        
+        # Check if model has an STL file
+        if not model.stl_file and not model.stl_file_path:
+            return Response(
+                {'error': 'No STL file available for slicing'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Trigger the slicing task
+        slice_model.delay(str(model.id))
+        
+        return Response({
+            'message': 'Slicing task queued',
+            'model_id': str(model.id),
+            'slicing_status': 'PROCESSING'
+        })
+    
+    @action(detail=True, methods=['patch'], permission_classes=[IsEmployee])
+    def update_slicing_info(self, request, pk=None):
+        """Manually update slicing info for a model (Employee only)."""
+        model = self.get_object()
+        
+        filament_used_mm = request.data.get('filament_used_mm')
+        filament_used_cm3 = request.data.get('filament_used_cm3')
+        
+        if filament_used_mm is None and filament_used_cm3 is None:
+            return Response(
+                {'error': 'At least one of filament_used_mm or filament_used_cm3 is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate values are positive numbers
+        try:
+            if filament_used_mm is not None:
+                filament_used_mm = float(filament_used_mm)
+                if filament_used_mm < 0:
+                    raise ValueError("Must be positive")
+            if filament_used_cm3 is not None:
+                filament_used_cm3 = float(filament_used_cm3)
+                if filament_used_cm3 < 0:
+                    raise ValueError("Must be positive")
+        except (ValueError, TypeError) as e:
+            return Response(
+                {'error': f'Invalid value: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Update or create slicing_info
+        slicing_info = model.slicing_info or {}
+        if filament_used_mm is not None:
+            slicing_info['filament_used_mm'] = filament_used_mm
+        if filament_used_cm3 is not None:
+            slicing_info['filament_used_cm3'] = filament_used_cm3
+        slicing_info['source'] = 'manual'
+        
+        model.slicing_info = slicing_info
+        model.slicing_status = SlicingStatus.COMPLETED
+        model.slicing_error = None
+        model.save(update_fields=['slicing_info', 'slicing_status', 'slicing_error'])
+        
+        serializer = ModelSerializer(model, context={'request': request})
         return Response(serializer.data)
 
 

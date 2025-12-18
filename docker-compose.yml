@@ -35,6 +35,10 @@ services:
       # Google OAuth (set in .env file or here)
       - GOOGLE_CLIENT_ID=93739216036-7pb087eku51sl6f90g5okkp77ld773g3.apps.googleusercontent.com
       - GOOGLE_CLIENT_SECRET=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
+      # Email SMTP settings
+      - EMAIL_HOST_USER=lacandstudio@gmail.com
+      - EMAIL_HOST_PASSWORD=gzxn pzwm unlc kfnw
+      - DEFAULT_FROM_EMAIL=lacandstudio@gmail.com
       # Alist configuration (Host IP needs to be set correctly in .env or here)
       # AWS_S3_ENDPOINT_URL=http://host.docker.internal:5244
 
