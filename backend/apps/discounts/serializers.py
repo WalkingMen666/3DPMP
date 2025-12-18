@@ -31,6 +31,8 @@ class GlobalDiscountListSerializer(serializers.ModelSerializer):
         return 'FIXED' if obj.discount.is_fixed else 'PERCENTAGE'
 
     def to_internal_value(self, data):
+        # Work with a copy to avoid mutating input
+        data = data.copy()
         # Convert discount_type to is_fixed
         if 'discount_type' in data:
             data['is_fixed'] = data.pop('discount_type') == 'FIXED'
@@ -111,6 +113,8 @@ class CouponListSerializer(serializers.ModelSerializer):
         return obj.total_redemptions
 
     def to_internal_value(self, data):
+        # Work with a copy to avoid mutating input
+        data = data.copy()
         # Convert discount_type to is_fixed
         if 'discount_type' in data:
             data['is_fixed'] = data.pop('discount_type') == 'FIXED'

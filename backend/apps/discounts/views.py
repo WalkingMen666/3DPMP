@@ -32,10 +32,8 @@ class IsEmployeeOrAdmin(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
-        # Check if user has employee profile
-        if hasattr(request.user, 'employee_profile'):
-            return True
-        return request.user.is_staff or request.user.is_superuser
+        # Require employee profile for discount management
+        return hasattr(request.user, 'employee_profile')
 
 
 class GlobalDiscountViewSet(viewsets.ModelViewSet):
@@ -197,6 +195,11 @@ class CouponViewSet(viewsets.ModelViewSet):
         # Check usage limits
         if coupon.max_uses_total and coupon.total_redemptions >= coupon.max_uses_total:
             return Response({'valid': False, 'error': 'This coupon has reached its usage limit'})
+
+        # Check per-customer usage limit
+        if hasattr(request.user, 'customer_profile'):
+            if not coupon.is_valid_for_customer(request.user.customer_profile):
+                return Response({'valid': False, 'error': 'You have already used this coupon'})
 
         return Response({
             'valid': True,

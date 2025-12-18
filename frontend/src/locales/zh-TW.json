@@ -38,7 +38,7 @@
     "or": "或",
     "createAccount": "建立新帳號",
     "email": "電子郵件地址",
-    "emailPlaceholder": "you{'@'}example.com",
+    "emailPlaceholder": "you@example.com",
     "password": "密碼",
     "passwordPlaceholder": "••••••••",
     "confirmPassword": "確認密碼",
@@ -138,12 +138,7 @@
     "downloads": "次下載",
     "confirmDelete": "您確定要刪除此模型嗎？此操作無法撤銷。",
     "deleteFailed": "刪除模型失敗",
-    "modelStatuses": {
-      "PRIVATE": "私人",
-      "PENDING": "待審核",
-      "PUBLIC": "公開",
-      "REJECTED": "已拒絕"
-    },
+
     "confirmSubmit": "提交此模型進行公開審核？管理員將審核並批准其在市場上架。",
     "submitSuccess": "模型已成功提交審核！",
     "submitFailed": "提交審核失敗",
@@ -423,7 +418,9 @@
     "errors": {
       "selectShipping": "請選擇配送方式",
       "selectAddress": "請選擇或新增收貨地址",
-      "addressFieldsRequired": "請填寫所有地址欄位"
+      "addressFieldsRequired": "請填寫所有地址欄位",
+      "placeOrderFailed": "下單失敗",
+      "invalidCoupon": "無效的優惠券代碼"
     }
   },
   "modelDetail": {
@@ -693,7 +690,7 @@
       "name": "姓名",
       "namePlaceholder": "您的姓名",
       "email": "電子郵件",
-      "emailPlaceholder": "you{'@'}example.com",
+      "emailPlaceholder": "you@example.com",
       "subject": "主旨",
       "selectTopic": "選擇一個主題",
       "topics": {

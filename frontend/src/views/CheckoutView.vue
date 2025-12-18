@@ -1,9 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const cart = useCartStore()
@@ -126,7 +129,7 @@ const applyCoupon = async () => {
       appliedCoupon.value = null
     }
   } catch (err) {
-    couponError.value = err.response?.data?.error || 'Invalid coupon code'
+    couponError.value = err.response?.data?.error || t('checkout.errors.invalidCoupon')
     appliedCoupon.value = null
   } finally {
     couponLoading.value = false

@@ -114,6 +114,10 @@ const calculatedPrice = computed(() => {
 
   const weightGrams = parseFloat(model.value.slicingInfo.weight_grams) || 0;
   const pricePerGram = parseFloat(material.price_twd_g) || 0;
+
+  // Validate values are positive
+  if (weightGrams <= 0 || pricePerGram <= 0) return null;
+
   const qty = parseInt(quantity.value) || 1;
 
   const total = weightGrams * pricePerGram * qty;
