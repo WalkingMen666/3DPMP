@@ -23,6 +23,14 @@ class ModelCategory(models.TextChoices):
     OTHER = 'Other', 'Other'
 
 
+class SlicingStatus(models.TextChoices):
+    """Status choices for model slicing process."""
+    PENDING = 'PENDING', 'Pending'
+    PROCESSING = 'PROCESSING', 'Processing'
+    COMPLETED = 'COMPLETED', 'Completed'
+    FAILED = 'FAILED', 'Failed'
+
+
 class Model(models.Model):
     """
     3D Model entity.
@@ -59,7 +67,14 @@ class Model(models.Model):
     thumbnail = models.ImageField(upload_to='models/thumbnails/', blank=True, null=True)
     
     # Slicing info
-    slicing_info = models.JSONField(blank=True, null=True)  # Stores material usage, print time
+    slicing_info = models.JSONField(blank=True, null=True)  # Stores filament_used_mm, filament_used_cm3, gcode_path, source
+    slicing_status = models.CharField(
+        max_length=20,
+        choices=SlicingStatus.choices,
+        default=SlicingStatus.PENDING,
+        help_text="Status of automatic slicing process"
+    )
+    slicing_error = models.TextField(blank=True, null=True, help_text="Error message if slicing failed")
     
     # Statistics
     download_count = models.PositiveIntegerField(default=0)

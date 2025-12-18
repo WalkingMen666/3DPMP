@@ -72,6 +72,14 @@ const modelStatuses = [
   { value: 'PRIVATE', label: 'Private' }
 ]
 
+// Slicing edit modal state
+const showSlicingEditModal = ref(false)
+const editingSlicingModel = ref(null)
+const slicingForm = ref({
+  filament_used_mm: '',
+  filament_used_cm3: ''
+})
+
 // GlobalDiscount modal state
 const showGlobalDiscountModal = ref(false)
 const editingGlobalDiscount = ref(null)
@@ -632,6 +640,68 @@ const getVisibilityColor = (visibility) => {
   return colors[visibility] || 'bg-gray-100 text-gray-800'
 }
 
+const getSlicingStatusColor = (status) => {
+  const colors = {
+    'PENDING': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+    'PROCESSING': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    'COMPLETED': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    'FAILED': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+  }
+  return colors[status] || 'bg-gray-100 text-gray-800'
+}
+
+// Slicing actions
+const triggerReslice = async (model) => {
+  try {
+    await apiClient.post(`/models/${model.id}/reslice/`)
+    successMessage.value = t('admin.messages.resliceTriggered') || 'Slicing task queued'
+    // Update local state
+    model.slicing_status = 'PROCESSING'
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    error.value = err.response?.data?.error || 'Failed to trigger reslice'
+    setTimeout(() => error.value = '', 5000)
+  }
+}
+
+const openSlicingEditModal = (model) => {
+  editingSlicingModel.value = model
+  slicingForm.value = {
+    filament_used_mm: model.slicing_info?.filament_used_mm || '',
+    filament_used_cm3: model.slicing_info?.filament_used_cm3 || ''
+  }
+  showSlicingEditModal.value = true
+}
+
+const saveSlicingInfo = async () => {
+  if (!editingSlicingModel.value) return
+  
+  // Validate at least one value is provided
+  if (!slicingForm.value.filament_used_mm && !slicingForm.value.filament_used_cm3) {
+    error.value = t('admin.messages.slicingValueRequired') || 'At least one value is required'
+    return
+  }
+  
+  try {
+    const payload = {}
+    if (slicingForm.value.filament_used_mm) {
+      payload.filament_used_mm = parseFloat(slicingForm.value.filament_used_mm)
+    }
+    if (slicingForm.value.filament_used_cm3) {
+      payload.filament_used_cm3 = parseFloat(slicingForm.value.filament_used_cm3)
+    }
+    
+    await apiClient.patch(`/models/${editingSlicingModel.value.id}/update_slicing_info/`, payload)
+    successMessage.value = t('admin.messages.slicingInfoSaved') || 'Slicing info saved'
+    showSlicingEditModal.value = false
+    await fetchAllModels()
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    error.value = err.response?.data?.error || 'Failed to save slicing info'
+  }
+}
+
+
 // Tab change handler
 const changeTab = (tab) => {
   activeTab.value = tab
@@ -955,15 +1025,14 @@ const allTabs = computed(() => {
             <p class="text-gray-500 dark:text-gray-400">{{ $t('admin.models.noModels') }}</p>
           </div>
 
-          <div v-else class="bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+          <div v-else class="bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead class="bg-gray-50 dark:bg-gray-800">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('admin.models.columns.model') }}</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('admin.models.columns.owner') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('admin.models.columns.category') }}</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('admin.models.columns.status') }}</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('admin.models.columns.price') }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('admin.models.columns.slicing') || 'Slicing' }}</th>
                   <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('admin.models.columns.actions') }}</th>
                 </tr>
               </thead>
@@ -985,18 +1054,40 @@ const allTabs = computed(() => {
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {{ model.owner_name || model.owner_email?.split('@')[0] || 'Unknown' }}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {{ model.category_display || model.category }}
-                  </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', getVisibilityColor(model.visibility_status || model.visibility)]">
                       {{ model.visibility_status || model.visibility }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    NT$ {{ model.price || '0.00' }}
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex flex-col space-y-1">
+                      <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full w-fit', getSlicingStatusColor(model.slicing_status)]">
+                        {{ model.slicing_status || 'PENDING' }}
+                        <span v-if="model.slicing_info?.source" class="ml-1 opacity-70">({{ model.slicing_info.source }})</span>
+                      </span>
+                      <div v-if="model.slicing_info" class="text-xs text-gray-500 dark:text-gray-400">
+                        <span v-if="model.slicing_info.filament_used_mm">{{ model.slicing_info.filament_used_mm.toFixed(1) }}mm</span>
+                        <span v-if="model.slicing_info.filament_used_cm3"> / {{ model.slicing_info.filament_used_cm3.toFixed(2) }}cm³</span>
+                      </div>
+                      <div v-if="model.slicing_error" class="text-xs text-red-500 truncate max-w-32" :title="model.slicing_error">
+                        {{ model.slicing_error.slice(0, 30) }}...
+                      </div>
+                    </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button
+                      @click="triggerReslice(model)"
+                      class="text-purple-600 hover:text-purple-800 dark:hover:text-purple-400"
+                      :disabled="model.slicing_status === 'PROCESSING'"
+                    >
+                      {{ $t('admin.models.reslice') || 'Reslice' }}
+                    </button>
+                    <button
+                      @click="openSlicingEditModal(model)"
+                      class="text-green-600 hover:text-green-800 dark:hover:text-green-400"
+                    >
+                      {{ $t('admin.models.editSlicing') || 'Edit' }}
+                    </button>
                     <button
                       @click="openModelStatusModal(model)"
                       class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
@@ -1015,6 +1106,7 @@ const allTabs = computed(() => {
             </table>
           </div>
         </div>
+
 
         <!-- Discounts Tab (Admin only) -->
         <div v-if="activeTab === 'discounts' && isAdmin">
@@ -1331,7 +1423,64 @@ const allTabs = computed(() => {
       </div>
     </div>
 
-    <!-- Global Discount Modal -->
+    <!-- Slicing Edit Modal -->
+    <div v-if="showSlicingEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-dark-surface rounded-xl p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          {{ $t('admin.models.editSlicingTitle') || 'Edit Slicing Info' }}
+        </h3>
+        <p class="mb-4 text-gray-600 dark:text-gray-300">
+          {{ editingSlicingModel?.model_name }}
+        </p>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ $t('admin.models.filamentMm') || 'Filament Used (mm)' }}
+            </label>
+            <input
+              v-model="slicingForm.filament_used_mm"
+              type="number"
+              step="0.01"
+              min="0"
+              class="input-field w-full"
+              placeholder="e.g. 4479.14"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ $t('admin.models.filamentCm3') || 'Filament Used (cm³)' }}
+            </label>
+            <input
+              v-model="slicingForm.filament_used_cm3"
+              type="number"
+              step="0.01"
+              min="0"
+              class="input-field w-full"
+              placeholder="e.g. 10.77"
+            />
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ $t('admin.models.slicingHint') || 'Enter at least one value. This will be marked as manual input.' }}
+          </p>
+        </div>
+        <div class="flex justify-end space-x-4 mt-6">
+          <button
+            @click="showSlicingEditModal = false"
+            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            {{ $t('common.cancel') }}
+          </button>
+          <button
+            @click="saveSlicingInfo"
+            class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+          >
+            {{ $t('common.save') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+
     <div v-if="showGlobalDiscountModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div class="bg-white dark:bg-dark-surface rounded-xl p-6 max-w-md w-full mx-4">
         <div class="flex justify-between items-center mb-4">

@@ -38,7 +38,7 @@
     "or": "或",
     "createAccount": "建立新帳號",
     "email": "電子郵件地址",
-    "emailPlaceholder": "you@example.com",
+    "emailPlaceholder": "you{'@'}example.com",
     "password": "密碼",
     "passwordPlaceholder": "••••••••",
     "confirmPassword": "確認密碼",
@@ -438,7 +438,8 @@
       "pending": "切片處理中 - 處理完成後將顯示估算值",
       "weight": "重量",
       "time": "時間",
-      "filament": "耗材"
+      "filament": "耗材",
+      "volume": "體積"
     }
   },
   "marketplace": {
@@ -554,6 +555,7 @@
         "owner": "擁有者",
         "category": "分類",
         "status": "狀態",
+        "slicing": "切片",
         "price": "價格",
         "actions": "操作"
       },
@@ -562,7 +564,13 @@
       "changeStatus": "更改模型狀態",
       "changeStatusFor": "更改 \"{name}\" 的狀態：",
       "newStatus": "新狀態",
-      "updateStatus": "更新狀態"
+      "updateStatus": "更新狀態",
+      "reslice": "重新切片",
+      "editSlicing": "編輯",
+      "editSlicingTitle": "編輯切片資訊",
+      "filamentMm": "耗材用量 (mm)",
+      "filamentCm3": "耗材用量 (cm³)",
+      "slicingHint": "請輸入至少一個數值。這將標記為手動輸入。"
     },
     "materials": {
       "title": "材質管理",
@@ -627,7 +635,10 @@
       "modelStatusUpdated": "模型狀態更新成功",
       "confirmDeleteModel": "您確定要刪除 \"{name}\" 嗎？此動作無法復原。",
       "modelDeleted": "模型刪除成功",
-      "downloadSTL": "下載 STL"
+      "downloadSTL": "下載 STL",
+      "resliceTriggered": "切片任務已排入佇列",
+      "slicingInfoSaved": "切片資訊已儲存",
+      "slicingValueRequired": "至少需要輸入一個數值"
     }
   },
   "footer": {
@@ -690,7 +701,7 @@
       "name": "姓名",
       "namePlaceholder": "您的姓名",
       "email": "電子郵件",
-      "emailPlaceholder": "you@example.com",
+      "emailPlaceholder": "you{'@'}example.com",
       "subject": "主旨",
       "selectTopic": "選擇一個主題",
       "topics": {

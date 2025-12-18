@@ -103,20 +103,33 @@ const currentImage = computed(() => {
   return model.value.images[selectedImageIndex.value] || model.value.images[0];
 });
 
-// Calculate price based on material, weight, and quantity
+// Calculate price based on material, volume (filament_used_cm3), and quantity
 const calculatedPrice = computed(() => {
-  if (!model.value?.slicingInfo?.weight_grams || !selectedMaterial.value) {
+  if (!model.value?.slicingInfo || !selectedMaterial.value) {
     return null;
   }
 
   const material = materials.value.find(m => m.id === selectedMaterial.value);
   if (!material) return null;
 
-  const weightGrams = parseFloat(model.value.slicingInfo.weight_grams) || 0;
-  const pricePerGram = parseFloat(material.price_twd_g) || 0;
+  // Calculate weight from volume × material density (not hardcoded)
+  let weightGrams = 0;
+  if (model.value.slicingInfo.weight_grams) {
+    // Legacy: use pre-calculated weight if available
+    weightGrams = parseFloat(model.value.slicingInfo.weight_grams) || 0;
+  } else if (model.value.slicingInfo.filament_used_cm3 && material.density_g_cm3) {
+    // Calculate weight from volume × selected material's density
+    const volumeCm3 = parseFloat(model.value.slicingInfo.filament_used_cm3) || 0;
+    const density = parseFloat(material.density_g_cm3);
+    if (density > 0) {
+      weightGrams = volumeCm3 * density;
+    }
+  }
 
-  // Validate values are positive
-  if (weightGrams <= 0 || pricePerGram <= 0) return null;
+  if (weightGrams <= 0) return null;
+
+  const pricePerGram = parseFloat(material.price_twd_g) || 0;
+  if (pricePerGram <= 0) return null;
 
   const qty = parseInt(quantity.value) || 1;
 
@@ -264,29 +277,21 @@ const addToCart = async () => {
             </svg>
             <span>{{ $t('modelDetail.slicing.calculating') }}</span>
           </div>
-          <div v-else-if="model.slicingInfo" class="grid grid-cols-3 gap-4">
+          <div v-else-if="model.slicingInfo" class="grid grid-cols-2 gap-4">
             <div class="text-center">
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('modelDetail.slicing.weight') }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('modelDetail.slicing.filament') }}</div>
               <div class="font-semibold text-gray-900 dark:text-white">
-                {{ model.slicingInfo.weight }}
-              </div>
-            </div>
-            <div
-              class="text-center border-l border-gray-200 dark:border-gray-700"
-            >
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('modelDetail.slicing.time') }}</div>
-              <div class="font-semibold text-gray-900 dark:text-white">
-                {{ model.slicingInfo.printTime }}
+                {{ model.slicingInfo.filamentLength || (model.slicingInfo.filament_used_mm ? `${(model.slicingInfo.filament_used_mm / 1000).toFixed(2)}m` : '--') }}
               </div>
             </div>
             <div
               class="text-center border-l border-gray-200 dark:border-gray-700"
             >
               <div class="text-sm text-gray-500 dark:text-gray-400">
-                {{ $t('modelDetail.slicing.filament') }}
+                {{ $t('modelDetail.slicing.volume') || '體積' }}
               </div>
               <div class="font-semibold text-gray-900 dark:text-white">
-                {{ model.slicingInfo.filamentLength }}
+                {{ model.slicingInfo.filament_used_cm3 ? `${model.slicingInfo.filament_used_cm3.toFixed(2)} cm³` : '--' }}
               </div>
             </div>
           </div>

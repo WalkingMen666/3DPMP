@@ -38,7 +38,7 @@
     "or": "Or",
     "createAccount": "create a new account",
     "email": "Email address",
-    "emailPlaceholder": "you@example.com",
+    "emailPlaceholder": "you{'@'}example.com",
     "password": "Password",
     "passwordPlaceholder": "••••••••",
     "confirmPassword": "Confirm Password",
@@ -437,7 +437,8 @@
       "pending": "Slicing pending - estimates will be available once processing is complete",
       "weight": "Weight",
       "time": "Time",
-      "filament": "Filament"
+      "filament": "Filament",
+      "volume": "Volume"
     }
   },
   "marketplace": {
@@ -553,6 +554,7 @@
         "owner": "Owner",
         "category": "Category",
         "status": "Status",
+        "slicing": "Slicing",
         "price": "Price",
         "actions": "Actions"
       },
@@ -561,7 +563,13 @@
       "changeStatus": "Change Model Status",
       "changeStatusFor": "Change status for \"{name}\":",
       "newStatus": "New Status",
-      "updateStatus": "Update Status"
+      "updateStatus": "Update Status",
+      "reslice": "Reslice",
+      "editSlicing": "Edit",
+      "editSlicingTitle": "Edit Slicing Info",
+      "filamentMm": "Filament Used (mm)",
+      "filamentCm3": "Filament Used (cm³)",
+      "slicingHint": "Enter at least one value. This will be marked as manual input."
     },
     "materials": {
       "title": "Materials Management",
@@ -626,7 +634,10 @@
       "modelStatusUpdated": "Model status updated successfully",
       "confirmDeleteModel": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
       "modelDeleted": "Model deleted successfully",
-      "downloadSTL": "Download STL"
+      "downloadSTL": "Download STL",
+      "resliceTriggered": "Slicing task queued",
+      "slicingInfoSaved": "Slicing info saved",
+      "slicingValueRequired": "At least one value is required"
     }
   },
   "footer": {
@@ -689,7 +700,7 @@
       "name": "Name",
       "namePlaceholder": "Your name",
       "email": "Email",
-      "emailPlaceholder": "you@example.com",
+      "emailPlaceholder": "you{'@'}example.com",
       "subject": "Subject",
       "selectTopic": "Select a topic",
       "topics": {

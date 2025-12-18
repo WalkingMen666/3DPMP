@@ -57,7 +57,10 @@ const allModels = computed(() => {
     author: model.owner_name || 'Unknown',
     price: model.base_price || model.price || '0.00',
     category: model.category || 'Art',
-    image: model.thumbnail_url || model.thumbnail || `https://placehold.co/400x400/6366f1/fff?text=${encodeURIComponent((model.model_name || model.name)?.slice(0, 8) || 'Model')}`
+    image: model.thumbnail_url || model.thumbnail || `https://placehold.co/400x400/6366f1/fff?text=${encodeURIComponent((model.model_name || model.name)?.slice(0, 8) || 'Model')}`,
+    filament_length: model.slicing_info?.filament_used_mm 
+      ? `${(model.slicing_info.filament_used_mm / 1000).toFixed(2)}m` 
+      : null
   }));
 });
 

@@ -34,10 +34,11 @@ class ModelSerializer(serializers.ModelSerializer):
             'id', 'owner', 'owner_email', 'owner_name', 'model_name', 'description', 
             'category', 'category_display', 'tags', 'visibility_status', 'is_featured',
             'stl_file_path', 'stl_file', 'gcode_file_path', 'thumbnail', 'thumbnail_url',
-            'slicing_info', 'download_count', 'view_count', 'price',
+            'slicing_info', 'slicing_status', 'slicing_error',
+            'download_count', 'view_count', 'price',
             'images', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'owner', 'gcode_file_path', 'slicing_info', 
+        read_only_fields = ['id', 'owner', 'gcode_file_path', 'slicing_info', 'slicing_status', 'slicing_error',
                            'download_count', 'view_count', 'created_at', 'updated_at']
     
     def get_owner_name(self, obj):
@@ -136,7 +137,8 @@ class ModelListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'model_name', 'description', 'owner_email', 'owner_name',
             'category', 'category_display', 'visibility_status', 'visibility', 'is_featured',
-            'slicing_info', 'thumbnail_url', 'file_url', 'download_count', 'view_count',
+            'slicing_info', 'slicing_status', 'slicing_error',
+            'thumbnail_url', 'file_url', 'download_count', 'view_count',
             'price', 'images', 'created_at'
         ]
 
