@@ -31,7 +31,8 @@ class Order(models.Model):
     customer = models.ForeignKey(
         'users.Customer',
         on_delete=models.PROTECT,
-        related_name='orders'
+        related_name='orders',
+        to_field='user'
     )
     assignee = models.ForeignKey(
         'users.Employee',

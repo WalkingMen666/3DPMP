@@ -51,7 +51,8 @@ class CartItem(models.Model):
     customer = models.ForeignKey(
         'users.Customer',
         on_delete=models.CASCADE,
-        related_name='cart_items'
+        related_name='cart_items',
+        to_field='user'
     )
     model = models.ForeignKey(
         'printing_models.Model',

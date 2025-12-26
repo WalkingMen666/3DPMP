@@ -329,6 +329,11 @@ class ModelViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # Update status immediately before triggering the task
+        model.slicing_status = SlicingStatus.PROCESSING
+        model.slicing_error = None
+        model.save(update_fields=['slicing_status', 'slicing_error'])
+        
         # Trigger the slicing task
         slice_model.delay(str(model.id))
         

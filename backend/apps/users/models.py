@@ -74,12 +74,11 @@ class User(AbstractUser):
 class Customer(models.Model):
     """
     Customer profile (IS-A User via EER Specialization).
-    Uses user_id as both PK and FK for proper inheritance semantics.
     """
+    id = models.BigAutoField(primary_key=True)
     user = models.OneToOneField(
         User, 
         on_delete=models.CASCADE, 
-        primary_key=True,  # user_id is both PK and FK
         related_name='customer_profile'
     )
     
@@ -93,12 +92,11 @@ class Customer(models.Model):
 class Employee(models.Model):
     """
     Employee profile (IS-A User via EER Specialization).
-    Uses user_id as both PK and FK for proper inheritance semantics.
     """
+    id = models.BigAutoField(primary_key=True)
     user = models.OneToOneField(
         User, 
         on_delete=models.CASCADE, 
-        primary_key=True,  # user_id is both PK and FK
         related_name='employee_profile'
     )
     employee_name = models.CharField(max_length=255)

@@ -59,10 +59,12 @@ def slice_model(self, model_id: str):
         gcode_path = os.path.join(gcode_dir, gcode_filename)
         
         # Run PrusaSlicer
+        # --center: auto-center the model on the print bed to avoid "outside print volume" errors
         cmd = [
             'prusa-slicer',
             '--slice',
             '--export-gcode',
+            '--center', '125,105',  # Center on typical 250x210 bed (adjust if needed)
             '-o', gcode_path,
             stl_path
         ]
@@ -76,8 +78,18 @@ def slice_model(self, model_id: str):
             timeout=300  # 5 minute timeout
         )
         
+        # Log both stdout and stderr for debugging
+        if result.stdout:
+            logger.info(f"PrusaSlicer stdout: {result.stdout}")
+        if result.stderr:
+            logger.warning(f"PrusaSlicer stderr: {result.stderr}")
+        
         if result.returncode != 0:
-            raise RuntimeError(f"PrusaSlicer failed: {result.stderr}")
+            raise RuntimeError(f"PrusaSlicer failed with code {result.returncode}: {result.stderr}")
+        
+        # Verify gcode file was created
+        if not os.path.exists(gcode_path):
+            raise RuntimeError(f"PrusaSlicer completed but gcode file was not created at {gcode_path}. Stderr: {result.stderr}")
         
         # Parse the gcode file for filament usage
         slicing_info = parse_gcode_for_slicing_info(gcode_path)
