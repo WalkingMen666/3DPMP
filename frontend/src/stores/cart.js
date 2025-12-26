@@ -63,7 +63,7 @@ export const useCartStore = defineStore('cart', {
           price: item.estimated_price ? parseFloat(item.estimated_price) / item.quantity : 0,
           unit_price: item.estimated_price ? parseFloat(item.estimated_price) / item.quantity : 0,
           subtotal: parseFloat(item.estimated_price) || 0,
-          image: '/placeholder-model.png',
+          image: item.model_thumbnail || '/placeholder-model.png',
           notes: item.notes,
           // Flag to show if price is unavailable (no slicing info)
           priceUnavailable: !item.estimated_price

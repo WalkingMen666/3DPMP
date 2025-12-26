@@ -471,6 +471,18 @@
       "Tools": "工具與功能性",
       "Education": "教育與學習",
       "Other": "其他"
+    },
+    "material": {
+      "title": "材料",
+      "all": "全部材料"
+    },
+    "priceFilter": {
+      "title": "價格區間",
+      "minPrice": "最低價格",
+      "maxPrice": "最高價格",
+      "minPlaceholder": "例如：10",
+      "maxPlaceholder": "例如：500",
+      "unknown": "價格待定"
     }
   },
   "upload": {

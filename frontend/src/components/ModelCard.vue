@@ -33,8 +33,11 @@ defineProps({
         <h3 class="font-semibold text-gray-900 dark:text-white truncate pr-2">
           {{ model.name }}
         </h3>
-        <span v-if="model.filament_length" class="text-primary-600 dark:text-primary-400 font-bold text-sm whitespace-nowrap"
-          >{{ model.filament_length }}</span
+        <span v-if="model.priceDisplay" class="text-primary-600 dark:text-primary-400 font-bold text-sm whitespace-nowrap"
+          >{{ model.priceDisplay }}</span
+        >
+        <span v-else-if="model.hasSlicingInfo === false" class="text-gray-400 dark:text-gray-500 text-xs whitespace-nowrap"
+          >{{ $t('marketplace.priceFilter.unknown') }}</span
         >
       </div>
       <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
