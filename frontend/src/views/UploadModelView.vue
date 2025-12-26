@@ -1,4 +1,3 @@
-```vue
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -179,22 +178,39 @@ const uploadModel = async () => {
 
     // Upload additional images if any
     if (imageFiles.value.length > 0 && model?.id) {
+      console.log('Uploading additional images:', imageFiles.value.length, 'images');
       const imageFormData = new FormData();
       imageFiles.value.forEach((file) => {
+        console.log('Adding image to form:', file.name, file.type, file.size);
         imageFormData.append("images", file);
       });
-      await modelsStore.uploadModelImages(model.id, imageFormData);
+      
+      try {
+        const uploadedImages = await modelsStore.uploadModelImages(model.id, imageFormData);
+        console.log('Successfully uploaded images:', uploadedImages);
+      } catch (imgError) {
+        console.error('Failed to upload additional images:', imgError);
+        // Don't fail the entire upload, but log the error
+        error.value = `Model uploaded, but some images failed: ${imgError.message}`;
+      }
     }
 
     progress.value = 100;
+
+    // Show success message if images were uploaded
+    if (imageFiles.value.length > 0) {
+      console.log('Successfully uploaded model with additional images');
+    }
 
     // Redirect to dashboard after upload complete
     setTimeout(() => {
       router.push("/dashboard");
     }, 500);
   } catch (err) {
+    console.error('Upload error:', err);
     error.value = err.message || t('upload.errors.failedToUpload');
     uploading.value = false;
+    progress.value = 0;
   }
 };
 

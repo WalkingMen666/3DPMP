@@ -288,7 +288,21 @@ const confirmReject = async () => { // Renamed from rejectModel
   }
 }
 
+// Order detail modal state
+const showOrderDetailModal = ref(false)
+const selectedOrder = ref(null)
+
 // Order actions
+const viewOrderDetail = async (orderId) => {
+  try {
+    const response = await apiClient.get(`/orders/${orderId}/`)
+    selectedOrder.value = response.data
+    showOrderDetailModal.value = true
+  } catch (err) {
+    error.value = t('admin.messages.loadFailed')
+  }
+}
+
 const updateOrderStatus = async (orderId, newStatus) => {
   try {
     await apiClient.patch(`/orders/${orderId}/update_status/`, { status: newStatus })
@@ -906,6 +920,12 @@ const allTabs = computed(() => {
                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">NT$ {{ order.total_price }}</td>
                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                      <button
+                       @click="viewOrderDetail(order.id)"
+                       class="text-primary-600 hover:text-primary-800 text-sm"
+                     >
+                       {{ $t('admin.orders.viewDetail') }}
+                     </button>
+                     <button
                        v-if="order.status === 'PENDING'"
                        @click="updateOrderStatus(order.id, 'PROCESSING')"
                        class="text-blue-600 hover:text-blue-800 text-sm"
@@ -1379,6 +1399,145 @@ const allTabs = computed(() => {
               :disabled="!rejectionReason"
             >
               {{ $t('admin.pendingReviews.confirmReject') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div v-if="showOrderDetailModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-dark-surface rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-gray-700 p-6 flex justify-between items-center">
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+            {{ $t('admin.orders.orderDetails') }} #{{ selectedOrder?.id?.slice(0, 8) }}
+          </h3>
+          <button @click="showOrderDetailModal = false" class="text-gray-400 hover:text-gray-500">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div v-if="selectedOrder" class="p-6 space-y-6">
+          <!-- Order Info -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-3">
+              <h4 class="font-semibold text-gray-900 dark:text-white text-lg">{{ $t('admin.orders.orderInfo') }}</h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">{{ $t('admin.orders.columns.id') }}:</span>
+                  <span class="text-gray-900 dark:text-white font-mono">#{{ selectedOrder.id?.slice(0, 8) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">{{ $t('admin.orders.columns.status') }}:</span>
+                  <span :class="['px-2 py-1 text-xs font-semibold rounded-full', getStatusColor(selectedOrder.status)]">
+                    {{ selectedOrder.status }}
+                  </span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">{{ $t('admin.orders.creationDate') }}:</span>
+                  <span class="text-gray-900 dark:text-white">{{ new Date(selectedOrder.creation_date).toLocaleString() }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">{{ $t('admin.orders.columns.customer') }}:</span>
+                  <span class="text-gray-900 dark:text-white">{{ selectedOrder.customer_email }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <h4 class="font-semibold text-gray-900 dark:text-white text-lg">{{ $t('admin.orders.shippingInfo') }}</h4>
+              <div v-if="selectedOrder.ship_snapshot" class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">{{ $t('admin.orders.shippingMethod') }}:</span>
+                  <span class="text-gray-900 dark:text-white">{{ selectedOrder.ship_snapshot.shipping_name }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">{{ $t('admin.orders.shippingFee') }}:</span>
+                  <span class="text-gray-900 dark:text-white">NT$ {{ selectedOrder.ship_snapshot.base_fee }}</span>
+                </div>
+                <div v-if="selectedOrder.ship_snapshot.address" class="mt-2">
+                  <span class="text-gray-600 dark:text-gray-400">{{ $t('admin.orders.address') }}:</span>
+                  <p class="text-gray-900 dark:text-white mt-1">
+                    {{ selectedOrder.ship_snapshot.address.recipient_name }}<br>
+                    {{ selectedOrder.ship_snapshot.address.phone }}<br>
+                    {{ selectedOrder.ship_snapshot.address.address }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Items -->
+          <div>
+            <h4 class="font-semibold text-gray-900 dark:text-white text-lg mb-3">{{ $t('admin.orders.items') }}</h4>
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden">
+              <table class="w-full">
+                <thead class="bg-gray-100 dark:bg-gray-700">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">{{ $t('admin.orders.modelName') }}</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">{{ $t('admin.orders.material') }}</th>
+                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">{{ $t('admin.orders.quantity') }}</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">{{ $t('admin.orders.price') }}</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">{{ $t('admin.orders.subtotal') }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                  <tr v-for="item in selectedOrder.items" :key="item.id" class="text-sm">
+                    <td class="px-4 py-3 text-gray-900 dark:text-white">{{ item.model_name }}</td>
+                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ item.material_name }}</td>
+                    <td class="px-4 py-3 text-center text-gray-900 dark:text-white">{{ item.quantity }}</td>
+                    <td class="px-4 py-3 text-right text-gray-900 dark:text-white">NT$ {{ item.price_snapshot }}</td>
+                    <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">NT$ {{ item.subtotal }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Order Total -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <div class="flex justify-between items-center">
+              <span class="text-xl font-bold text-gray-900 dark:text-white">{{ $t('admin.orders.total') }}</span>
+              <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">NT$ {{ selectedOrder.total_price }}</span>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div v-if="selectedOrder.notes" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <h4 class="font-semibold text-gray-900 dark:text-white mb-2">{{ $t('admin.orders.notes') }}</h4>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">{{ selectedOrder.notes }}</p>
+          </div>
+
+          <!-- Actions -->
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-3">
+            <button
+              v-if="selectedOrder.status === 'PENDING'"
+              @click="updateOrderStatus(selectedOrder.id, 'PROCESSING'); showOrderDetailModal = false"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {{ $t('admin.orders.process') }}
+            </button>
+            <button
+              v-if="selectedOrder.status === 'PENDING' || selectedOrder.status === 'PROCESSING'"
+              @click="updateOrderStatus(selectedOrder.id, 'SHIPPED'); showOrderDetailModal = false"
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {{ $t('admin.orders.ship') }}
+            </button>
+            <button
+              v-if="selectedOrder.status === 'SHIPPED'"
+              @click="updateOrderStatus(selectedOrder.id, 'DELIVERED'); showOrderDetailModal = false"
+              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {{ $t('admin.orders.deliver') }}
+            </button>
+            <button
+              @click="showOrderDetailModal = false"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
+            >
+              {{ $t('common.close') }}
             </button>
           </div>
         </div>

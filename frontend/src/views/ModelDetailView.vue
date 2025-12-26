@@ -45,28 +45,45 @@ onMounted(async () => {
   // Fetch from backend only - NO FAKE DATA
   try {
     const fetchedModel = await modelsStore.fetchModelById(modelId);
-    console.log('Fetched model:', fetchedModel); // Debug log
-    console.log('Model images from API:', fetchedModel?.images); // Debug log
+    console.log('=== DEBUG: Fetched model ===', fetchedModel);
+    console.log('=== DEBUG: Model images from API ===', fetchedModel?.images);
+    console.log('=== DEBUG: Thumbnail URL ===', fetchedModel?.thumbnail_url);
     
     if (fetchedModel) {
       // Check if current user is the owner
       isOwner.value = auth.user && (fetchedModel.owner === auth.user.id || fetchedModel.owner_email === auth.user.email);
       
-      // Build images array - images from API already have 'url' field from serializer
+      // Build images array - ALWAYS include thumbnail first, then additional images
       let images = [];
-      if (fetchedModel.images && fetchedModel.images.length > 0) {
-        images = fetchedModel.images.map(img => getImageUrl(img)).filter(Boolean);
-        console.log('Processed images:', images); // Debug log
-      }
-      if (images.length === 0 && fetchedModel.thumbnail_url) {
+      
+      // 1. Add thumbnail as the first image (if exists)
+      if (fetchedModel.thumbnail_url) {
         images.push(fetchedModel.thumbnail_url);
-      }
-      if (images.length === 0 && fetchedModel.thumbnail) {
+      } else if (fetchedModel.thumbnail) {
         images.push(fetchedModel.thumbnail);
       }
+      
+      // 2. Add all additional images from the API (sorted by order)
+      if (fetchedModel.images && fetchedModel.images.length > 0) {
+        const sortedImages = [...fetchedModel.images].sort((a, b) => {
+          // Primary images come first
+          if (a.is_primary && !b.is_primary) return -1;
+          if (!a.is_primary && b.is_primary) return 1;
+          // Then sort by order
+          return (a.order || 0) - (b.order || 0);
+        });
+        const additionalImageUrls = sortedImages.map(img => getImageUrl(img)).filter(Boolean);
+        images = images.concat(additionalImageUrls);
+        console.log('Added additional images:', additionalImageUrls); // Debug log
+      }
+      
+      // 3. If still no images, use placeholder
       if (images.length === 0) {
         images.push(`https://placehold.co/600x400/6366f1/fff?text=${encodeURIComponent(fetchedModel.model_name?.slice(0, 10) || 'Model')}`);
       }
+      
+      console.log('=== DEBUG: Final images array ===', images);
+      console.log('=== DEBUG: Number of images ===', images.length);
       
       model.value = {
         id: fetchedModel.id,

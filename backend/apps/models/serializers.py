@@ -89,13 +89,16 @@ class ModelCreateSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
-    
+
     class Meta:
         model = Model
-        fields = ['model_name', 'description', 'category', 'tags', 
+        fields = ['id', 'model_name', 'description', 'category', 'tags',
                   'stl_file_path', 'stl_file', 'thumbnail', 'price', 'images']
+        read_only_fields = ['id']
     
     def create(self, validated_data):
+        from apps.models.tasks import slice_model
+        
         images_data = validated_data.pop('images', [])
         validated_data['owner'] = self.context['request'].user
         validated_data['visibility_status'] = VisibilityStatus.PRIVATE
@@ -110,6 +113,10 @@ class ModelCreateSerializer(serializers.ModelSerializer):
                 is_primary=(idx == 0),
                 order=idx
             )
+        
+        # Trigger automatic slicing if STL file is available
+        if model.stl_file or model.stl_file_path:
+            slice_model.delay(str(model.id))
         
         return model
 

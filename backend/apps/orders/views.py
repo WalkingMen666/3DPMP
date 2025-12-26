@@ -20,6 +20,13 @@ class IsCustomerOwner(permissions.BasePermission):
     """Only allow customers to access their own orders."""
 
     def has_object_permission(self, request, view, obj):
+        # Admin employees can access any order
+        try:
+            if request.user.employee_profile.is_admin:
+                return True
+        except Employee.DoesNotExist:
+            pass
+        
         customer = get_or_create_customer(request.user)
         return obj.customer == customer
 
