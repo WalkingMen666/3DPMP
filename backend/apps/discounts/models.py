@@ -247,8 +247,7 @@ class CouponRedemption(models.Model):
     customer = models.ForeignKey(
         'users.Customer',
         on_delete=models.PROTECT,
-        related_name='coupon_redemptions',
-        to_field='user'
+        related_name='coupon_redemptions'
     )
     coupon = models.ForeignKey(
         Coupon,

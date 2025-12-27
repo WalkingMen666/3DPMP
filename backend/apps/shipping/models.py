@@ -56,8 +56,7 @@ class SavedAddress(models.Model):
     customer = models.ForeignKey(
         'users.Customer',
         on_delete=models.CASCADE,
-        related_name='saved_addresses',
-        to_field='user'
+        related_name='saved_addresses'
     )
     name = models.CharField(max_length=100)  # e.g., 'My Home', 'Office'
     address_type = models.CharField(
