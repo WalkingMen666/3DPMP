@@ -51,7 +51,7 @@ class GlobalDiscountViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, pk=None):
         """Get a single global discount"""
         try:
-            global_discount = GlobalDiscount.objects.select_related('discount').get(id=pk)
+            global_discount = GlobalDiscount.objects.select_related('discount').get(pk=pk)
             serializer = self.get_serializer(global_discount)
             return Response(serializer.data)
         except GlobalDiscount.DoesNotExist:
@@ -71,7 +71,7 @@ class GlobalDiscountViewSet(viewsets.ModelViewSet):
     def update(self, request, pk=None):
         """Update a global discount"""
         try:
-            global_discount = GlobalDiscount.objects.select_related('discount').get(id=pk)
+            global_discount = GlobalDiscount.objects.select_related('discount').get(pk=pk)
             serializer = self.get_serializer(global_discount, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -83,7 +83,7 @@ class GlobalDiscountViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         """Partially update a global discount"""
         try:
-            global_discount = GlobalDiscount.objects.select_related('discount').get(id=pk)
+            global_discount = GlobalDiscount.objects.select_related('discount').get(pk=pk)
             serializer = self.get_serializer(global_discount, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
@@ -95,7 +95,7 @@ class GlobalDiscountViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         """Delete a global discount"""
         try:
-            global_discount = GlobalDiscount.objects.select_related('discount').get(id=pk)
+            global_discount = GlobalDiscount.objects.select_related('discount').get(pk=pk)
             # Delete the linked Discount (will cascade delete GlobalDiscount)
             global_discount.discount.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -118,7 +118,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, pk=None):
         """Get a single coupon"""
         try:
-            coupon = Coupon.objects.select_related('discount').get(id=pk)
+            coupon = Coupon.objects.select_related('discount').get(pk=pk)
             serializer = self.get_serializer(coupon)
             return Response(serializer.data)
         except Coupon.DoesNotExist:
@@ -138,7 +138,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     def update(self, request, pk=None):
         """Update a coupon"""
         try:
-            coupon = Coupon.objects.select_related('discount').get(id=pk)
+            coupon = Coupon.objects.select_related('discount').get(pk=pk)
             serializer = self.get_serializer(coupon, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -150,7 +150,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         """Partially update a coupon"""
         try:
-            coupon = Coupon.objects.select_related('discount').get(id=pk)
+            coupon = Coupon.objects.select_related('discount').get(pk=pk)
             serializer = self.get_serializer(coupon, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
@@ -162,7 +162,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         """Delete a coupon"""
         try:
-            coupon = Coupon.objects.select_related('discount').get(id=pk)
+            coupon = Coupon.objects.select_related('discount').get(pk=pk)
             # Delete the linked Discount (will cascade delete Coupon)
             coupon.discount.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -173,33 +173,99 @@ class CouponViewSet(viewsets.ModelViewSet):
     def validate(self, request):
         """Validate a coupon code (available to authenticated customers)"""
         code = request.data.get('code')
+        order_subtotal = request.data.get('order_subtotal')
+        
         if not code:
-            return Response({'error': 'Coupon code is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'valid': False, 
+                'error': 'Coupon code is required',
+                'error_code': 'CODE_REQUIRED'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             coupon = Coupon.objects.select_related('discount').get(coupon_code__iexact=code)
         except Coupon.DoesNotExist:
-            return Response({'valid': False, 'error': 'Invalid coupon code'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                'valid': False, 
+                'error': 'Invalid coupon code',
+                'error_code': 'NOT_FOUND'
+            }, status=status.HTTP_404_NOT_FOUND)
 
         # Check if active
         if not coupon.discount.is_active:
-            return Response({'valid': False, 'error': 'This coupon is no longer active'})
+            return Response({
+                'valid': False, 
+                'error': 'This coupon is no longer active',
+                'error_code': 'INACTIVE'
+            })
 
         # Check date validity
         now = timezone.now()
+        
         if coupon.discount.start_date and now < coupon.discount.start_date:
-            return Response({'valid': False, 'error': 'This coupon is not yet valid'})
+            start_date_str = coupon.discount.start_date.strftime('%Y-%m-%d %H:%M')
+            return Response({
+                'valid': False, 
+                'error': f'This coupon will be valid starting from {start_date_str}',
+                'error_code': 'NOT_YET_VALID',
+                'start_date': coupon.discount.start_date.isoformat(),
+                'details': {
+                    'start_date': start_date_str
+                }
+            })
+            
         if coupon.discount.due_date and now > coupon.discount.due_date:
-            return Response({'valid': False, 'error': 'This coupon has expired'})
+            end_date_str = coupon.discount.due_date.strftime('%Y-%m-%d %H:%M')
+            return Response({
+                'valid': False, 
+                'error': f'This coupon expired on {end_date_str}',
+                'error_code': 'EXPIRED',
+                'end_date': coupon.discount.due_date.isoformat(),
+                'details': {
+                    'end_date': end_date_str
+                }
+            })
 
         # Check usage limits
         if coupon.max_uses_total and coupon.total_redemptions >= coupon.max_uses_total:
-            return Response({'valid': False, 'error': 'This coupon has reached its usage limit'})
+            return Response({
+                'valid': False, 
+                'error': f'This coupon has reached its usage limit ({coupon.max_uses_total} uses)',
+                'error_code': 'USAGE_LIMIT_REACHED',
+                'details': {
+                    'max_uses': coupon.max_uses_total,
+                    'times_used': coupon.total_redemptions
+                }
+            })
 
         # Check per-customer usage limit
         if hasattr(request.user, 'customer_profile'):
-            if not coupon.is_valid_for_customer(request.user.customer_profile):
-                return Response({'valid': False, 'error': 'You have already used this coupon'})
+            customer = request.user.customer_profile
+            customer_uses = coupon.redemptions.filter(customer=customer).count()
+            if customer_uses >= coupon.max_uses_per_customer:
+                return Response({
+                    'valid': False, 
+                    'error': f'You have already used this coupon {customer_uses} time(s) (limit: {coupon.max_uses_per_customer})',
+                    'error_code': 'CUSTOMER_LIMIT_REACHED',
+                    'details': {
+                        'customer_uses': customer_uses,
+                        'max_per_customer': coupon.max_uses_per_customer
+                    }
+                })
+
+        # Check minimum order amount if order_subtotal is provided
+        if order_subtotal:
+            min_order = float(coupon.discount.min_price)
+            if float(order_subtotal) < min_order:
+                return Response({
+                    'valid': False,
+                    'error': f'Minimum order amount is NT${min_order:.0f} (your order: NT${float(order_subtotal):.0f})',
+                    'error_code': 'MIN_ORDER_NOT_MET',
+                    'details': {
+                        'min_order_amount': min_order,
+                        'order_subtotal': float(order_subtotal)
+                    }
+                })
 
         return Response({
             'valid': True,

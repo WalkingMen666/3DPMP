@@ -112,6 +112,124 @@ const couponForm = ref({
   is_active: true
 })
 
+// Discount validation helpers
+const getDiscountWarnings = (discountValue, discountType) => {
+  const value = parseFloat(discountValue)
+  const warnings = []
+  
+  if (isNaN(value) || discountValue === '') {
+    return warnings
+  }
+  
+  // Negative value warning
+  if (value < 0) {
+    warnings.push({
+      type: 'error',
+      icon: '⚠️',
+      message: '負數折扣將會增加訂單金額，而非減少！'
+    })
+  }
+  
+  if (discountType === 'PERCENTAGE') {
+    // Percentage over 100% warning
+    if (value > 100) {
+      warnings.push({
+        type: 'error',
+        icon: '❌',
+        message: '百分比折扣不能超過 100%'
+      })
+    }
+    
+    // Small decimal warning (e.g., 0.1 might mean 10%)
+    if (value > 0 && value < 1) {
+      warnings.push({
+        type: 'info',
+        icon: '💡',
+        message: `您輸入了 ${value}%，是否想輸入 ${value * 100}%？（例如：輸入 10 表示 10% 折扣）`
+      })
+    }
+    
+    // Show discount preview for valid percentages
+    if (value > 0 && value <= 100) {
+      const samplePrice = 1000
+      const discountAmount = samplePrice * (value / 100)
+      warnings.push({
+        type: 'preview',
+        icon: '📊',
+        message: `預覽：NT$${samplePrice} 的訂單將折扣 NT$${discountAmount.toFixed(0)}（最終價格 NT$${(samplePrice - discountAmount).toFixed(0)}）`
+      })
+    }
+  } else {
+    // FIXED discount type
+    if (value > 0) {
+      warnings.push({
+        type: 'preview',
+        icon: '📊',
+        message: `預覽：訂單將減少 NT$${value.toFixed(0)}`
+      })
+    }
+  }
+  
+  return warnings
+}
+
+// Coupon warnings
+const couponWarnings = computed(() => {
+  return getDiscountWarnings(couponForm.value.discount_value, couponForm.value.discount_type)
+})
+
+// Global discount warnings  
+const globalDiscountWarnings = computed(() => {
+  return getDiscountWarnings(globalDiscountForm.value.discount_value, globalDiscountForm.value.discount_type)
+})
+
+// Helper functions for coupon/discount status
+const formatDate = (dateStr) => {
+  if (!dateStr) return null
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })
+}
+
+const getCouponDateRange = (coupon) => {
+  const start = formatDate(coupon.start_date) || formatDate(coupon.created_at) || '---'
+  const end = formatDate(coupon.end_date) || '無期限'
+  return `${start} ~ ${end}`
+}
+
+const getCouponStatus = (coupon) => {
+  const now = new Date()
+  
+  // Check if manually deactivated
+  if (!coupon.is_active) {
+    return { status: 'inactive', label: '已停用', class: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }
+  }
+  
+  // Check if not yet started
+  if (coupon.start_date) {
+    const startDate = new Date(coupon.start_date)
+    if (now < startDate) {
+      return { status: 'pending', label: '尚未開始', class: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' }
+    }
+  }
+  
+  // Check if expired
+  if (coupon.end_date) {
+    const endDate = new Date(coupon.end_date)
+    if (now > endDate) {
+      return { status: 'expired', label: '已過期', class: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }
+    }
+  }
+  
+  // Check if usage limit reached
+  if (coupon.max_uses && coupon.times_used >= coupon.max_uses) {
+    return { status: 'limit_reached', label: '已達上限', class: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' }
+  }
+  
+  // Active and valid
+  return { status: 'active', label: '有效', class: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' }
+}
+
+
 // Employee modal state
 const showEmployeeModal = ref(false)
 const editingEmployee = ref(null)
@@ -1152,20 +1270,21 @@ const allTabs = computed(() => {
                 <div class="flex justify-between items-start">
                   <div>
                     <h4 class="font-semibold text-gray-900 dark:text-white">{{ discount.name }}</h4>
-                    <p class="text-sm text-gray-500">
-                      {{ discount.discount_type === 'PERCENTAGE' ? `${discount.discount_value}% off` : `NT$ ${discount.discount_value} off` }}
+                    <p class="text-sm" :class="parseFloat(discount.discount_value) < 0 ? 'text-red-500' : 'text-gray-500'">
+                      {{ discount.discount_type === 'PERCENTAGE' ? `${discount.discount_value}% 折扣` : `NT$ ${discount.discount_value} 折扣` }}
+                      <span v-if="parseFloat(discount.discount_value) < 0" class="text-xs text-red-400">(加價)</span>
                     </p>
-                    <p v-if="discount.min_order_amount" class="text-xs text-gray-400">Min order: NT$ {{ discount.min_order_amount }}</p>
-                    <p v-if="discount.start_date || discount.end_date" class="text-xs text-gray-400">
-                      {{ discount.start_date?.split('T')[0] || 'No start' }} - {{ discount.end_date?.split('T')[0] || 'No end' }}
+                    <p v-if="discount.min_order_amount" class="text-xs text-gray-400">最低訂購金額: NT$ {{ discount.min_order_amount }}</p>
+                    <p class="text-xs text-gray-400">
+                      有效期間: {{ getCouponDateRange(discount) }}
                     </p>
                   </div>
                   <div class="flex items-center space-x-3">
-                    <span :class="discount.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" class="px-2 py-1 text-xs font-semibold rounded-full">
-                      {{ discount.is_active ? 'Active' : 'Inactive' }}
+                    <span :class="getCouponStatus(discount).class" class="px-2 py-1 text-xs font-semibold rounded-full">
+                      {{ getCouponStatus(discount).label }}
                     </span>
-                    <button @click="openEditGlobalDiscount(discount)" class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
-                    <button @click="deleteGlobalDiscount(discount.id)" class="text-red-600 hover:text-red-800 text-sm">Delete</button>
+                    <button @click="openEditGlobalDiscount(discount)" class="text-primary-600 hover:text-primary-800 text-sm">編輯</button>
+                    <button @click="deleteGlobalDiscount(discount.id)" class="text-red-600 hover:text-red-800 text-sm">刪除</button>
                   </div>
                 </div>
               </div>
@@ -1187,16 +1306,17 @@ const allTabs = computed(() => {
               <p class="text-gray-500">No coupons found</p>
             </div>
 
-            <div v-else class="bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+            <div v-else class="bg-white dark:bg-dark-surface rounded-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Discount</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uses</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">名稱</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">代碼</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">折扣</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">有效期間</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">使用次數</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">狀態</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -1204,17 +1324,23 @@ const allTabs = computed(() => {
                     <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ coupon.name }}</td>
                     <td class="px-4 py-3 text-sm font-mono text-primary-600">{{ coupon.code }}</td>
                     <td class="px-4 py-3 text-sm text-gray-500">
-                      {{ coupon.discount_type === 'PERCENTAGE' ? `${coupon.discount_value}%` : `NT$ ${coupon.discount_value}` }}
+                      <span :class="parseFloat(coupon.discount_value) < 0 ? 'text-red-500' : ''">
+                        {{ coupon.discount_type === 'PERCENTAGE' ? `${coupon.discount_value}%` : `NT$ ${coupon.discount_value}` }}
+                      </span>
+                      <span v-if="parseFloat(coupon.discount_value) < 0" class="ml-1 text-xs text-red-400">(加價)</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                      {{ getCouponDateRange(coupon) }}
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-500">{{ coupon.times_used || 0 }} / {{ coupon.max_uses || '∞' }}</td>
                     <td class="px-4 py-3">
-                      <span :class="coupon.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" class="px-2 py-1 text-xs font-semibold rounded-full">
-                        {{ coupon.is_active ? 'Active' : 'Inactive' }}
+                      <span :class="getCouponStatus(coupon).class" class="px-2 py-1 text-xs font-semibold rounded-full">
+                        {{ getCouponStatus(coupon).label }}
                       </span>
                     </td>
                     <td class="px-4 py-3 text-right text-sm space-x-2">
-                      <button @click="openEditCoupon(coupon)" class="text-primary-600 hover:text-primary-800">Edit</button>
-                      <button @click="deleteCoupon(coupon.id)" class="text-red-600 hover:text-red-800">Delete</button>
+                      <button @click="openEditCoupon(coupon)" class="text-primary-600 hover:text-primary-800">編輯</button>
+                      <button @click="deleteCoupon(coupon.id)" class="text-red-600 hover:text-red-800">刪除</button>
                     </td>
                   </tr>
                 </tbody>
@@ -1667,6 +1793,18 @@ const allTabs = computed(() => {
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Value</label>
               <input v-model="globalDiscountForm.discount_value" type="number" step="0.01" class="input-field w-full" placeholder="10" />
+              <div v-if="globalDiscountWarnings.length > 0" class="mt-2 space-y-1">
+                <p v-for="(warning, idx) in globalDiscountWarnings" :key="idx" 
+                   :class="[
+                     'text-xs flex items-start gap-1',
+                     warning.type === 'error' ? 'text-red-500 dark:text-red-400' :
+                     warning.type === 'info' ? 'text-amber-500 dark:text-amber-400' :
+                     'text-blue-500 dark:text-blue-400'
+                   ]">
+                  <span>{{ warning.icon }}</span>
+                  <span>{{ warning.message }}</span>
+                </p>
+              </div>
             </div>
           </div>
           <div>
@@ -1729,6 +1867,18 @@ const allTabs = computed(() => {
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Value</label>
               <input v-model="couponForm.discount_value" type="number" step="0.01" class="input-field w-full" placeholder="10" />
+              <div v-if="couponWarnings.length > 0" class="mt-2 space-y-1">
+                <p v-for="(warning, idx) in couponWarnings" :key="idx" 
+                   :class="[
+                     'text-xs flex items-start gap-1',
+                     warning.type === 'error' ? 'text-red-500 dark:text-red-400' :
+                     warning.type === 'info' ? 'text-amber-500 dark:text-amber-400' :
+                     'text-blue-500 dark:text-blue-400'
+                   ]">
+                  <span>{{ warning.icon }}</span>
+                  <span>{{ warning.message }}</span>
+                </p>
+              </div>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">

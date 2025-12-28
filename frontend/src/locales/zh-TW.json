@@ -18,6 +18,12 @@
     "viewAll": "查看全部",
     "viewDetails": "查看詳情"
   },
+  "underDevelopment": {
+    "title": "開發中",
+    "pricingMessage": "我們正在努力為您打造靈活的定價方案。此功能即將推出！",
+    "contactMessage": "我們的聯絡表單正在建設中。敬請期待直接聯繫我們的方式！",
+    "backHome": "返回首頁"
+  },
   "nav": {
     "home": "首頁",
     "models": "模型",
@@ -109,6 +115,13 @@
       "invalidLink": "無效的驗證連結。請檢查您的電子郵件以獲取正確的連結。",
       "expiredLink": "電子郵件驗證失敗。連結可能已過期或無效。",
       "registerAgain": "重新註冊"
+    },
+    "registerPage": {
+      "successTitle": "驗證郵件已發送！",
+      "successMessage": "我們已發送驗證連結至 {email}。",
+      "checkEmail": "請檢查您的電子郵件（含垃圾郵件夾）以驗證您的帳號。",
+      "devNote": "注意：在開發模式下，郵件將印在伺服器控制台。",
+      "goToLogin": "前往登入"
     }
   },
   "dashboard": {
@@ -138,7 +151,6 @@
     "downloads": "次下載",
     "confirmDelete": "您確定要刪除此模型嗎？此操作無法撤銷。",
     "deleteFailed": "刪除模型失敗",
-
     "confirmSubmit": "提交此模型進行公開審核？管理員將審核並批准其在市場上架。",
     "submitSuccess": "模型已成功提交審核！",
     "submitFailed": "提交審核失敗",
@@ -378,14 +390,21 @@
       "title": "收貨地址",
       "addNew": "+ 新增地址",
       "cancel": "取消",
+      "delete": "刪除地址",
       "noAddresses": "無已儲存的地址。請新增一個。",
       "noCompatibleAddressWarning": "沒有符合所選配送方式 ({type}) 的地址。請新增一個。",
       "form": {
         "name": "地址名稱",
         "namePlaceholder": "例如：我的家",
         "type": "地址類型",
+        "typeHint": "地址類型將自動設為",
         "details": "完整地址",
         "detailsPlaceholder": "完整地址、收件人姓名、電話號碼...",
+        "placeholders": {
+          "homeDelivery": "完整地址、收件人姓名、電話號碼...",
+          "convenienceStore": "超商名稱、門市編號或地址、收件人姓名、電話號碼...",
+          "selfPickup": "自取聯絡人姓名、電話號碼、預計取貨時間..."
+        },
         "save": "儲存地址"
       }
     },
@@ -420,6 +439,7 @@
       "selectAddress": "請選擇或新增收貨地址",
       "addressFieldsRequired": "請填寫所有地址欄位",
       "saveAddressFailed": "儲存地址失敗",
+      "deleteAddressFailed": "刪除地址失敗",
       "placeOrderFailed": "下單失敗",
       "invalidCoupon": "無效的優惠券代碼",
       "enterCouponCode": "請輸入優惠券代碼"

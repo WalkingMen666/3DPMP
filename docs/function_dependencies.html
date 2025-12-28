@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>3DPMP Functional Dependencies Diagram</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            padding: 20px;
+            background: #fff;
+        }
+        .fd-wrapper {
+            display: inline-block;
+            margin: 15px;
+            vertical-align: top;
+        }
+        .fd-table {
+            border-collapse: collapse;
+            border: 1px solid #000;
+        }
+        .fd-table th {
+            border: 1px solid #000;
+            padding: 6px 12px;
+            font-weight: bold;
+            text-align: center;
+            background: #fff;
+        }
+        .fd-table td {
+            border: 1px solid #000;
+            padding: 6px 10px;
+            text-align: center;
+        }
+        .fd-table .key {
+            text-decoration: underline;
+        }
+        .arrow-cell {
+            border: none !important;
+            padding: 0 !important;
+            height: 30px;
+            position: relative;
+        }
+        .arrow-container {
+            position: relative;
+            height: 30px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<h2>3DPMP - Functional Dependencies Diagram (3NF)</h2>
+
+<!-- USERS_USER -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="10">USERS_USER</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Name</td>
+            <td>Email</td>
+            <td>Password</td>
+            <td>Display_name</td>
+            <td>Auth_provider</td>
+            <td>Avatar_type</td>
+            <td>Is_staff</td>
+            <td>Is_active</td>
+            <td>Date_joined</td>
+        </tr>
+    </table>
+    <svg width="720" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="660" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="58" y1="20" x2="58" y2="5" stroke="black" stroke-width="1"/><polygon points="58,0 55,6 61,6" fill="black"/>
+        <line x1="112" y1="20" x2="112" y2="5" stroke="black" stroke-width="1"/><polygon points="112,0 109,6 115,6" fill="black"/>
+        <line x1="178" y1="20" x2="178" y2="5" stroke="black" stroke-width="1"/><polygon points="178,0 175,6 181,6" fill="black"/>
+        <line x1="268" y1="20" x2="268" y2="5" stroke="black" stroke-width="1"/><polygon points="268,0 265,6 271,6" fill="black"/>
+        <line x1="362" y1="20" x2="362" y2="5" stroke="black" stroke-width="1"/><polygon points="362,0 359,6 365,6" fill="black"/>
+        <line x1="452" y1="20" x2="452" y2="5" stroke="black" stroke-width="1"/><polygon points="452,0 449,6 455,6" fill="black"/>
+        <line x1="522" y1="20" x2="522" y2="5" stroke="black" stroke-width="1"/><polygon points="522,0 519,6 525,6" fill="black"/>
+        <line x1="575" y1="20" x2="575" y2="5" stroke="black" stroke-width="1"/><polygon points="575,0 572,6 578,6" fill="black"/>
+        <line x1="660" y1="20" x2="660" y2="5" stroke="black" stroke-width="1"/><polygon points="660,0 657,6 663,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- USERS_CUSTOMER -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="2">USERS_CUSTOMER</th></tr>
+        <tr>
+            <td class="key">User_id</td>
+            <td>Sex</td>
+        </tr>
+    </table>
+    <svg width="140" height="30" style="display:block;">
+        <line x1="40" y1="0" x2="40" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="40" y1="20" x2="105" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="105" y1="20" x2="105" y2="5" stroke="black" stroke-width="1"/><polygon points="105,0 102,6 108,6" fill="black"/>
+    </svg>
+</div>
+
+<!-- USERS_EMPLOYEE -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="3">USERS_EMPLOYEE</th></tr>
+        <tr>
+            <td class="key">User_id</td>
+            <td>Employee_name</td>
+            <td>Is_admin</td>
+        </tr>
+    </table>
+    <svg width="260" height="30" style="display:block;">
+        <line x1="40" y1="0" x2="40" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="40" y1="20" x2="220" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="130" y1="20" x2="130" y2="5" stroke="black" stroke-width="1"/><polygon points="130,0 127,6 133,6" fill="black"/>
+        <line x1="220" y1="20" x2="220" y2="5" stroke="black" stroke-width="1"/><polygon points="220,0 217,6 223,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- MODEL -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="9">MODEL</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Owner_id</td>
+            <td>Model_name</td>
+            <td>Description</td>
+            <td>Category</td>
+            <td>Visibility_status</td>
+            <td>Stl_file_path</td>
+            <td>Slicing_status</td>
+            <td>Created_at</td>
+        </tr>
+    </table>
+    <svg width="680" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="660" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="68" y1="20" x2="68" y2="5" stroke="black" stroke-width="1"/><polygon points="68,0 65,6 71,6" fill="black"/>
+        <line x1="152" y1="20" x2="152" y2="5" stroke="black" stroke-width="1"/><polygon points="152,0 149,6 155,6" fill="black"/>
+        <line x1="242" y1="20" x2="242" y2="5" stroke="black" stroke-width="1"/><polygon points="242,0 239,6 245,6" fill="black"/>
+        <line x1="318" y1="20" x2="318" y2="5" stroke="black" stroke-width="1"/><polygon points="318,0 315,6 321,6" fill="black"/>
+        <line x1="408" y1="20" x2="408" y2="5" stroke="black" stroke-width="1"/><polygon points="408,0 405,6 411,6" fill="black"/>
+        <line x1="495" y1="20" x2="495" y2="5" stroke="black" stroke-width="1"/><polygon points="495,0 492,6 498,6" fill="black"/>
+        <line x1="580" y1="20" x2="580" y2="5" stroke="black" stroke-width="1"/><polygon points="580,0 577,6 583,6" fill="black"/>
+        <line x1="660" y1="20" x2="660" y2="5" stroke="black" stroke-width="1"/><polygon points="660,0 657,6 663,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- MODEL_IMAGE -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="4">MODEL_IMAGE</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Model_id</td>
+            <td>Image_path</td>
+            <td>Is_primary</td>
+        </tr>
+    </table>
+    <svg width="270" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="230" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="72" y1="20" x2="72" y2="5" stroke="black" stroke-width="1"/><polygon points="72,0 69,6 75,6" fill="black"/>
+        <line x1="152" y1="20" x2="152" y2="5" stroke="black" stroke-width="1"/><polygon points="152,0 149,6 155,6" fill="black"/>
+        <line x1="230" y1="20" x2="230" y2="5" stroke="black" stroke-width="1"/><polygon points="230,0 227,6 233,6" fill="black"/>
+    </svg>
+</div>
+
+<!-- MODEL_REVIEW_LOG -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="7">MODEL_REVIEW_LOG</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Model_id</td>
+            <td>Reviewer_id</td>
+            <td>Previous_status</td>
+            <td>New_status</td>
+            <td>Reason</td>
+            <td>Timestamp</td>
+        </tr>
+    </table>
+    <svg width="530" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="490" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="72" y1="20" x2="72" y2="5" stroke="black" stroke-width="1"/><polygon points="72,0 69,6 75,6" fill="black"/>
+        <line x1="152" y1="20" x2="152" y2="5" stroke="black" stroke-width="1"/><polygon points="152,0 149,6 155,6" fill="black"/>
+        <line x1="255" y1="20" x2="255" y2="5" stroke="black" stroke-width="1"/><polygon points="255,0 252,6 258,6" fill="black"/>
+        <line x1="348" y1="20" x2="348" y2="5" stroke="black" stroke-width="1"/><polygon points="348,0 345,6 351,6" fill="black"/>
+        <line x1="418" y1="20" x2="418" y2="5" stroke="black" stroke-width="1"/><polygon points="418,0 415,6 421,6" fill="black"/>
+        <line x1="490" y1="20" x2="490" y2="5" stroke="black" stroke-width="1"/><polygon points="490,0 487,6 493,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- MATERIAL -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="5">MATERIAL</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Name</td>
+            <td>Density_g_cm3</td>
+            <td>Price_twd_g</td>
+            <td>Is_active</td>
+        </tr>
+    </table>
+    <svg width="340" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="310" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="68" y1="20" x2="68" y2="5" stroke="black" stroke-width="1"/><polygon points="68,0 65,6 71,6" fill="black"/>
+        <line x1="158" y1="20" x2="158" y2="5" stroke="black" stroke-width="1"/><polygon points="158,0 155,6 161,6" fill="black"/>
+        <line x1="248" y1="20" x2="248" y2="5" stroke="black" stroke-width="1"/><polygon points="248,0 245,6 251,6" fill="black"/>
+        <line x1="310" y1="20" x2="310" y2="5" stroke="black" stroke-width="1"/><polygon points="310,0 307,6 313,6" fill="black"/>
+    </svg>
+</div>
+
+<!-- CART_ITEM -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="6">CART_ITEM</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Customer_id</td>
+            <td>Model_id</td>
+            <td>Material_id</td>
+            <td>Quantity</td>
+            <td>Notes</td>
+        </tr>
+    </table>
+    <svg width="430" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="380" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="82" y1="20" x2="82" y2="5" stroke="black" stroke-width="1"/><polygon points="82,0 79,6 85,6" fill="black"/>
+        <line x1="165" y1="20" x2="165" y2="5" stroke="black" stroke-width="1"/><polygon points="165,0 162,6 168,6" fill="black"/>
+        <line x1="250" y1="20" x2="250" y2="5" stroke="black" stroke-width="1"/><polygon points="250,0 247,6 253,6" fill="black"/>
+        <line x1="325" y1="20" x2="325" y2="5" stroke="black" stroke-width="1"/><polygon points="325,0 322,6 328,6" fill="black"/>
+        <line x1="380" y1="20" x2="380" y2="5" stroke="black" stroke-width="1"/><polygon points="380,0 377,6 383,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- SHIPPING_OPTION -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="5">SHIPPING_OPTION</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Name</td>
+            <td>Type</td>
+            <td>Base_fee</td>
+            <td>Is_active</td>
+        </tr>
+    </table>
+    <svg width="260" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="230" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="62" y1="20" x2="62" y2="5" stroke="black" stroke-width="1"/><polygon points="62,0 59,6 65,6" fill="black"/>
+        <line x1="110" y1="20" x2="110" y2="5" stroke="black" stroke-width="1"/><polygon points="110,0 107,6 113,6" fill="black"/>
+        <line x1="168" y1="20" x2="168" y2="5" stroke="black" stroke-width="1"/><polygon points="168,0 165,6 171,6" fill="black"/>
+        <line x1="230" y1="20" x2="230" y2="5" stroke="black" stroke-width="1"/><polygon points="230,0 227,6 233,6" fill="black"/>
+    </svg>
+</div>
+
+<!-- SAVED_ADDRESS -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="6">SAVED_ADDRESS</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Customer_id</td>
+            <td>Name</td>
+            <td>Address_type</td>
+            <td>Address_details</td>
+            <td>Is_default</td>
+        </tr>
+    </table>
+    <svg width="480" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="430" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="82" y1="20" x2="82" y2="5" stroke="black" stroke-width="1"/><polygon points="82,0 79,6 85,6" fill="black"/>
+        <line x1="155" y1="20" x2="155" y2="5" stroke="black" stroke-width="1"/><polygon points="155,0 152,6 158,6" fill="black"/>
+        <line x1="242" y1="20" x2="242" y2="5" stroke="black" stroke-width="1"/><polygon points="242,0 239,6 245,6" fill="black"/>
+        <line x1="352" y1="20" x2="352" y2="5" stroke="black" stroke-width="1"/><polygon points="352,0 349,6 355,6" fill="black"/>
+        <line x1="430" y1="20" x2="430" y2="5" stroke="black" stroke-width="1"/><polygon points="430,0 427,6 433,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- ORDER -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="8">ORDER</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Customer_id</td>
+            <td>Assignee_id</td>
+            <td>Status</td>
+            <td>Ship_snapshot</td>
+            <td>Total_price</td>
+            <td>Tracking_number</td>
+            <td>Creation_date</td>
+        </tr>
+    </table>
+    <svg width="580" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="565" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="78" y1="20" x2="78" y2="5" stroke="black" stroke-width="1"/><polygon points="78,0 75,6 81,6" fill="black"/>
+        <line x1="162" y1="20" x2="162" y2="5" stroke="black" stroke-width="1"/><polygon points="162,0 159,6 165,6" fill="black"/>
+        <line x1="232" y1="20" x2="232" y2="5" stroke="black" stroke-width="1"/><polygon points="232,0 229,6 235,6" fill="black"/>
+        <line x1="318" y1="20" x2="318" y2="5" stroke="black" stroke-width="1"/><polygon points="318,0 315,6 321,6" fill="black"/>
+        <line x1="405" y1="20" x2="405" y2="5" stroke="black" stroke-width="1"/><polygon points="405,0 402,6 408,6" fill="black"/>
+        <line x1="490" y1="20" x2="490" y2="5" stroke="black" stroke-width="1"/><polygon points="490,0 487,6 493,6" fill="black"/>
+        <line x1="565" y1="20" x2="565" y2="5" stroke="black" stroke-width="1"/><polygon points="565,0 562,6 568,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- ORDER_ITEM -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="7">ORDER_ITEM</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Order_id</td>
+            <td>Model_id</td>
+            <td>Material_id</td>
+            <td>Item_number</td>
+            <td>Quantity</td>
+            <td>Price_snapshot</td>
+        </tr>
+    </table>
+    <svg width="480" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="445" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="72" y1="20" x2="72" y2="5" stroke="black" stroke-width="1"/><polygon points="72,0 69,6 75,6" fill="black"/>
+        <line x1="148" y1="20" x2="148" y2="5" stroke="black" stroke-width="1"/><polygon points="148,0 145,6 151,6" fill="black"/>
+        <line x1="232" y1="20" x2="232" y2="5" stroke="black" stroke-width="1"/><polygon points="232,0 229,6 235,6" fill="black"/>
+        <line x1="318" y1="20" x2="318" y2="5" stroke="black" stroke-width="1"/><polygon points="318,0 315,6 321,6" fill="black"/>
+        <line x1="388" y1="20" x2="388" y2="5" stroke="black" stroke-width="1"/><polygon points="388,0 385,6 391,6" fill="black"/>
+        <line x1="445" y1="20" x2="445" y2="5" stroke="black" stroke-width="1"/><polygon points="445,0 442,6 448,6" fill="black"/>
+    </svg>
+</div>
+
+<!-- ORDER_LOG -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="6">ORDER_LOG</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Order_id</td>
+            <td>Updated_by_id</td>
+            <td>Previous_status</td>
+            <td>New_status</td>
+            <td>Timestamp</td>
+        </tr>
+    </table>
+    <svg width="430" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="410" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="72" y1="20" x2="72" y2="5" stroke="black" stroke-width="1"/><polygon points="72,0 69,6 75,6" fill="black"/>
+        <line x1="162" y1="20" x2="162" y2="5" stroke="black" stroke-width="1"/><polygon points="162,0 159,6 165,6" fill="black"/>
+        <line x1="265" y1="20" x2="265" y2="5" stroke="black" stroke-width="1"/><polygon points="265,0 262,6 268,6" fill="black"/>
+        <line x1="348" y1="20" x2="348" y2="5" stroke="black" stroke-width="1"/><polygon points="348,0 345,6 351,6" fill="black"/>
+        <line x1="410" y1="20" x2="410" y2="5" stroke="black" stroke-width="1"/><polygon points="410,0 407,6 413,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- DISCOUNT -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="9">DISCOUNT</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Name</td>
+            <td>Start_date</td>
+            <td>Due_date</td>
+            <td>Min_price</td>
+            <td>Works_on</td>
+            <td>Is_fixed</td>
+            <td>Dis_value</td>
+            <td>Is_active</td>
+        </tr>
+    </table>
+    <svg width="600" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="515" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="62" y1="20" x2="62" y2="5" stroke="black" stroke-width="1"/><polygon points="62,0 59,6 65,6" fill="black"/>
+        <line x1="132" y1="20" x2="132" y2="5" stroke="black" stroke-width="1"/><polygon points="132,0 129,6 135,6" fill="black"/>
+        <line x1="202" y1="20" x2="202" y2="5" stroke="black" stroke-width="1"/><polygon points="202,0 199,6 205,6" fill="black"/>
+        <line x1="268" y1="20" x2="268" y2="5" stroke="black" stroke-width="1"/><polygon points="268,0 265,6 271,6" fill="black"/>
+        <line x1="335" y1="20" x2="335" y2="5" stroke="black" stroke-width="1"/><polygon points="335,0 332,6 338,6" fill="black"/>
+        <line x1="395" y1="20" x2="395" y2="5" stroke="black" stroke-width="1"/><polygon points="395,0 392,6 398,6" fill="black"/>
+        <line x1="455" y1="20" x2="455" y2="5" stroke="black" stroke-width="1"/><polygon points="455,0 452,6 458,6" fill="black"/>
+        <line x1="515" y1="20" x2="515" y2="5" stroke="black" stroke-width="1"/><polygon points="515,0 512,6 518,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- GLOBAL_DISCOUNT -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="2">GLOBAL_DISCOUNT</th></tr>
+        <tr>
+            <td class="key">Discount_id</td>
+            <td>Priority</td>
+        </tr>
+    </table>
+    <svg width="160" height="30" style="display:block;">
+        <line x1="45" y1="0" x2="45" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="45" y1="20" x2="120" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="120" y1="20" x2="120" y2="5" stroke="black" stroke-width="1"/><polygon points="120,0 117,6 123,6" fill="black"/>
+    </svg>
+</div>
+
+<!-- COUPON -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="5">COUPON</th></tr>
+        <tr>
+            <td class="key">Discount_id</td>
+            <td>Coupon_code</td>
+            <td>Max_uses_total</td>
+            <td>Max_uses_per_cust</td>
+            <td>Is_stackable</td>
+        </tr>
+    </table>
+    <svg width="450" height="30" style="display:block;">
+        <line x1="45" y1="0" x2="45" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="45" y1="20" x2="425" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="138" y1="20" x2="138" y2="5" stroke="black" stroke-width="1"/><polygon points="138,0 135,6 141,6" fill="black"/>
+        <line x1="238" y1="20" x2="238" y2="5" stroke="black" stroke-width="1"/><polygon points="238,0 235,6 241,6" fill="black"/>
+        <line x1="345" y1="20" x2="345" y2="5" stroke="black" stroke-width="1"/><polygon points="345,0 342,6 348,6" fill="black"/>
+        <line x1="425" y1="20" x2="425" y2="5" stroke="black" stroke-width="1"/><polygon points="425,0 422,6 428,6" fill="black"/>
+    </svg>
+</div>
+
+<br>
+
+<!-- IS_AFFECTED -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="5">IS_AFFECTED</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Order_id</td>
+            <td>Global_discount_id</td>
+            <td>Discount_snapshot</td>
+            <td>Discount_amount</td>
+        </tr>
+    </table>
+    <svg width="440" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="410" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="78" y1="20" x2="78" y2="5" stroke="black" stroke-width="1"/><polygon points="78,0 75,6 81,6" fill="black"/>
+        <line x1="178" y1="20" x2="178" y2="5" stroke="black" stroke-width="1"/><polygon points="178,0 175,6 181,6" fill="black"/>
+        <line x1="295" y1="20" x2="295" y2="5" stroke="black" stroke-width="1"/><polygon points="295,0 292,6 298,6" fill="black"/>
+        <line x1="410" y1="20" x2="410" y2="5" stroke="black" stroke-width="1"/><polygon points="410,0 407,6 413,6" fill="black"/>
+    </svg>
+</div>
+
+<!-- COUPON_REDEMPTION -->
+<div class="fd-wrapper">
+    <table class="fd-table">
+        <tr><th colspan="6">COUPON_REDEMPTION</th></tr>
+        <tr>
+            <td class="key">id</td>
+            <td>Customer_id</td>
+            <td>Coupon_id</td>
+            <td>Order_id</td>
+            <td>Discount_amount</td>
+            <td>Timestamp</td>
+        </tr>
+    </table>
+    <svg width="480" height="30" style="display:block;">
+        <line x1="18" y1="0" x2="18" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="18" y1="20" x2="445" y2="20" stroke="black" stroke-width="1"/>
+        <line x1="82" y1="20" x2="82" y2="5" stroke="black" stroke-width="1"/><polygon points="82,0 79,6 85,6" fill="black"/>
+        <line x1="162" y1="20" x2="162" y2="5" stroke="black" stroke-width="1"/><polygon points="162,0 159,6 165,6" fill="black"/>
+        <line x1="238" y1="20" x2="238" y2="5" stroke="black" stroke-width="1"/><polygon points="238,0 235,6 241,6" fill="black"/>
+        <line x1="345" y1="20" x2="345" y2="5" stroke="black" stroke-width="1"/><polygon points="345,0 342,6 348,6" fill="black"/>
+        <line x1="445" y1="20" x2="445" y2="5" stroke="black" stroke-width="1"/><polygon points="445,0 442,6 448,6" fill="black"/>
+    </svg>
+</div>
+
+</body>
+</html>

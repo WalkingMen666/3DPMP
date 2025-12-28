@@ -1,0 +1,4 @@
+{% load i18n %}
+{% autoescape off %}
+[3DPMP] Please Confirm Your Email Address
+{% endautoescape %}

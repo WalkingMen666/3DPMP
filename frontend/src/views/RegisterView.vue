@@ -169,16 +169,37 @@ const handleRegister = async () => {
       </div>
 
       <!-- Email Verification Success Message -->
-      <div v-if="success" class="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-        <p class="font-medium mb-2">{{ $t('auth.forgotPasswordPage.successTitle') }}</p>
-        <p>{{ $t('auth.forgotPasswordPage.successMessage', { email: registeredEmail }) }}</p>
-        <p class="mt-2">{{ $t('auth.forgotPasswordPage.checkEmail') }}</p>
-        <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
-          {{ $t('auth.forgotPasswordPage.devNote') }}
-        </p>
-        <RouterLink to="/login" class="mt-3 inline-block font-medium text-primary-600 hover:text-primary-500">
-          {{ $t('auth.verifyEmailPage.goToLogin') }}
-        </RouterLink>
+      <div v-if="success" class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 p-6 rounded-xl border border-green-200 dark:border-green-700/50 shadow-sm">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-green-800 dark:text-green-300 mb-2">
+              {{ $t('auth.registerPage.successTitle') }}
+            </h3>
+            <p class="text-green-700 dark:text-green-400 mb-2">
+              {{ $t('auth.registerPage.successMessage', { email: registeredEmail }) }}
+            </p>
+            <p class="text-green-600 dark:text-green-500 text-sm">
+              {{ $t('auth.registerPage.checkEmail') }}
+            </p>
+            <p class="mt-3 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/50 p-2 rounded">
+              {{ $t('auth.registerPage.devNote') }}
+            </p>
+            <RouterLink 
+              to="/login" 
+              class="mt-4 inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              {{ $t('auth.registerPage.goToLogin') }}
+              <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </RouterLink>
+          </div>
+        </div>
       </div>
 
       <!-- Error Message Display -->

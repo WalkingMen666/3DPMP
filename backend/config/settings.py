@@ -146,7 +146,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'apps' / 'users' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -220,9 +220,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# File upload settings
-FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
+# File upload settings - Allow up to 500MB for large STL files
+FILE_UPLOAD_MAX_MEMORY_SIZE = 524288000  # 500MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000  # 500MB
 
 # Celery Configuration
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')

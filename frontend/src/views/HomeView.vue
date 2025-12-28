@@ -1,36 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
 import { RouterLink } from "vue-router";
-import ModelCard from "../components/ModelCard.vue";
-import { useModelsStore } from "../stores/models";
-import { useI18n } from "vue-i18n";
-
-const { t } = useI18n();
-const modelsStore = useModelsStore();
-const loading = ref(true);
-
-// Fetch featured models from backend on mount
-onMounted(async () => {
-  loading.value = true;
-  try {
-    await modelsStore.fetchPublicModels({ is_featured: true });
-  } catch (error) {
-    // Silently fail - no fake data
-  } finally {
-    loading.value = false;
-  }
-});
-
-// Use store data - NO FAKE DATA
-const featuredModels = computed(() => {
-  return modelsStore.publicModels.slice(0, 4).map(model => ({
-    id: model.id,
-    name: model.model_name,
-    author: model.owner_name || 'Unknown',
-    price: model.base_price || '0.00',
-    image: model.thumbnail || `https://placehold.co/400x400/6366f1/fff?text=${encodeURIComponent(model.model_name?.slice(0, 8) || t('nav.models'))}`
-  }));
-});
 </script>
 
 <template>
@@ -154,48 +123,6 @@ const featuredModels = computed(() => {
               {{ $t('home.features.communityDesc') }}
             </p>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Featured Models -->
-    <section class="py-20 bg-white dark:bg-dark-surface">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-end mb-10">
-          <div>
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {{ $t('home.featured.title') }}
-            </h2>
-            <p class="text-gray-600 dark:text-gray-400">
-              {{ $t('home.featured.subtitle') }}
-            </p>
-          </div>
-          <RouterLink
-            to="/models"
-            class="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 flex items-center"
-          >
-            {{ $t('common.viewAll') }}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 ml-1"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </RouterLink>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <ModelCard
-            v-for="model in featuredModels"
-            :key="model.id"
-            :model="model"
-          />
         </div>
       </div>
     </section>

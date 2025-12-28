@@ -18,6 +18,12 @@
     "viewAll": "View All",
     "viewDetails": "View Details"
   },
+  "underDevelopment": {
+    "title": "Under Development",
+    "pricingMessage": "We're working hard to bring you flexible pricing plans. This feature will be available soon!",
+    "contactMessage": "Our contact form is being built. Stay tuned for a way to reach us directly!",
+    "backHome": "Back to Home"
+  },
   "nav": {
     "home": "Home",
     "models": "Models",
@@ -109,6 +115,13 @@
       "invalidLink": "Invalid verification link. Please check your email for the correct link.",
       "expiredLink": "Email verification failed. The link may have expired or is invalid.",
       "registerAgain": "Register again"
+    },
+    "registerPage": {
+      "successTitle": "Verification email sent!",
+      "successMessage": "We've sent a verification link to {email}.",
+      "checkEmail": "Please check your email (and spam folder) to verify your account.",
+      "devNote": "Note: In development mode, the email will be printed to the server console.",
+      "goToLogin": "Go to login"
     }
   },
   "dashboard": {
@@ -377,14 +390,21 @@
       "title": "Delivery Address",
       "addNew": "+ Add New Address",
       "cancel": "Cancel",
+      "delete": "Delete address",
       "noAddresses": "No saved addresses. Please add one.",
       "noCompatibleAddressWarning": "No saved addresses match the selected shipping type ({type}). Please add a new address.",
       "form": {
         "name": "Address Name",
         "namePlaceholder": "e.g. My Home",
         "type": "Address Type",
+        "typeHint": "Address type will be set to",
         "details": "Full Address",
         "detailsPlaceholder": "Full address, recipient name, phone number...",
+        "placeholders": {
+          "homeDelivery": "Full address, recipient name, phone number...",
+          "convenienceStore": "Store name, store number or address, recipient name, phone...",
+          "selfPickup": "Contact name, phone number, expected pickup time..."
+        },
         "save": "Save Address"
       }
     },
@@ -419,6 +439,7 @@
       "selectAddress": "Please select a delivery address",
       "addressFieldsRequired": "Name and address details are required",
       "saveAddressFailed": "Failed to save address",
+      "deleteAddressFailed": "Failed to delete address",
       "placeOrderFailed": "Failed to place order",
       "invalidCoupon": "Invalid coupon code",
       "enterCouponCode": "Please enter a coupon code"
@@ -494,7 +515,7 @@
     },
     "dragDrop": "Drag and drop your STL file here, or",
     "browse": "browse",
-    "maxSize": "STL files up to 50MB",
+    "maxSize": "STL files up to 500MB",
     "removeFile": "Remove file",
     "validation": {
       "stlRequired": "Please upload an STL file before proceeding to the next step.",

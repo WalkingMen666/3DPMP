@@ -30,7 +30,10 @@ class SavedAddressCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = SavedAddress
-        fields = ['name', 'address_type', 'address_details', 'is_default']
+        fields = ['id', 'name', 'address_type', 'address_type_display', 'address_details', 'is_default', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    address_type_display = serializers.CharField(source='get_address_type_display', read_only=True)
     
     def create(self, validated_data):
         user = self.context['request'].user

@@ -118,18 +118,46 @@ const applyCoupon = async () => {
 
   try {
     const response = await apiClient.post('/discounts/coupons/validate/', {
-      code: couponCode.value.trim()
+      code: couponCode.value.trim(),
+      order_subtotal: cart.subtotal
     })
 
     if (response.data.valid) {
       appliedCoupon.value = response.data.coupon
       couponError.value = ''
     } else {
-      couponError.value = response.data.error || 'Invalid coupon code'
+      // Format error message based on error_code
+      const errorCode = response.data.error_code
+      let errorMsg = response.data.error
+      
+      // Translate common error codes to Chinese
+      if (errorCode === 'NOT_YET_VALID' && response.data.details?.start_date) {
+        errorMsg = `此優惠券將於 ${response.data.details.start_date} 開始生效`
+      } else if (errorCode === 'EXPIRED' && response.data.details?.end_date) {
+        errorMsg = `此優惠券已於 ${response.data.details.end_date} 過期`
+      } else if (errorCode === 'INACTIVE') {
+        errorMsg = '此優惠券已停用'
+      } else if (errorCode === 'USAGE_LIMIT_REACHED' && response.data.details) {
+        errorMsg = `此優惠券已達使用上限（已使用 ${response.data.details.times_used}/${response.data.details.max_uses} 次）`
+      } else if (errorCode === 'CUSTOMER_LIMIT_REACHED' && response.data.details) {
+        errorMsg = `您已使用此優惠券 ${response.data.details.customer_uses} 次（上限 ${response.data.details.max_per_customer} 次）`
+      } else if (errorCode === 'MIN_ORDER_NOT_MET' && response.data.details) {
+        errorMsg = `最低訂購金額為 NT$${response.data.details.min_order_amount}（您的訂單：NT$${response.data.details.order_subtotal.toFixed(0)}）`
+      }
+      
+      couponError.value = errorMsg
       appliedCoupon.value = null
     }
   } catch (err) {
-    couponError.value = err.response?.data?.error || t('checkout.errors.invalidCoupon')
+    // Handle 404 and other HTTP errors
+    const errorData = err.response?.data
+    const errorCode = errorData?.error_code
+    
+    if (errorCode === 'NOT_FOUND') {
+      couponError.value = '找不到此優惠券代碼'
+    } else {
+      couponError.value = errorData?.error || t('checkout.errors.invalidCoupon')
+    }
     appliedCoupon.value = null
   } finally {
     couponLoading.value = false
@@ -142,6 +170,21 @@ const removeCoupon = () => {
   couponError.value = ''
 }
 
+// 根據地址類型獲取適當的佔位符
+const getAddressPlaceholder = () => {
+  const type = selectedShippingOption.value?.type || 'HOME_DELIVERY'
+  switch (type) {
+    case 'HOME_DELIVERY':
+      return t('checkout.address.form.placeholders.homeDelivery')
+    case 'CONVENIENCE_STORE':
+      return t('checkout.address.form.placeholders.convenienceStore')
+    case 'SELF_PICKUP':
+      return t('checkout.address.form.placeholders.selfPickup')
+    default:
+      return t('checkout.address.form.detailsPlaceholder')
+  }
+}
+
 const saveNewAddress = async () => {
   if (!newAddress.value.name || !newAddress.value.address_details) {
     error.value = 'checkout.errors.addressFieldsRequired'
@@ -149,7 +192,12 @@ const saveNewAddress = async () => {
   }
 
   try {
-    const response = await apiClient.post('/shipping/addresses/', newAddress.value)
+    // 使用所選運送方式的類型，確保地址相容
+    const addressData = {
+      ...newAddress.value,
+      address_type: selectedShippingOption.value?.type || newAddress.value.address_type
+    }
+    const response = await apiClient.post('/shipping/addresses/', addressData)
     savedAddresses.value.push(response.data)
     selectedAddress.value = response.data.id
     showAddressForm.value = false
@@ -157,6 +205,28 @@ const saveNewAddress = async () => {
     error.value = ''
   } catch (err) {
     error.value = 'checkout.errors.saveAddressFailed'
+  }
+}
+
+const deleteAddress = async (addressId) => {
+  if (!confirm('確定要刪除此地址嗎？')) {
+    return
+  }
+
+  try {
+    await apiClient.delete(`/shipping/addresses/${addressId}/`)
+    savedAddresses.value = savedAddresses.value.filter(a => a.id !== addressId)
+    
+    // 如果刪除的是已選中的地址，重新選擇
+    if (selectedAddress.value === addressId) {
+      if (compatibleAddresses.value.length > 0) {
+        selectedAddress.value = compatibleAddresses.value[0].id
+      } else {
+        selectedAddress.value = null
+      }
+    }
+  } catch (err) {
+    error.value = 'checkout.errors.deleteAddressFailed'
   }
 }
 
@@ -168,7 +238,7 @@ const shippingFee = computed(() => {
   return selectedShippingOption.value ? parseFloat(selectedShippingOption.value.base_fee) : 0
 })
 
-// Calculate discount from coupon
+// Calculate discount from coupon (supports negative values for price increase)
 const couponDiscount = computed(() => {
   if (!appliedCoupon.value) return 0
 
@@ -177,30 +247,61 @@ const couponDiscount = computed(() => {
 
   if (subtotal < minOrder) return 0
 
+  const discountValue = parseFloat(appliedCoupon.value.discount_value)
+  
   if (appliedCoupon.value.discount_type === 'PERCENTAGE') {
-    return subtotal * (parseFloat(appliedCoupon.value.discount_value) / 100)
+    return subtotal * (discountValue / 100)
   } else {
-    return Math.min(parseFloat(appliedCoupon.value.discount_value), subtotal)
+    // For FIXED: allow negative values (price increase), but cap positive at subtotal
+    return discountValue > 0 ? Math.min(discountValue, subtotal) : discountValue
   }
 })
 
-// Calculate discount from global discounts (auto-applied)
-const globalDiscountTotal = computed(() => {
-  let discount = 0
+// Calculate discount from global discounts (auto-applied) with details
+const globalDiscountDetails = computed(() => {
+  const details = []
   const subtotal = cart.subtotal
 
   for (const gd of globalDiscounts.value) {
     const minOrder = parseFloat(gd.min_order_amount) || 0
-    if (subtotal < minOrder) continue
-
-    if (gd.discount_type === 'PERCENTAGE') {
-      discount += subtotal * (parseFloat(gd.discount_value) / 100)
-    } else {
-      discount += parseFloat(gd.discount_value)
+    const isApplicable = subtotal >= minOrder
+    
+    let discountAmount = 0
+    if (isApplicable) {
+      if (gd.discount_type === 'PERCENTAGE') {
+        discountAmount = subtotal * (parseFloat(gd.discount_value) / 100)
+      } else {
+        discountAmount = parseFloat(gd.discount_value)
+      }
     }
+
+    details.push({
+      id: gd.id,
+      name: gd.name,
+      discount_type: gd.discount_type,
+      discount_value: parseFloat(gd.discount_value),
+      min_order_amount: minOrder,
+      amount: discountAmount,
+      applicable: isApplicable,
+      reason: isApplicable ? null : `需滿 NT$${minOrder.toFixed(0)}`
+    })
   }
 
-  return Math.min(discount, subtotal)
+  return details
+})
+
+// Get only applicable discounts for calculation
+const applicableGlobalDiscounts = computed(() => {
+  return globalDiscountDetails.value.filter(d => d.applicable)
+})
+
+const globalDiscountTotal = computed(() => {
+  const total = applicableGlobalDiscounts.value.reduce((sum, d) => sum + d.amount, 0)
+  // Only cap positive discounts at subtotal, allow negative (price increase)
+  if (total > 0) {
+    return Math.min(total, cart.subtotal)
+  }
+  return total
 })
 
 const totalDiscount = computed(() => {
@@ -344,19 +445,20 @@ const placeOrder = async () => {
 
         <!-- New Address Form -->
         <div v-if="showAddressForm" class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
+          <!-- 顯示地址類型提示 -->
+          <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p class="text-sm text-blue-800 dark:text-blue-200">
+              {{ $t('checkout.address.form.typeHint') }}: 
+              <span class="font-medium">{{ selectedShippingOption ? $t(`checkout.addressTypes.${selectedShippingOption.type}`) : '-' }}</span>
+            </p>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('checkout.address.form.name') }}</label>
             <input v-model="newAddress.name" type="text" class="input-field w-full" :placeholder="$t('checkout.address.form.namePlaceholder')" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('checkout.address.form.type') }}</label>
-            <select v-model="newAddress.address_type" class="input-field w-full">
-              <option v-for="t in addressTypes" :key="t.value" :value="t.value">{{ $t(t.label) }}</option>
-            </select>
-          </div>
-          <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('checkout.address.form.details') }}</label>
-            <textarea v-model="newAddress.address_details" class="input-field w-full" rows="3" :placeholder="$t('checkout.address.form.detailsPlaceholder')"></textarea>
+            <textarea v-model="newAddress.address_details" class="input-field w-full" rows="3" :placeholder="getAddressPlaceholder()"></textarea>
           </div>
           <button @click="saveNewAddress" class="btn-primary py-2">{{ $t('checkout.address.form.save') }}</button>
         </div>
@@ -374,7 +476,7 @@ const placeOrder = async () => {
         </div>
 
         <div v-else-if="compatibleAddresses.length > 0" class="space-y-3">
-          <label
+          <div
             v-for="address in compatibleAddresses"
             :key="address.id"
             class="flex items-start p-4 border rounded-lg cursor-pointer transition-colors"
@@ -382,18 +484,29 @@ const placeOrder = async () => {
               ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
               : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'"
           >
-            <input
-              type="radio"
-              :value="address.id"
-              v-model="selectedAddress"
-              class="mr-3 mt-1"
-            />
-            <div>
-              <div class="font-medium text-gray-900 dark:text-white">{{ address.name }}</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t(`checkout.addressTypes.${address.address_type}`) }}</div>
-              <div class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ address.address_details }}</div>
-            </div>
-          </label>
+            <label class="flex items-start flex-1">
+              <input
+                type="radio"
+                :value="address.id"
+                v-model="selectedAddress"
+                class="mr-3 mt-1"
+              />
+              <div class="flex-1">
+                <div class="font-medium text-gray-900 dark:text-white">{{ address.name }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t(`checkout.addressTypes.${address.address_type}`) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ address.address_details }}</div>
+              </div>
+            </label>
+            <button
+              @click.stop="deleteAddress(address.id)"
+              class="ml-2 p-2 text-gray-400 hover:text-red-500 transition-colors"
+              :title="$t('checkout.address.delete')"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -457,19 +570,30 @@ const placeOrder = async () => {
         </div>
 
         <!-- Active Global Discounts Info -->
-        <div v-if="globalDiscounts.length > 0" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div v-if="globalDiscountDetails.length > 0" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ $t('checkout.coupon.autoApplied') }}:</div>
           <div class="space-y-2">
-            <div v-for="gd in globalDiscounts" :key="gd.id" class="flex items-center space-x-2 text-sm">
-              <svg class="w-4 h-4 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div 
+              v-for="gd in globalDiscountDetails" 
+              :key="gd.id" 
+              class="flex items-center space-x-2 text-sm"
+              :class="gd.applicable ? '' : 'opacity-50'"
+            >
+              <svg v-if="gd.applicable" class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
-              <span class="text-gray-700 dark:text-gray-300">
+              <svg v-else class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span :class="gd.applicable ? 'text-gray-700 dark:text-gray-300' : 'text-gray-500 dark:text-gray-500'">
                 {{ gd.name }}
-                <span class="text-primary-600 dark:text-primary-400">
+                <span :class="gd.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">
                   ({{ gd.discount_type === 'PERCENTAGE'
-                    ? `-${gd.discount_value}%`
-                    : `-NT$ ${gd.discount_value}` }})
+                    ? `${gd.discount_value >= 0 ? '-' : ''}${gd.discount_value}%`
+                    : `${gd.discount_value >= 0 ? '-' : ''}NT$ ${gd.discount_value}` }})
+                </span>
+                <span v-if="!gd.applicable" class="text-xs text-orange-500 dark:text-orange-400 ml-1">
+                  ({{ gd.reason }})
                 </span>
               </span>
             </div>
@@ -494,16 +618,36 @@ const placeOrder = async () => {
             <span>NT$ {{ cart.subtotal.toFixed(2) }}</span>
           </div>
 
-          <!-- Global Discounts -->
-          <div v-if="globalDiscountTotal > 0" class="flex justify-between text-green-600 dark:text-green-400">
-            <span>{{ $t('checkout.summary.globalDiscount') }}</span>
-            <span>- NT$ {{ globalDiscountTotal.toFixed(2) }}</span>
+          <!-- Global Discounts - Each listed separately (only applicable ones) -->
+          <div 
+            v-for="(gd, idx) in applicableGlobalDiscounts" 
+            :key="'gd-' + idx"
+            class="flex justify-between text-sm"
+            :class="gd.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+          >
+            <span class="flex items-center gap-1">
+              <span v-if="gd.amount >= 0">🎁</span>
+              <span v-else>⚠️</span>
+              {{ gd.name }}
+              <span class="text-xs opacity-75">
+                ({{ gd.discount_type === 'PERCENTAGE' ? `${gd.discount_value}%` : `NT$${gd.discount_value}` }})
+              </span>
+            </span>
+            <span>{{ gd.amount >= 0 ? '-' : '+' }} NT$ {{ Math.abs(gd.amount).toFixed(2) }}</span>
           </div>
 
           <!-- Coupon Discount -->
-          <div v-if="couponDiscount > 0" class="flex justify-between text-green-600 dark:text-green-400">
-            <span>{{ $t('checkout.summary.couponDiscount') }} ({{ appliedCoupon?.code }})</span>
-            <span>- NT$ {{ couponDiscount.toFixed(2) }}</span>
+          <div 
+            v-if="couponDiscount !== 0" 
+            class="flex justify-between text-sm"
+            :class="couponDiscount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+          >
+            <span class="flex items-center gap-1">
+              <span v-if="couponDiscount >= 0">🎟️</span>
+              <span v-else>⚠️</span>
+              {{ $t('checkout.summary.couponDiscount') }} ({{ appliedCoupon?.code }})
+            </span>
+            <span>{{ couponDiscount >= 0 ? '-' : '+' }} NT$ {{ Math.abs(couponDiscount).toFixed(2) }}</span>
           </div>
 
           <div class="flex justify-between text-gray-600 dark:text-gray-400">

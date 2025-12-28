@@ -1,0 +1,22 @@
+{% load i18n %}
+{% autoescape off %}
+Hello!
+
+Welcome to 3DPMP - 3D Printing & Model Platform!
+
+You're receiving this email because you (or someone) has registered an account on 3DPMP using this email address.
+
+To verify your email and activate your account, please click the link below:
+
+{{ activate_url }}
+
+If you didn't create an account on 3DPMP, you can safely ignore this email.
+
+This link will expire in 3 days.
+
+---
+Thank you for joining 3DPMP!
+The 3DPMP Team
+
+3DPMP - The premier platform for 3D model sharing and professional printing services.
+{% endautoescape %}
