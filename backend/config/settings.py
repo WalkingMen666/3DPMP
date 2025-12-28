@@ -42,9 +42,10 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.models.apps.ModelsConfig',  # Use explicit config to avoid 'models' name conflict
     'apps.materials',
-    'apps.shipping',
     'apps.orders',
     'apps.discounts',
+    'apps.shipping',
+    'apps.stats',
 ]
 
 SITE_ID = 1

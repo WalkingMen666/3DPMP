@@ -137,8 +137,20 @@ class OrderCreateSerializer(serializers.Serializer):
         
         for idx, cart_item in enumerate(cart_items, start=1):
             # Calculate price snapshot
-            if cart_item.model.slicing_info and 'weight_g' in cart_item.model.slicing_info:
-                weight = Decimal(str(cart_item.model.slicing_info['weight_g']))
+            if cart_item.model.slicing_info:
+                info = cart_item.model.slicing_info
+                
+                # Try to get weight directly
+                if 'weight_g' in info:
+                    weight = Decimal(str(info['weight_g']))
+                # Fallback: Calculate from volume and density
+                elif 'filament_used_cm3' in info:
+                    volume = Decimal(str(info['filament_used_cm3']))
+                    density = cart_item.material.density_g_cm3
+                    weight = volume * density
+                else:
+                    weight = Decimal('0')
+                
                 unit_price = weight * cart_item.material.price_twd_g
             else:
                 unit_price = Decimal('0')

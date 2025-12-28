@@ -13,6 +13,7 @@ import CartView from '../views/CartView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import AdminDashboardView from '../views/AdminDashboardView.vue'
+import StatsView from '../views/StatsView.vue'
 import AboutView from '../views/AboutView.vue'
 import PricingView from '../views/PricingView.vue'
 import FAQView from '../views/FAQView.vue'
@@ -90,6 +91,12 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/stat',
+      name: 'stats',
+      component: StatsView,
       meta: { requiresAuth: true }
     },
     {

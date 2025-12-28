@@ -20,31 +20,51 @@
 | **認證系統** | 本地註冊/登入 | ✅ 完成 |
 | | Google OAuth 登入 | ✅ 完成 |
 | | Token 認證 | ✅ 完成 |
+| | Email 驗證 | ✅ 完成 |
+| | 密碼重置 | ✅ 完成 |
 | **模型管理** | STL 檔案上傳 | ✅ 完成 |
 | | 縮圖/圖片上傳 | ✅ 完成 |
 | | 模型分類/標籤 | ✅ 完成 |
 | | 公開審核流程 | ✅ 完成 |
 | | 被拒模型重新提交 | ✅ 完成 |
 | **Marketplace** | 瀏覽公開模型 | ✅ 完成 |
-| | 分類/特色篩選 | ✅ 完成 |
+| | 分類/材質/價格篩選 | ✅ 完成 |
+| | 搜尋功能 | ✅ 完成 |
 | | 模型詳情頁 | ✅ 完成 |
 | **使用者** | 個人 Dashboard | ✅ 完成 |
 | | 頭像上傳 | ✅ 完成 |
 | | Display Name 設定 | ✅ 完成 |
+| | 語言切換 (EN/繁中) | ✅ 完成 |
+| | 明/暗主題切換 | ✅ 完成 |
 | **管理後台** | Admin Dashboard | ✅ 完成 |
 | | 模型審核 (Approve/Reject) | ✅ 完成 |
 | | 審核記錄查詢 | ✅ 完成 |
-| **切片系統** | PrusaSlicer 整合 | ⏳ 部分完成 |
-| | 自動估價 | ⏳ 待完成 |
-| **購物車** | 加入購物車 | ⏳ 待完成 |
-| | 材料選擇 | ⏳ 待完成 |
-| **訂單系統** | 訂單建立 | ⏳ 待完成 |
-| | 訂單快照 | ⏳ 待完成 |
-| | 訂單狀態追蹤 | ⏳ 待完成 |
-| **配送系統** | 配送選項管理 | ⏳ 待完成 |
-| | 地址簿 | ⏳ 待完成 |
-| **折扣系統** | 全站折扣 | ⏳ 待完成 |
-| | 優惠券 | ⏳ 待完成 |
+| | 訂單管理 | ✅ 完成 |
+| | 模型管理 | ✅ 完成 |
+| | 材料管理 | ✅ 完成 |
+| | 運送選項管理 | ✅ 完成 |
+| | 員工管理 | ✅ 完成 |
+| **切片系統** | PrusaSlicer 整合 | ✅ 完成 |
+| | 自動估價計算 | ✅ 完成 |
+| | 手動編輯切片資訊 | ✅ 完成 |
+| **購物車** | 加入購物車 | ✅ 完成 |
+| | 材料選擇 | ✅ 完成 |
+| | 數量調整 | ✅ 完成 |
+| **訂單系統** | 訂單建立 | ✅ 完成 |
+| | 訂單快照 | ✅ 完成 |
+| | 訂單狀態追蹤 | ✅ 完成 |
+| **配送系統** | 配送選項管理 | ✅ 完成 |
+| | 地址簿 | ✅ 完成 |
+| **折扣系統** | 全站折扣 | ✅ 完成 |
+| | 優惠券 | ✅ 完成 |
+| **統計系統** | 平台統計頁面 | ✅ 完成 |
+| | 管理員報表 | ✅ 完成 |
+| **靜態頁面** | FAQ | ✅ 完成 |
+| | 隱私權政策 | ✅ 完成 |
+| | 服務條款 | ✅ 完成 |
+| | 關於我們 | ✅ 完成 |
+| | 定價頁面 | ⏳ 開發中 |
+| | 聯絡我們 | ⏳ 開發中 |
 
 ## 2. 環境需求
 
@@ -188,10 +208,19 @@ npm run dev
 │       ├── main.js
 │       ├── App.vue
 │       ├── router/             # Vue Router 路由設定
+│       ├── stores/             # Pinia 狀態管理
+│       ├── components/         # 共用元件 (Navbar, Footer, ModelCard 等)
+│       ├── locales/            # i18n 多語言檔案 (en.json, zh-TW.json)
 │       └── views/              # 頁面元件
 │           ├── HomeView.vue
 │           ├── LoginView.vue
-│           └── RegisterView.vue
+│           ├── RegisterView.vue
+│           ├── MarketplaceView.vue
+│           ├── ModelDetailView.vue
+│           ├── DashboardView.vue
+│           ├── AdminDashboardView.vue
+│           ├── StatsView.vue
+│           └── ...
 │
 ├── docker-compose.yml          # 服務編排定義
 ├── database/                   # SQL 檔案
@@ -210,9 +239,10 @@ npm run dev
 | `users` | 使用者認證與角色 | User, Customer, Employee |
 | `models` | 3D 模型上傳與審核 | Model, ModelImage, ModelReviewLog |
 | `materials` | 材料定義與購物車 | Material, CartItem |
-| `shipping` | 配送選項與地址簿 | ShippingOption, SavedAddress |
 | `orders` | 訂單與快照機制 | Order, OrderItem, OrderLog |
 | `discounts` | 折扣與優惠券系統 | Discount, GlobalDiscount, Coupon, IsAffected, CouponRedemption |
+| `shipping` | 配送選項與地址簿 | ShippingOption, SavedAddress |
+| `stats` | 平台統計與報表 | (使用 Views 和 複雜查詢) |
 
 詳細的 Model 設計與 DBML 差異說明請參考：[backend/docs/MODELS_DEVIATIONS.md](backend/docs/MODELS_DEVIATIONS.md)
 

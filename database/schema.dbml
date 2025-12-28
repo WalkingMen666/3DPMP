@@ -1,0 +1,237 @@
+//// ============================================================================
+//// 3DPMP Database Schema (DBML Format)
+//// Updated to match actual production schema (schema.sql)
+//// ============================================================================
+
+//// ----------------------------------
+//// --- User Entities (Specialization)
+//// ----------------------------------
+Table users_user {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  password varchar(128) [not null]
+  last_login timestamp [null]
+  is_superuser bool [not null, default: false]
+  first_name varchar(150) [not null, default: '']
+  last_name varchar(150) [not null, default: '']
+  email varchar(254) [unique, not null]
+  is_staff bool [not null, default: false]
+  is_active bool [not null, default: true]
+  date_joined timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  auth_provider varchar(20) [not null, default: 'local', note: 'local or google']
+  avatar_image varchar(100) [null]
+  avatar_type varchar(20) [not null, default: 'default']
+  display_name varchar(100) [null]
+}
+
+Table users_customer {
+  user_id uuid [pk, ref: - users_user.id] // 1-to-1 'IS-A' relationship
+}
+
+Table users_employee {
+  user_id uuid [pk, ref: - users_user.id] // 1-to-1 'IS-A' relationship
+  employee_name varchar(255) [not null]
+  is_admin bool [not null, default: false]
+}
+
+//// ----------------------------------
+//// --- Model Entities
+//// ----------------------------------
+Table model {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  owner_id uuid [not null, ref: > users_user.id]
+  model_name varchar(255) [not null]
+  description text [null]
+  category varchar(50) [not null, default: 'Other']
+  tags jsonb [default: '[]']
+  visibility_status varchar(20) [not null, default: 'PRIVATE', note: 'PRIVATE, PENDING, PUBLIC, REJECTED']
+  price decimal(10,2) [null]
+  
+  // File Paths
+  stl_file varchar(100) [null]
+  stl_file_path varchar(500) [null]
+  gcode_file_path varchar(500) [null]
+  thumbnail varchar(100) [null]
+  
+  // Stats
+  view_count int [not null, default: 0]
+  download_count int [not null, default: 0]
+  is_featured bool [not null, default: false]
+  
+  // Slicing
+  slicing_info jsonb [null]
+  slicing_status varchar(20) [default: 'PENDING', note: 'PENDING, COMPLETED, FAILED']
+  slicing_error text [null]
+  
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table model_image {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  model_id uuid [not null, ref: > model.id]
+  image varchar(100) [null]
+  image_path varchar(500) [null]
+  is_primary bool [not null, default: false]
+  order int [not null, default: 0]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table model_review_log {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  model_id uuid [not null, ref: > model.id]
+  reviewer_id uuid [not null, ref: > users_employee.user_id]
+  previous_status varchar(20) [null]
+  new_status varchar(20) [not null]
+  reason text [null]
+  timestamp timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+//// ----------------------------------
+//// --- Material & Cart Entities
+//// ----------------------------------
+Table material {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  name varchar(100) [unique, not null]
+  density_g_cm3 decimal(10,5) [not null]
+  price_twd_g decimal(10,2) [not null]
+  is_active bool [not null, default: true]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table cart_item {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  customer_id uuid [not null, ref: > users_customer.user_id]
+  model_id uuid [not null, ref: > model.id]
+  material_id uuid [not null, ref: > material.id]
+  quantity int [not null, default: 1]
+  notes text [null]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (customer_id, model_id, material_id) [unique, name: 'unique_cart_item_per_customer']
+  }
+}
+
+//// ----------------------------------
+//// --- Shipping Entities
+//// ----------------------------------
+Table shipping_option {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  name varchar(100) [not null]
+  type varchar(30) [not null, default: 'HOME_DELIVERY']
+  base_fee decimal(10,2) [not null]
+  is_active bool [not null, default: true]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table saved_address {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  customer_id uuid [not null, ref: > users_customer.user_id]
+  name varchar(100) [not null]
+  address_type varchar(30) [not null]
+  address_details text [not null]
+  is_default bool [not null, default: false]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+//// ----------------------------------
+//// --- Order Entities
+//// ----------------------------------
+Table order {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  customer_id uuid [not null, ref: > users_customer.user_id]
+  assignee_id uuid [null, ref: > users_employee.user_id]
+  status varchar(20) [not null, default: 'PENDING']
+  ship_snapshot jsonb [not null, note: 'Snapshot of shipping info at order time']
+  total_price decimal(10,2) [not null]
+  notes text [null]
+  tracking_number varchar(100) [null]
+  creation_date timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table order_item {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  order_id uuid [not null, ref: > order.id]
+  model_id uuid [null, ref: > model.id, note: 'SET NULL on model delete']
+  material_id uuid [null, ref: > material.id]
+  item_number int [not null]
+  quantity int [not null, default: 1]
+  price_snapshot decimal(10,2) [not null]
+  slicing_info_snapshot jsonb [null]
+  notes text [null]
+
+  indexes {
+    (order_id, item_number) [unique, name: 'unique_item_number_per_order']
+  }
+}
+
+Table order_log {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  order_id uuid [not null, ref: > order.id]
+  updated_by_id uuid [null, ref: > users_employee.user_id]
+  previous_status varchar(20) [null]
+  new_status varchar(20) [not null]
+  notes text [null]
+  timestamp timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+//// ----------------------------------
+//// --- Discount Entities
+//// ----------------------------------
+Table discount {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  name varchar(255) [not null]
+  description text [null]
+  start_date timestamp [not null]
+  due_date timestamp [null]
+  min_price decimal(10,2) [not null, default: 0]
+  max_discount decimal(10,2) [null]
+  works_on varchar(20) [not null, default: 'ORDER_SUBTOTAL']
+  is_fixed bool [not null, default: false]
+  dis_value decimal(10,2) [not null]
+  is_active bool [not null, default: true]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table global_discount {
+  discount_id uuid [pk, ref: - discount.id] // 1-to-1 'IS-A'
+  priority int [not null, default: 0]
+}
+
+Table coupon {
+  discount_id uuid [pk, ref: - discount.id] // 1-to-1 'IS-A'
+  coupon_code varchar(50) [unique, not null]
+  max_uses_total int [null]
+  max_uses_per_customer int [not null, default: 1]
+  is_stackable bool [not null, default: false]
+}
+
+//// --- M:N Linking Tables ---
+Table is_affected {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  order_id uuid [not null, ref: > order.id]
+  global_discount_id uuid [not null, ref: > global_discount.discount_id]
+  discount_snapshot_info jsonb [not null]
+  discount_amount decimal(10,2) [not null]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (order_id, global_discount_id) [unique, name: 'unique_global_discount_per_order']
+  }
+}
+
+Table coupon_redemption {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  customer_id uuid [not null, ref: > users_customer.user_id]
+  coupon_id uuid [not null, ref: > coupon.discount_id]
+  order_id uuid [not null, unique, ref: > order.id] // 1:1 with order
+  discount_snapshot_info jsonb [null]
+  discount_amount decimal(10,2) [not null]
+  timestamp timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}

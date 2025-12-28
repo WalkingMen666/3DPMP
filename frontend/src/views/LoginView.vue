@@ -74,7 +74,7 @@ const initializeGoogle = () => {
       window.google.accounts.id.renderButton(btnEl, { 
         theme: 'outline', 
         size: 'large',
-        width: '100%',
+        width: 350,
         text: 'signin_with',
       });
     } else if (attempts < 10) {

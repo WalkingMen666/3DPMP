@@ -1,0 +1,62 @@
+graph LR
+    %% High Contrast & Presentation Friendly Theme
+    %% Base styles
+    classDef user fill:#000000,stroke:#ffffff,stroke-width:3px,color:#ffffff;
+    classDef frontend fill:#0d47a1,stroke:#42a5f5,stroke-width:2px,color:#ffffff;
+    classDef backend fill:#1b5e20,stroke:#66bb6a,stroke-width:2px,color:#ffffff;
+    classDef worker fill:#b71c1c,stroke:#ef5350,stroke-width:2px,color:#ffffff;
+    classDef storage fill:#f57f17,stroke:#ffca28,stroke-width:2px,color:#ffffff,shape:cylinder;
+    classDef external fill:#424242,stroke:#bdbdbd,stroke-width:2px,stroke-dasharray:5 5,color:#ffffff;
+    classDef container fill:#212121,stroke:#616161,stroke-width:1px,color:#bdbdbd,rx:5,ry:5;
+
+    %% 1. Client Side (Simplified for width)
+    subgraph Client_Context [User & Frontend]
+        direction LR
+        User((User)):::user
+        Vue[Vue.js Web App]:::frontend
+        User ==> Vue
+    end
+
+    %% 2. Backend Core
+    subgraph Backend_Context [Backend API]
+        Django[Django REST API]:::backend
+    end
+
+    %% 3. Slicing Pipeline (Stacked to save width)
+    subgraph Slicing_Context [Slicing System]
+        direction TB
+        Redis[Redis Broker]:::worker
+        Worker[Celery Worker]:::worker
+        Prusa[PrusaSlicer CLI]:::worker
+        
+        Redis --> Worker
+        Worker --> Prusa
+    end
+
+    %% 4. Data Layer (Stacked)
+    subgraph Data_Context [Storage Layer]
+        direction TB
+        DB[(PostgreSQL)]:::storage
+        FS[(File System)]:::storage
+    end
+
+    %% 5. External
+    Google[Google OAuth]:::external
+
+    %% Relationships
+    Vue == "HTTPS/JSON" ==> Django
+    Django -- "Auth" --> Google
+    
+    %% Task Flow
+    Django -- "Enqueue" --> Redis
+    
+    %% Data Access (Django)
+    Django -- "Read/Write" --> DB
+    Django -- "Upload STL" --> FS
+
+    %% Data Access (Worker)
+    Worker -- "Update Status" --> DB
+    Worker -- "Read/Write Files" --> FS
+
+    %% Styling for Subgraphs
+    class Client_Context,Backend_Context,Slicing_Context,Data_Context container;
